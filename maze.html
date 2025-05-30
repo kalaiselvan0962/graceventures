@@ -39,6 +39,32 @@
       user-select: none;
       cursor: pointer;
     }
+    #congratsMessage {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 28px;
+      font-weight: bold;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px 30px;
+      border: 2px solid gold;
+      border-radius: 10px;
+      display: none;
+      animation: pop 1s ease-out forwards;
+      box-shadow: 0 0 10px gold;
+    }
+
+    @keyframes pop {
+      0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+    }
   </style>
 </head>
 <body>
@@ -55,6 +81,8 @@
     <div class="btn" onclick="move(0, 1)">&#8595;</div>
     <div></div>
   </div>
+
+  <div id="congratsMessage">🎉 Congratulations! You made it! 🎉</div>
 
   <script>
     const canvas = document.getElementById("gameCanvas");
@@ -112,7 +140,7 @@
 
     function checkWin() {
       if (player.x === destination.x && player.y === destination.y) {
-        setTimeout(() => alert("Congratulations! You've reached the destination!"), 100);
+        document.getElementById("congratsMessage").style.display = "block";
       }
     }
 
@@ -129,4 +157,3 @@
   </script>
 </body>
 </html>
-
