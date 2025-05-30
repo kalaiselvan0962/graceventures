@@ -1,1 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Video Background with Buttons</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body, html {
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+    .bg-video {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      min-width: 100%;
+      min-height: 100%;
+      z-index: -1;
+      object-fit: cover;
+      background-color: black;
+    }
+    .button-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      gap: 20px;
+    }
+    .btn {
+      padding: 15px 30px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: 2px solid white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1.2em;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .btn:hover {
+      background-color: white;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Video -->
+  <video autoplay muted loop class="bg-video">
+    <source src="code.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
+
+  <!-- Button Links -->
+  <div class="button-container">
+    <a href="blocks.html" class="btn">BLOCKS</a>
+    <a href="maze.html" class="btn">MAZE</a>
+  </div>
+
+</body>
+</html>
 
