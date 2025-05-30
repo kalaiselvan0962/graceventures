@@ -1,189 +1,250 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Color Match Game</title>
+  <meta charset="UTF-8" />
+  <title>🎨 Color Match Challenge</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f0f8ff, #e0f7fa);
       margin: 0;
-      padding: 1em;
-      background: #e3f2fd;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      padding: 20px;
+      text-align: center;
+      color: #333;
     }
 
     h1 {
-      text-align: center;
-      color: #1976d2;
-      font-size: 6vw;
-      margin-bottom: 1em;
+      font-size: 2.5em;
+      color: #4a148c;
+      margin-bottom: 10px;
     }
 
-    .container {
-      display: flex;
-      flex-direction: column;
-      gap: 1em;
-      width: 100%;
-      max-width: 500px;
+    h2 {
+      color: #00695c;
     }
 
-    .row {
-      display: flex;
+    .pattern-container,
+    .drop-container {
+      display: grid;
+      grid-template-columns: repeat(3, 70px);
+      gap: 15px;
       justify-content: center;
-      flex-wrap: wrap;
-      gap: 1em;
-    }
-
-    .color-box, .drop-box {
-      width: 25vw;
-      height: 25vw;
-      max-width: 100px;
-      max-height: 100px;
-      border-radius: 15px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1em;
+      margin: 20px 0;
     }
 
     .color-box {
-      cursor: grab;
+      width: 70px;
+      height: 70px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border: 2px solid #ccc;
+      transition: transform 0.2s, border-color 0.3s;
+      background-color: white;
     }
 
-    .drop-box {
-      border: 2px dashed #90a4ae;
-      background-color: white;
+    .color-box:hover {
+      transform: scale(1.05);
+      border-color: #4a148c;
+    }
+
+    .palette {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
     }
 
     .popup {
       position: fixed;
-      top: 20%;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
-      padding: 1em 2em;
-      font-size: 1.5em;
-      border-radius: 12px;
+      transform: translate(-50%, -50%) scale(0);
       background: white;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-      display: none;
-      z-index: 1000;
+      border: 4px solid;
+      padding: 30px 40px;
+      border-radius: 15px;
+      font-size: 30px;
+      font-weight: bold;
+      z-index: 100;
+      transition: transform 0.4s ease-in-out;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
     }
 
     .popup.show {
-      display: block;
-      animation: fade 2s ease-in-out;
+      transform: translate(-50%, -50%) scale(1);
     }
 
     .popup.success {
-      color: #2e7d32;
-      border: 2px solid #2e7d32;
+      border-color: #00c853;
+      color: #00c853;
+      animation: pop 0.4s ease-out;
     }
 
     .popup.fail {
-      color: #c62828;
-      border: 2px solid #c62828;
+      border-color: #d50000;
+      color: #d50000;
+      animation: shake 0.4s ease-out;
     }
 
-    @keyframes fade {
-      0% { opacity: 0; }
-      20% { opacity: 1; }
-      80% { opacity: 1; }
-      100% { opacity: 0; }
+    @keyframes pop {
+      0% { transform: scale(0); }
+      80% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translate(-50%, -50%) translateX(0); }
+      25% { transform: translate(-50%, -50%) translateX(-8px); }
+      75% { transform: translate(-50%, -50%) translateX(8px); }
+    }
+
+    footer {
+      margin-top: 30px;
+      font-size: 14px;
+      color: #555;
     }
   </style>
 </head>
 <body>
+  <h1>🎨 Color Match Challenge</h1>
 
-  <h1>Color Match</h1>
+  <h2>Target Pattern</h2>
+  <div class="pattern-container" id="target-pattern"></div>
 
-  <div class="container">
-    <div class="row" id="dropRow">
-      <div class="drop-box" data-color="red"></div>
-      <div class="drop-box" data-color="blue"></div>
-      <div class="drop-box" data-color="green"></div>
-      <div class="drop-box" data-color="yellow"></div>
-      <div class="drop-box" data-color="purple"></div>
-      <div class="drop-box" data-color="orange"></div>
-    </div>
-    <div class="row" id="dragRow">
-      <div class="color-box" draggable="true" data-color="green" style="background-color: green;"></div>
-      <div class="color-box" draggable="true" data-color="blue" style="background-color: blue;"></div>
-      <div class="color-box" draggable="true" data-color="yellow" style="background-color: yellow;"></div>
-      <div class="color-box" draggable="true" data-color="red" style="background-color: red;"></div>
-      <div class="color-box" draggable="true" data-color="orange" style="background-color: orange;"></div>
-      <div class="color-box" draggable="true" data-color="purple" style="background-color: purple;"></div>
-    </div>
-  </div>
+  <h2>Your Attempt</h2>
+  <div class="drop-container" id="drop-area"></div>
 
-  <div id="popup" class="popup"></div>
+  <h2>Color Palette</h2>
+  <div class="palette" id="color-palette"></div>
+
+  <!-- Sound Effects -->
+  <audio id="drag-sound" src="https://www.soundjay.com/button/sounds/button-4.mp3" preload="auto"></audio>
+  <audio id="drop-sound" src="https://www.soundjay.com/button/sounds/button-10.mp3" preload="auto"></audio>
+  <audio id="success-sound" src="https://www.soundjay.com/button/sounds/button-3.mp3" preload="auto"></audio>
+  <audio id="fail-sound" src="https://www.soundjay.com/button/sounds/fail-trombone.mp3" preload="auto"></audio>
+
+  <div class="popup" id="popup"></div>
+
+  <footer>Match all 6 colors correctly to win! 🎉</footer>
 
   <script>
-    const draggables = document.querySelectorAll('.color-box');
-    const dropzones = document.querySelectorAll('.drop-box');
-    const popup = document.getElementById('popup');
+    document.addEventListener('DOMContentLoaded', function () {
+      const targetPatternContainer = document.getElementById('target-pattern');
+      const dropArea = document.getElementById('drop-area');
+      const colorPalette = document.getElementById('color-palette');
+      const popup = document.getElementById('popup');
 
-    let dragged = null;
+      const dragSound = document.getElementById('drag-sound');
+      const dropSound = document.getElementById('drop-sound');
+      const successSound = document.getElementById('success-sound');
+      const failSound = document.getElementById('fail-sound');
 
-    draggables.forEach(item => {
-      item.addEventListener('dragstart', () => {
-        dragged = item;
-      });
-    });
+      const colors = ['#FF5252', '#FF4081', '#E040FB', '#7C4DFF', '#536DFE', '#448AFF', '#40C4FF', '#18FFFF', '#64FFDA'];
 
-    dropzones.forEach(box => {
-      box.addEventListener('dragover', e => {
-        e.preventDefault();
-        box.style.border = "2px dashed #42a5f5";
-      });
+      let targetPattern = [];
 
-      box.addEventListener('dragleave', () => {
-        box.style.border = "2px dashed #90a4ae";
-      });
-
-      box.addEventListener('drop', () => {
-        if (!box.hasChildNodes()) {
-          box.appendChild(dragged);
-          box.style.border = "2px dashed #90a4ae";
-          checkMatch();
-        }
-      });
-    });
-
-    function checkMatch() {
-      let allFilled = true;
-      let correct = true;
-
-      dropzones.forEach(box => {
-        if (!box.firstChild) {
-          allFilled = false;
-        } else {
-          const expected = box.getAttribute('data-color');
-          const actual = box.firstChild.getAttribute('data-color');
-          if (expected !== actual) {
-            correct = false;
-          }
-        }
-      });
-      if (allFilled) {
-        if (correct) {
-          showPopup("🎉 Success!", "success");
-        } else {
-          showPopup("😢 Try Again", "fail");
+      function generateTargetPattern() {
+        targetPattern = [];
+        targetPatternContainer.innerHTML = '';
+        for (let i = 0; i < 6; i++) {
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          targetPattern.push(color);
+          const box = document.createElement('div');
+          box.className = 'color-box';
+          box.style.backgroundColor = color;
+          targetPatternContainer.appendChild(box);
         }
       }
-    }
 
-    function showPopup(message, type) {
-      popup.textContent = message;
-      popup.className = `popup show ${type}`;
-      setTimeout(() => {
-        popup.className = 'popup';
-      }, 2500);
-    }
+      function createDropBoxes() {
+        dropArea.innerHTML = '';
+        for (let i = 0; i < 6; i++) {
+          const box = document.createElement('div');
+          box.className = 'color-box';
+          box.dataset.index = i;
+          box.addEventListener('dragover', (e) => e.preventDefault());
+          box.addEventListener('drop', onDrop);
+          dropArea.appendChild(box);
+        }
+      }
+
+      function createColorPalette() {
+        colorPalette.innerHTML = '';
+        colors.forEach(color => {
+          const colorBox = document.createElement('div');
+          colorBox.className = 'color-box';
+          colorBox.style.backgroundColor = color;
+          colorBox.draggable = true;
+
+          colorBox.addEventListener('dragstart', (e) => {
+            dragSound.play();
+            e.dataTransfer.setData('text/plain', color);
+          });
+
+          colorPalette.appendChild(colorBox);
+        });
+      }
+
+      function onDrop(e) {
+        e.preventDefault();
+        const color = e.dataTransfer.getData('text/plain');
+        e.target.style.backgroundColor = color;
+        dropSound.play();
+
+        setTimeout(() => {
+          if (isAllFilled()) {
+            checkSolution();
+          }
+        }, 100);
+      }
+
+      function isAllFilled() {
+        const boxes = dropArea.querySelectorAll('.color-box');
+        return Array.from(boxes).every(box => box.style.backgroundColor && box.style.backgroundColor !== 'white');
+      }
+
+      function checkSolution() {
+        const boxes = dropArea.querySelectorAll('.color-box');
+        let correct = true;
+
+        boxes.forEach((box, index) => {
+          const placedColor = rgbToHex(box.style.backgroundColor);
+          const targetColor = rgbToHex(targetPattern[index]);
+          if (placedColor !== targetColor) {
+            correct = false;
+          }
+        });
+
+        if (correct) {
+          showPopup('🎉 Success! Well done!', true);
+          successSound.play();
+        } else {
+          showPopup('😢 Not quite. Try again!', false);
+          failSound.play();
+        }
+      }
+
+      function showPopup(message, isSuccess) {
+        popup.textContent = message;
+        popup.className = `popup show ${isSuccess ? 'success' : 'fail'}`;
+        setTimeout(() => {
+          popup.classList.remove('show');
+        }, 3000);
+      }
+
+      function rgbToHex(rgb) {
+        if (!rgb) return '';
+        const result = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/.exec(rgb);
+        return result
+          ? '#' + result.slice(1).map(x => ('0' + parseInt(x).toString(16)).slice(-2)).join('').toUpperCase()
+          : rgb.toUpperCase();
+      }
+
+      generateTargetPattern();
+      createDropBoxes();
+      createColorPalette();
+    });
   </script>
 </body>
 </html>
