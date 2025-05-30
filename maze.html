@@ -1,1 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple Maze Game with Arrow Keys</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #f0f0f0;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #gameCanvas {
+      background: white;
+      border: 2px solid black;
+      display: block;
+      margin-top: 10px;
+    }
+    .controls {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 50px 50px 50px;
+      gap: 5px;
+      justify-content: center;
+    }
+    .btn {
+      width: 50px;
+      height: 50px;
+      background-color: #ccc;
+      border: 1px solid #888;
+      font-size: 18px;
+      text-align: center;
+      line-height: 50px;
+      user-select: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="300" height="300"></canvas>
+
+  <div class="controls">
+    <div></div>
+    <div class="btn" onclick="move(0, -1)">&#8593;</div>
+    <div></div>
+    <div class="btn" onclick="move(-1, 0)">&#8592;</div>
+    <div></div>
+    <div class="btn" onclick="move(1, 0)">&#8594;</div>
+    <div></div>
+    <div class="btn" onclick="move(0, 1)">&#8595;</div>
+    <div></div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const maze = [
+      [1,1,1,1,1,1],
+      [1,0,1,0,0,1],
+      [1,0,1,0,1,1],
+      [1,0,0,0,0,1],
+      [1,1,0,1,0,1],
+      [1,1,1,1,1,1]
+    ];
+
+    const tileSize = 50;
+    let player = { x: 1, y: 1 };
+    const destination = { x: 4, y: 3 };
+
+    function drawMaze() {
+      for (let y = 0; y < maze.length; y++) {
+        for (let x = 0; x < maze[y].length; x++) {
+          if (x === 1 && y === 1) {
+            ctx.fillStyle = "lightgreen"; // Home
+          } else if (x === destination.x && y === destination.y) {
+            ctx.fillStyle = "gold"; // Destination
+          } else {
+            ctx.fillStyle = maze[y][x] === 1 ? "black" : "white";
+          }
+          ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+        }
+      }
+      // Draw player
+      ctx.fillStyle = "red";
+      ctx.beginPath();
+      ctx.arc(
+        player.x * tileSize + tileSize / 2,
+        player.y * tileSize + tileSize / 2,
+        tileSize / 3,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+    }
+
+    function move(dx, dy) {
+      const newX = player.x + dx;
+      const newY = player.y + dy;
+      if (maze[newY][newX] === 0) {
+        player.x = newX;
+        player.y = newY;
+        drawMaze();
+        checkWin();
+      }
+    }
+
+    function checkWin() {
+      if (player.x === destination.x && player.y === destination.y) {
+        setTimeout(() => alert("Congratulations! You've reached the destination!"), 100);
+      }
+    }
+
+    drawMaze();
+
+    window.addEventListener("keydown", function(e) {
+      switch (e.key) {
+        case "ArrowUp": move(0, -1); break;
+        case "ArrowDown": move(0, 1); break;
+        case "ArrowLeft": move(-1, 0); break;
+        case "ArrowRight": move(1, 0); break;
+      }
+    });
+  </script>
+</body>
+</html>
 
