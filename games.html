@@ -1,671 +1,138 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Color Pattern Challenge</title>
-    <style>
-        :root {
-            --primary: #6c5ce7;
-            --secondary: #a29bfe;
-            --success: #00b894;
-            --error: #d63031;
-            --light: #f8f9fa;
-            --dark: #343a40;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            overflow-x: hidden;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        h1 {
-            color: var(--primary);
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .subtitle {
-            color: var(--dark);
-            font-size: 1.1rem;
-            opacity: 0.8;
-        }
-        
-        .game-container {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: var(--shadow);
-            width: 100%;
-            max-width: 800px;
-            position: relative;
-        }
-        
-        .pattern-section {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 30px;
-        }
-        
-        .pattern-container {
-            flex: 1;
-            min-width: 300px;
-        }
-        
-        .pattern-title {
-            color: var(--primary);
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .pattern-title i {
-            font-size: 1.5rem;
-        }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            min-height: 200px;
-            background: rgba(108, 92, 231, 0.05);
-            border-radius: 10px;
-            padding: 20px;
-            transition: all 0.3s ease;
-        }
-        
-        .target-grid {
-            border: 2px dashed var(--secondary);
-        }
-        
-        .drop-grid {
-            border: 2px dashed var(--primary);
-        }
-        
-        .drop-grid.highlight {
-            background: rgba(108, 92, 231, 0.1);
-            transform: scale(1.01);
-        }
-        
-        .color-box {
-            width: 80px;
-            height: 80px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: white;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-            box-shadow: var(--shadow);
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .color-box::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255,255,255,0.2);
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        
-        .color-box:hover::after {
-            opacity: 1;
-        }
-        
-        .color-box.dragging {
-            transform: scale(1.1) rotate(5deg);
-            z-index: 10;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-        
-        .color-palette {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-            padding: 20px;
-            background: rgba(108, 92, 231, 0.05);
-            border-radius: 10px;
-            min-height: 100px;
-        }
-        
-        .message {
-            margin-top: 20px;
-            padding: 15px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            text-align: center;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.4s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .message.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        .success {
-            background-color: var(--success);
-            color: white;
-        }
-        
-        .error {
-            background-color: var(--error);
-            color: white;
-        }
-        
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s ease;
-            box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        button:hover {
-            background: #5649c0;
-            transform: translateY(-2px);
-        }
-        
-        button:active {
-            transform: translateY(0);
-        }
-        
-        .particle {
-            position: absolute;
-            background: gold;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 100;
-        }
-        
-        .emoji-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.5);
-            font-size: 0px;
-            opacity: 0;
-            z-index: 1000;
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-        
-        .emoji-popup.show {
-            opacity: 1;
-            font-size: 100px;
-            transform: translate(-50%, -50%) scale(1);
-        }
-        
-        .emoji-popup.hide {
-            opacity: 0;
-            font-size: 0px;
-            transform: translate(-50%, -50%) scale(0.5);
-        }
-        
-        @media (max-width: 768px) {
-            .pattern-section {
-                flex-direction: column;
-            }
-            
-            .game-container {
-                padding: 20px;
-            }
-            
-            .emoji-popup.show {
-                font-size: 80px;
-            }
-            
-            .color-box {
-                width: 60px;
-                height: 60px;
-            }
-        }
-    </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body>
-    <header>
-        <h1>Color Pattern Challenge</h1>
-        <p class="subtitle">Drag and drop to match the pattern</p>
-    </header>
-    
-    <div class="game-container">
-        <div class="pattern-section">
-            <div class="pattern-container">
-                <h2 class="pattern-title"><i class="fas fa-bullseye"></i> Target Pattern</h2>
-                <div class="grid target-grid" id="targetPattern"></div>
-            </div>
-            
-            <div class="pattern-container">
-                <h2 class="pattern-title"><i class="fas fa-magic"></i> Your Creation</h2>
-                <div class="grid drop-grid" id="dropArea"></div>
-            </div>
-        </div>
-        
-        <h2 class="pattern-title"><i class="fas fa-palette"></i> Color Palette</h2>
-        <div class="color-palette" id="colorPalette"></div>
-        
-        <div class="message" id="message">
-            <i class="fas fa-check-circle"></i>
-            <span id="messageText"></span>
-        </div>
-        
-        <div class="controls">
-            <button id="newGameBtn">
-                <i class="fas fa-sync-alt"></i> New Game
-            </button>
-            <button id="checkBtn">
-                <i class="fas fa-check"></i> Check Solution
-            </button>
-        </div>
-    </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const targetPatternContainer = document.getElementById('target-pattern');
+    const dropArea = document.getElementById('drop-area');
+    const colorPalette = document.getElementById('color-palette');
+    const popup = document.getElementById('popup');
 
-    <div class="emoji-popup" id="emojiPopup"></div>
+    const dragSound = document.getElementById('drag-sound');
+    const dropSound = document.getElementById('drop-sound');
+    const successSound = document.getElementById('success-sound');
+    const failSound = document.getElementById('fail-sound');
 
-    <audio id="dragSound" src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3" preload="auto"></audio>
-    <audio id="dropSound" src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3" preload="auto"></audio>
-    <audio id="successSound" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3" preload="auto"></audio>
-    <audio id="errorSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" preload="auto"></audio>
+    const colors = ['#FF5252', '#FF4081', '#E040FB', '#7C4DFF', '#536DFE', '#448AFF', '#40C4FF', '#18FFFF', '#64FFDA'];
+    let targetPattern = [];
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Game elements
-            const targetPatternContainer = document.getElementById('targetPattern');
-            const dropArea = document.getElementById('dropArea');
-            const colorPalette = document.getElementById('colorPalette');
-            const message = document.getElementById('message');
-            const messageText = document.getElementById('messageText');
-            const newGameBtn = document.getElementById('newGameBtn');
-            const checkBtn = document.getElementById('checkBtn');
-            const emojiPopup = document.getElementById('emojiPopup');
-            
-            // Sound effects
-            const dragSound = document.getElementById('dragSound');
-            const dropSound = document.getElementById('dropSound');
-            const successSound = document.getElementById('successSound');
-            const errorSound = document.getElementById('errorSound');
-            
-            // Available colors - vibrant palette
-            const colors = [
-                '#FF5252', '#FF4081', '#E040FB', '#7C4DFF', '#536DFE', 
-                '#448AFF', '#40C4FF', '#18FFFF', '#64FFDA', '#69F0AE', 
-                '#B2FF59', '#EEFF41', '#FFFF00', '#FFD740', '#FFAB40'
-            ];
-            
-            let gameColors = [];
-            let targetPattern = [];
-            
-            // Initialize game
-            function initGame() {
-                // Reset UI
-                targetPatternContainer.innerHTML = '';
-                dropArea.innerHTML = '';
-                colorPalette.innerHTML = '';
-                message.className = 'message';
-                
-                // Select 6 random colors for the game
-                gameColors = getRandomColors(colors, 6);
-                targetPattern = [...gameColors];
-                const shuffledColors = shuffleArray([...gameColors]);
-                
-                // Create target pattern boxes
-                gameColors.forEach((color, index) => {
-                    const box = createBox(color, `target-${index}`, false);
-                    box.dataset.color = color;
-                    box.dataset.position = index;
-                    targetPatternContainer.appendChild(box);
-                });
-                
-                // Create empty drop area boxes
-                gameColors.forEach((_, index) => {
-                    const box = createBox('#f8f9fa', `drop-${index}`, true);
-                    box.dataset.position = index;
-                    box.addEventListener('dragover', handleDragOver);
-                    box.addEventListener('dragenter', handleDragEnter);
-                    box.addEventListener('dragleave', handleDragLeave);
-                    box.addEventListener('drop', handleDrop);
-                    dropArea.appendChild(box);
-                });
-                
-                // Create draggable color palette
-                shuffledColors.forEach((color, index) => {
-                    const box = createBox(color, `palette-${index}`, true);
-                    box.draggable = true;
-                    box.addEventListener('dragstart', handleDragStart);
-                    box.addEventListener('dragend', handleDragEnd);
-                    colorPalette.appendChild(box);
-                });
-            }
-            
-            // Get random colors from the palette
-            function getRandomColors(colorArray, count) {
-                const shuffled = shuffleArray([...colorArray]);
-                return shuffled.slice(0, count);
-            }
-            
-            // Create a color box element
-            function createBox(color, id, isDraggable) {
-                const box = document.createElement('div');
-                box.className = 'color-box';
-                box.style.backgroundColor = color;
-                box.id = id;
-                
-                if (isDraggable) {
-                    box.draggable = true;
-                }
-                
-                return box;
-            }
-            
-            // Shuffle array function
-            function shuffleArray(array) {
-                const newArray = [...array];
-                for (let i = newArray.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-                }
-                return newArray;
-            }
-            
-            // Drag and drop handlers
-            function handleDragStart(e) {
-                dragSound.currentTime = 0;
-                dragSound.play();
-                
-                e.dataTransfer.setData('text/plain', e.target.style.backgroundColor);
-                e.target.classList.add('dragging');
-                
-                setTimeout(() => {
-                    e.target.style.opacity = '0.4';
-                }, 0);
-            }
-            
-            function handleDragEnd(e) {
-                e.target.classList.remove('dragging');
-                e.target.style.opacity = '1';
-            }
-            
-            function handleDragOver(e) {
-                e.preventDefault();
-            }
-            
-            function handleDragEnter(e) {
-                e.preventDefault();
-                dropArea.classList.add('highlight');
-            }
-            
-            function handleDragLeave(e) {
-                dropArea.classList.remove('highlight');
-            }
-            
-            function handleDrop(e) {
-                e.preventDefault();
-                dropArea.classList.remove('highlight');
-                
-                const draggedColor = e.dataTransfer.getData('text/plain');
-                const draggedElement = document.querySelector('.dragging');
-                
-                // If dropping from palette
-                if (draggedElement && draggedElement.id.startsWith('palette')) {
-                    e.target.style.backgroundColor = draggedColor;
-                    e.target.dataset.currentColor = draggedColor;
-                    
-                    // Create particles for visual feedback
-                    createParticles(e.target);
-                    
-                    dropSound.currentTime = 0;
-                    dropSound.play();
-                }
-                // If rearranging within drop area
-                else if (draggedElement && draggedElement.id.startsWith('drop')) {
-                    const sourceColor = draggedElement.style.backgroundColor;
-                    const targetColor = e.target.style.backgroundColor;
-                    
-                    // Swap colors
-                    draggedElement.style.backgroundColor = targetColor;
-                    draggedElement.dataset.currentColor = targetColor || '';
-                    
-                    e.target.style.backgroundColor = sourceColor;
-                    e.target.dataset.currentColor = sourceColor;
-                    
-                    createParticles(e.target);
-                    dropSound.currentTime = 0;
-                    dropSound.play();
-                }
-                
-                checkCompletion();
-            }
-            
-            // Check if the pattern is complete
-            function checkCompletion() {
-                const targetBoxes = document.querySelectorAll('#targetPattern .color-box');
-                const dropBoxes = document.querySelectorAll('#dropArea .color-box');
-                
-                let isComplete = true;
-                
-                for (let i = 0; i < targetBoxes.length; i++) {
-                    const targetColor = targetBoxes[i].style.backgroundColor;
-                    const dropColor = dropBoxes[i].style.backgroundColor;
-                    
-                    if (!dropColor || !colorsMatch(targetColor, dropColor)) {
-                        isComplete = false;
-                        break;
-                    }
-                }
-                
-                if (isComplete) {
-                    showMessage('Success! Pattern matched perfectly!', 'success');
-                    showEmoji('🎉');
-                    createConfetti();
-                    successSound.currentTime = 0;
-                    successSound.play();
-                }
-                
-                return isComplete;
-            }
-            
-            // Show emoji popup
-            function showEmoji(emoji) {
-                emojiPopup.textContent = emoji;
-                emojiPopup.className = 'emoji-popup show';
-                
-                setTimeout(() => {
-                    emojiPopup.classList.add('hide');
-                    setTimeout(() => {
-                        emojiPopup.className = 'emoji-popup';
-                    }, 500);
-                }, 1500);
-            }
-            
-            // Compare colors (handles different color formats)
-            function colorsMatch(color1, color2) {
-                if (!color1 || !color2) return false;
-                
-                // Convert both colors to the same format for comparison
-                const tempEl = document.createElement('div');
-                tempEl.style.color = color1;
-                const formattedColor1 = tempEl.style.color;
-                
-                tempEl.style.color = color2;
-                const formattedColor2 = tempEl.style.color;
-                
-                return formattedColor1 === formattedColor2;
-            }
-            
-            // Show message
-            function showMessage(text, type) {
-                messageText.textContent = text;
-                message.className = `message show ${type}`;
-            }
-            
-            // Create visual particles
-            function createParticles(element) {
-                const rect = element.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                
-                for (let i = 0; i < 10; i++) {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-                    particle.style.width = `${Math.random() * 10 + 5}px`;
-                    particle.style.height = particle.style.width;
-                    particle.style.left = `${centerX}px`;
-                    particle.style.top = `${centerY}px`;
-                    particle.style.backgroundColor = element.style.backgroundColor;
-                    
-                    document.body.appendChild(particle);
-                    
-                    // Animate particle
-                    const angle = Math.random() * Math.PI * 2;
-                    const velocity = Math.random() * 5 + 2;
-                    const x = Math.cos(angle) * velocity;
-                    const y = Math.sin(angle) * velocity;
-                    
-                    let posX = centerX;
-                    let posY = centerY;
-                    let opacity = 1;
-                    
-                    const animate = () => {
-                        posX += x;
-                        posY += y;
-                        opacity -= 0.02;
-                        
-                        particle.style.left = `${posX}px`;
-                        particle.style.top = `${posY}px`;
-                        particle.style.opacity = opacity;
-                        
-                        if (opacity > 0) {
-                            requestAnimationFrame(animate);
-                        } else {
-                            particle.remove();
-                        }
-                    };
-                    
-                    requestAnimationFrame(animate);
-                }
-            }
-            
-            // Create confetti effect
-            function createConfetti() {
-                for (let i = 0; i < 50; i++) {
-                    const confetti = document.createElement('div');
-                    confetti.className = 'particle';
-                    confetti.style.width = `${Math.random() * 10 + 5}px`;
-                    confetti.style.height = confetti.style.width;
-                    confetti.style.left = `${Math.random() * window.innerWidth}px`;
-                    confetti.style.top = `-10px`;
-                    confetti.style.backgroundColor = gameColors[Math.floor(Math.random() * gameColors.length)];
-                    
-                    document.body.appendChild(confetti);
-                    
-                    // Animate confetti
-                    const duration = Math.random() * 3 + 2;
-                    const rotation = Math.random() * 360;
-                    const endY = window.innerHeight + 10;
-                    
-                    confetti.animate([
-                        { 
-                            transform: `translateY(0) rotate(0deg)`,
-                            opacity: 1 
-                        },
-                        { 
-                            transform: `translateY(${endY}px) rotate(${rotation}deg)`,
-                            opacity: 0 
-                        }
-                    ], {
-                        duration: duration * 1000,
-                        easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)'
-                    });
-                    
-                    // Remove after animation
-                    setTimeout(() => {
-                        confetti.remove();
-                    }, duration * 1000);
-                }
-            }
-            
-            // Button event listeners
-            newGameBtn.addEventListener('click', initGame);
-            checkBtn.addEventListener('click', () => {
-                const dropBoxes = document.querySelectorAll('#dropArea .color-box');
-                let allFilled = true;
-                
-                dropBoxes.forEach(box => {
-                    if (!box.style.backgroundColor || box.style.backgroundColor === 'rgb(248, 249, 250)') {
-                        allFilled = false;
-                    }
-                });
-                
-                if (!allFilled) {
-                    showMessage('Please fill all the boxes first!', 'error');
-                    showEmoji('😢');
-                    errorSound.currentTime = 0;
-                    errorSound.play();
-                    return;
-                }
-                
-                const isComplete = checkCompletion();
-                if (!isComplete) {
-                    showMessage('Not quite right! Keep trying!', 'error');
-                    showEmoji('😞');
-                    errorSound.currentTime = 0;
-                    errorSound.play();
-                }
-            });
-            
-            // Initialize first game
-            initGame();
+    let touchColor = null;
+
+    function generateTargetPattern() {
+      targetPattern = [];
+      targetPatternContainer.innerHTML = '';
+      for (let i = 0; i < 6; i++) {
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        targetPattern.push(color);
+        const box = document.createElement('div');
+        box.className = 'color-box';
+        box.style.backgroundColor = color;
+        targetPatternContainer.appendChild(box);
+      }
+    }
+
+    function createDropBoxes() {
+      dropArea.innerHTML = '';
+      for (let i = 0; i < 6; i++) {
+        const box = document.createElement('div');
+        box.className = 'color-box';
+        box.dataset.index = i;
+
+        // Desktop
+        box.addEventListener('dragover', (e) => e.preventDefault());
+        box.addEventListener('drop', onDrop);
+
+        // Mobile
+        box.addEventListener('touchend', function (e) {
+          if (touchColor) {
+            this.style.backgroundColor = touchColor;
+            dropSound.play();
+            touchColor = null;
+            setTimeout(() => {
+              if (isAllFilled()) checkSolution();
+            }, 100);
+          }
         });
-    </script>
-</body>
-</html>
+
+        dropArea.appendChild(box);
+      }
+    }
+
+    function createColorPalette() {
+      colorPalette.innerHTML = '';
+      colors.forEach(color => {
+        const colorBox = document.createElement('div');
+        colorBox.className = 'color-box';
+        colorBox.style.backgroundColor = color;
+        colorBox.draggable = true;
+
+        // Desktop drag
+        colorBox.addEventListener('dragstart', (e) => {
+          dragSound.play();
+          e.dataTransfer.setData('text/plain', color);
+        });
+
+        // Mobile touch
+        colorBox.addEventListener('touchstart', function (e) {
+          touchColor = color;
+          dragSound.play();
+        });
+
+        colorPalette.appendChild(colorBox);
+      });
+    }
+
+    function onDrop(e) {
+      e.preventDefault();
+      const color = e.dataTransfer.getData('text/plain');
+      e.target.style.backgroundColor = color;
+      dropSound.play();
+      setTimeout(() => {
+        if (isAllFilled()) checkSolution();
+      }, 100);
+    }
+
+    function isAllFilled() {
+      const boxes = dropArea.querySelectorAll('.color-box');
+      return Array.from(boxes).every(box => box.style.backgroundColor && box.style.backgroundColor !== 'white');
+    }
+
+    function checkSolution() {
+      const boxes = dropArea.querySelectorAll('.color-box');
+      let correct = true;
+
+      boxes.forEach((box, index) => {
+        const placedColor = rgbToHex(box.style.backgroundColor);
+        const targetColor = rgbToHex(targetPattern[index]);
+        if (placedColor !== targetColor) {
+          correct = false;
+        }
+      });
+
+      if (correct) {
+        showPopup('🎉 Success! Well done!', true);
+        successSound.play();
+      } else {
+        showPopup('😢 Not quite. Try again!', false);
+        failSound.play();
+      }
+    }
+
+    function showPopup(message, isSuccess) {
+      popup.textContent = message;
+      popup.className = `popup show ${isSuccess ? 'success' : 'fail'}`;
+      setTimeout(() => {
+        popup.classList.remove('show');
+      }, 3000);
+    }
+
+    function rgbToHex(rgb) {
+      if (!rgb) return '';
+      const result = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/.exec(rgb);
+      return result
+        ? '#' + result.slice(1).map(x => ('0' + parseInt(x).toString(16)).slice(-2)).join('').toUpperCase()
+        : rgb.toUpperCase();
+    }
+
+    generateTargetPattern();
+    createDropBoxes();
+    createColorPalette();
+  });
+</script>
