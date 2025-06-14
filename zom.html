@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodExpress - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') no-repeat center center;
+            background-size: cover;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 0;
+        }
+
+        /* Floating Animated Food Icons */
+        .floating-food {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .food-icon {
+            position: absolute;
+            font-size: 2.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+            animation: float 12s infinite ease-in-out;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            z-index: 2;
+        }
+
+        .food-icon:hover {
+            transform: scale(1.2) rotate(15deg) !important;
+            color: #FF5722;
+            filter: drop-shadow(0 0 15px rgba(255, 87, 34, 0.7));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-40px) rotate(5deg); }
+            50% { transform: translateY(20px) rotate(-5deg); }
+            75% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        /* Login Container (Glass Morphism) */
+        .login-container {
+            position: relative;
+            width: 420px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+            z-index: 10;
+        }
+
+        .login-container:hover {
+            transform: rotateY(5deg) rotateX(5deg) scale(1.02);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 87, 34, 0.1),
+                rgba(251, 140, 0, 0.1),
+                rgba(255, 87, 34, 0.05)
+            );
+            transform: rotate(45deg);
+            animation: shine 6s infinite linear;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        /* Logo & Header */
+        .logo {
+            text-align: center;
+            margin-bottom: 25px;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: translateY(-5px);
+        }
+
+        .logo h1 {
+            color: #FF5722;
+            font-size: 2.8rem;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            color: white;
+            font-size: 1rem;
+            display: block;
+            margin-top: 5px;
+            letter-spacing: 3px;
+            opacity: 0.8;
+        }
+
+        /* Input Fields (Interactive) */
+        .input-group {
+            position: relative;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group:hover {
+            transform: translateX(5px);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            border-radius: 35px;
+            outline: none;
+            color: white;
+            font-size: 16px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transform: scale(1.02);
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .input-group i {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus + i {
+            color: #FF5722;
+            transform: scale(1.2);
+        }
+
+        /* Checkbox (Custom Animated) */
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .remember-me:hover {
+            transform: translateX(5px);
+        }
+
+        .remember-me input {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 4px;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .remember-me input:checked {
+            background: #FF5722;
+            border-color: #FF5722;
+        }
+
+        .remember-me input:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 12px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Login Button (Gradient + Hover Effect) */
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #FF5722, #FF9800);
+            border: none;
+            border-radius: 35px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 87, 34, 0.4);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn:hover {
+            background: linear-gradient(45deg, #E64A19, #F57C00);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(255, 87, 34, 0.6);
+        }
+
+        .login-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0.3),
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            transform: rotate(45deg);
+            animation: btnShine 3s infinite linear;
+        }
+
+        @keyframes btnShine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        /* Social Login Icons (Hover Effects) */
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .social-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-icon:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .social-icon:nth-child(1):hover { background: #DB4437; } /* Google */
+        .social-icon:nth-child(2):hover { background: #3B5998; } /* Facebook */
+        .social-icon:nth-child(3):hover { background: #000000; } /* Apple */
+
+        /* Signup Link (Animated Underline) */
+        .signup-link {
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .signup-link a {
+            color: #FF9800;
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .signup-link a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #FF5722;
+            transition: width 0.3s ease;
+        }
+
+        .signup-link a:hover::after {
+            width: 100%;
+        }
+
+        /* Falling Food Particles (Micro-Interaction) */
+        .falling-food {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .food-particle {
+            position: absolute;
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            animation: fall linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-50px) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+        .error-message {
+            color: #ff6b6b;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 14px;
+            height: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .error-message.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-food" id="floatingFood">
+        <!-- Floating food icons will be added by JS -->
+    </div>
+    
+    <div class="login-container" id="loginContainer">
+        <div class="logo">
+            <h1>FoodExpress</h1>
+            <span>DELICIOUS DELIVERIES</span>
+        </div>
+        <h2>Login to Your Account</h2>
+        
+        <div class="error-message" id="errorMessage"></div>
+        
+        <form id="loginForm">
+            <div class="input-group">
+                <input type="text" id="username" placeholder="Username" required>
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Password" required>
+                <i class="fas fa-lock"></i>
+            </div>
+            <div class="options">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember">
+                    <label for="remember">Remember me</label>
+                </div>
+                <div class="forgot-password">
+                    <a href="#">Forgot password?</a>
+                </div>
+            </div>
+            <button class="login-btn" type="submit" id="loginBtn">LOGIN</button>
+        </form>
+    </div>
+
+    <script>
+        // Initialize floating food icons (same as before)
+        const floatingFood = document.getElementById('floatingFood');
+        const foodIcons = ['fa-hamburger', 'fa-pizza-slice', 'fa-ice-cream', 'fa-coffee'];
+        
+        for (let i = 0; i < foodIcons.length; i++) {
+            const food = document.createElement('div');
+            food.className = 'food-icon';
+            food.innerHTML = `<i class="fas ${foodIcons[i]}"></i>`;
+            food.style.left = `${Math.random() * 80 + 10}%`;
+            food.style.top = `${Math.random() * 80 + 10}%`;
+            food.style.animationDelay = `${Math.random() * 5}s`;
+            floatingFood.appendChild(food);
+        }
+
+        // Login form submission
+        const loginForm = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            
+            // Show loading state
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AUTHENTICATING';
+            loginBtn.disabled = true;
+            
+            try {
+                // Call Google Apps Script web app
+                const response = await authenticateUser(username, password);
+                
+                if (response.success) {
+                    // Successful login
+                    errorMessage.textContent = '';
+                    errorMessage.classList.remove('show');
+                    
+                    // Show success animation
+                    loginBtn.innerHTML = '<i class="fas fa-check"></i> LOGIN SUCCESS';
+                    loginBtn.style.background = 'linear-gradient(45deg, #4CAF50, #8BC34A)';
+                    
+                    // Redirect after delay
+                    setTimeout(() => {
+                        window.location.href = "order.html"; // Change to your success page
+                    }, 1000);
+                } else {
+                    // Failed login
+                    showError(response.message || "Invalid username or password");
+                    loginBtn.innerHTML = 'LOGIN';
+                    loginBtn.disabled = false;
+                }
+            } catch (error) {
+                showError("Connection error. Please try again.");
+                console.error("Login error:", error);
+                loginBtn.innerHTML = 'LOGIN';
+                loginBtn.disabled = false;
+            }
+        });
+        
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+            
+            // Shake animation for error
+            loginForm.style.animation = 'shake 0.5s';
+            setTimeout(() => {
+                loginForm.style.animation = '';
+            }, 500);
+        }
+        
+        // Add to your CSS:
+        // @keyframes shake {
+        //     0%, 100% { transform: translateX(0); }
+        //     20%, 60% { transform: translateX(-5px); }
+        //     40%, 80% { transform: translateX(5px); }
+        // }
+        
+        // Function to call Google Apps Script
+        async function authenticateUser(username, password) {
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxGsmLYODdENStmKSSUlCtjlQXZM0uORVc7nB88U4nocIqCZgxBoBYHbT5RoLaI1M8j/exec'; // Replace with your deployed web app URL
+            
+            try {
+                const response = await fetch(scriptUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'login',
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Authentication error:', error);
+                return { success: false, message: "Connection error" };
+            }
+        }
+    </script>
+</body>
+</html>
