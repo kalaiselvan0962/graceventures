@@ -1,1 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Offline Voice Assistant</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f9f9f9;
+        }
+        #chat-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin: 10px;
+            padding: 12px 15px;
+            border-radius: 18px;
+            max-width: 70%;
+            animation: fadeIn 0.3s;
+        }
+        .user {
+            background: #e3f2fd;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+        .bot {
+            background: #f1f1f1;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+        #mic-btn {
+            background: #4285f4;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+            transition: transform 0.2s;
+        }
+        #mic-btn:active {
+            transform: scale(0.95);
+            background: #3367d6;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; color: #4285f4;">Voice Assistant</h1>
+    <div id="chat-container"></div>
+    <button id="mic-btn">🎤</button>
 
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const micBtn = document.getElementById('mic-btn');
+        
+        // Predefined Q&A with variations
+        const knowledgeBase = {
+            "greeting": ["Hi there!", "Hello!", "Hey! How can I help?"],
+            "name": ["I'm VoiceBot", "Call me Assistant", "I'm your helpful AI"],
+            "time": [`It's currently ${new Date().toLocaleTimeString()}`],
+            "date": [`Today is ${new Date().toLocaleDateString()}`],
+            "weather": ["I can't check weather offline", "You might need an internet connection for that"],
+            "joke": ["Why don't scientists trust atoms? Because they make up everything!", 
+                    "What do you call fake spaghetti? An impasta!"],
+            "goodbye": ["Goodbye!", "See you later!", "Have a nice day!"]
+        };
+
+        // Question patterns mapped to answers
+        const questionPatterns = [
+            { pattern: ["hi", "hello", "hey"], responseKey: "greeting" },
+            { pattern: ["your name", "who are you"], responseKey: "name" },
+            { pattern: ["time", "what time is it"], responseKey: "time" },
+            { pattern: ["date", "today's date"], responseKey: "date" },
+            { pattern: ["weather", "temperature"], responseKey: "weather" },
+            { pattern: ["joke", "funny"], responseKey: "joke" },
+            { pattern: ["bye", "goodbye", "see you"], responseKey: "goodbye" }
+        ];
+
+        // Initialize speech recognition
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        micBtn.addEventListener('click', () => {
+            recognition.start();
+            addMessage("Listening...", 'bot');
+            micBtn.disabled = true;
+        });
+
+        recognition.onresult = (event) => {
+            const userText = event.results[0][0].transcript.toLowerCase();
+            addMessage(userText, 'user');
+            
+            setTimeout(() => {
+                const response = getResponse(userText);
+                addMessage(response, 'bot');
+                speak(response);
+                micBtn.disabled = false;
+            }, 800); // Simulate "thinking" time
+        };
+
+        function getResponse(userInput) {
+            for (const item of questionPatterns) {
+                if (item.pattern.some(keyword => userInput.includes(keyword))) {
+                    const possibleAnswers = knowledgeBase[item.responseKey];
+                    return possibleAnswers[Math.floor(Math.random() * possibleAnswers.length)];
+                }
+            }
+            return "I'm not sure how to answer that. Try asking about time, date, or tell me to say a joke.";
+        }
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender);
+            messageDiv.textContent = text;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function speak(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.1;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Initial greeting
+        setTimeout(() => {
+            addMessage(knowledgeBase.greeting[0], 'bot');
+            speak(knowledgeBase.greeting[0]);
+        }, 500);
+    </script>
+</body>
+</html>
