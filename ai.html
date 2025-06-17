@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Voice Assistant</title>
+    <title>Neon AI Assistant</title>
     <style>
         :root {
-            --primary: rgba(104, 109, 224, 0.85);
-            --secondary: rgba(225, 112, 255, 0.85);
-            --text: rgba(255, 255, 255, 0.9);
-            --bg: rgba(15, 15, 25, 0.95);
-            --glass: rgba(255, 255, 255, 0.08);
+            /* Default Cyber Theme */
+            --primary: rgba(0, 255, 209, 0.85);
+            --secondary: rgba(98, 0, 255, 0.85);
+            --text: rgba(255, 255, 255, 0.95);
+            --bg: rgba(10, 10, 20, 0.96);
+            --glass: rgba(255, 255, 255, 0.05);
+            --neon-glow: 0 0 10px var(--primary), 0 0 20px var(--secondary);
         }
 
         * {
@@ -20,8 +22,8 @@
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: var(--bg) url('https://assets.codepen.io/3364143/star-bg.jpg') center/cover;
+            font-family: 'Orbitron', 'Segoe UI', sans-serif;
+            background: var(--bg);
             color: var(--text);
             min-height: 100vh;
             display: flex;
@@ -30,180 +32,26 @@
             justify-content: center;
             padding: 20px;
             overflow-x: hidden;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 800px;
-            height: 80vh;
-            min-height: 500px;
-            display: flex;
-            flex-direction: column;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            background: var(--glass);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
-                        inset 0 4px 12px rgba(255, 255, 255, 0.05);
-            overflow: hidden;
             position: relative;
         }
 
-        .header {
-            padding: 20px;
-            text-align: center;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            position: relative;
-        }
-
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
+        /* Circuit Board Background */
+        .circuit-bg {
+            position: fixed;
+            top: 0;
             left: 0;
             width: 100%;
-            height: 20px;
-            background: radial-gradient(ellipse at center, 
-                      rgba(255,255,255,0.3) 0%, 
-                      transparent 70%);
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -2;
+            opacity: 0.5;
         }
 
-        h1 {
-            font-weight: 600;
-            font-size: 1.5rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .chat-container {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            scroll-behavior: smooth;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            line-height: 1.4;
-            position: relative;
-            animation: fadeIn 0.4s ease-out;
-            word-wrap: break-word;
-        }
-
-        .user {
-            align-self: flex-end;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border-bottom-right-radius: 4px;
-            box-shadow: 0 4px 12px rgba(104, 109, 224, 0.3);
-        }
-
-        .bot {
-            align-self: flex-start;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-bottom-left-radius: 4px;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-
-        .typing-indicator {
-            display: inline-flex;
-            gap: 4px;
-            align-self: flex-start;
-        }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 50%;
-            animation: typingPulse 1.4s infinite ease-in-out;
-        }
-
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-        .mic-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border: none;
-            color: white;
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 20px auto;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(104, 109, 224, 0.4);
-            transition: all 0.3s ease;
-            position: relative;
-            z-index: 10;
-        }
-
-        .mic-btn:active {
-            transform: scale(0.95);
-        }
-
-        .mic-btn.listening {
-            animation: pulse 1.5s infinite, glow 2s infinite alternate;
-        }
-
-        .status {
-            text-align: center;
-            font-size: 0.9rem;
-            opacity: 0.7;
-            margin-top: -10px;
-            margin-bottom: 10px;
-            height: 20px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes typingPulse {
-            0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
-            30% { transform: translateY(-5px); opacity: 1; }
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(225, 112, 255, 0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(225, 112, 255, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(225, 112, 255, 0); }
-        }
-
-        @keyframes glow {
-            from { box-shadow: 0 0 10px -5px var(--secondary); }
-            to { box-shadow: 0 0 20px 5px var(--secondary); }
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 600px) {
-            .container {
-                height: 90vh;
-                border-radius: 16px;
-            }
-            .message {
-                max-width: 90%;
-            }
-            .mic-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
-            }
-        }
-
-        /* Floating particles background */
-        .particles {
+        /* Floating AI Nodes */
+        .ai-nodes {
             position: fixed;
             top: 0;
             left: 0;
@@ -213,31 +61,346 @@
             overflow: hidden;
         }
 
-        .particle {
+        .ai-node {
             position: absolute;
-            background: rgba(255, 255, 255, 0.5);
             border-radius: 50%;
-            animation: float linear infinite;
+            filter: blur(40px);
+            opacity: 0.7;
+            animation: floatNode linear infinite;
+        }
+
+        @keyframes floatNode {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(50px, 50px) rotate(180deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+
+        /* Main Container */
+        .container {
+            width: 100%;
+            max-width: 800px;
+            height: 85vh;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            background: var(--glass);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--neon-glow), 
+                        inset 0 4px 12px rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            position: relative;
+            transition: all 0.5s ease;
+        }
+
+        /* Header with Digital Rain Effect */
+        .header {
+            padding: 20px;
+            text-align: center;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(transparent, rgba(0, 255, 255, 0.1));
+            animation: digitalRain 8s linear infinite;
+        }
+
+        @keyframes digitalRain {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100%; }
+        }
+
+        h1 {
+            font-weight: 600;
+            font-size: 1.8rem;
+            text-shadow: 0 0 8px var(--primary);
+            letter-spacing: 1px;
+            position: relative;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Message Bubbles with Holographic Effect */
+        .message {
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            line-height: 1.4;
+            position: relative;
+            animation: fadeIn 0.4s ease-out forwards;
+            word-wrap: break-word;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 15px rgba(104, 109, 224, 0.4);
+        }
+
+        .bot {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.08);
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .bot::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--primary));
+            z-index: -1;
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .bot:hover::after {
+            opacity: 0.3;
+            animation: hologramPulse 2s infinite;
+        }
+
+        @keyframes hologramPulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.1; }
+            100% { opacity: 0.3; }
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: inline-flex;
+            gap: 6px;
+            align-self: flex-start;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+        }
+
+        .typing-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: typingPulse 1.4s infinite ease-in-out;
+            box-shadow: 0 0 5px var(--primary);
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingPulse {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+            30% { transform: translateY(-5px); opacity: 1; }
+        }
+
+        /* Mic Button with Hologram Effect */
+        .mic-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            color: white;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--primary), 
+                        inset 0 0 10px rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .mic-btn::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            z-index: -1;
+            opacity: 0.5;
+            animation: pulseRing 2s infinite;
+        }
+
+        .mic-btn.listening {
+            animation: pulse 1.5s infinite, glow 2s infinite alternate;
+        }
+
+        .mic-btn:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes pulseRing {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            70% { transform: scale(1.3); opacity: 0; }
+            100% { transform: scale(0.8); opacity: 0; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 209, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(0, 255, 209, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 209, 0); }
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 10px -5px var(--primary), 
+                             0 0 20px -5px var(--secondary); }
+            to { box-shadow: 0 0 15px 5px var(--primary), 
+                            0 0 30px 10px var(--secondary); }
+        }
+
+        /* Status Text */
+        .status {
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            height: 20px;
+            text-shadow: 0 0 5px var(--primary);
+        }
+
+        /* Theme Selector */
+        .theme-selector {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .theme-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .theme-btn.active {
+            transform: scale(1.3);
+            box-shadow: 0 0 5px white;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes float {
             to { transform: translateY(-100vh) rotate(360deg); }
         }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container {
+                height: 90vh;
+                border-radius: 16px;
+            }
+            .message {
+                max-width: 90%;
+                padding: 12px 15px;
+            }
+            .mic-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Binary Code Animation */
+        .binary-code {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .binary-digit {
+            position: absolute;
+            color: var(--primary);
+            font-family: monospace;
+            font-size: 14px;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh); }
+        }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="particles" id="particles"></div>
+    <div class="circuit-bg"></div>
+    <div class="ai-nodes" id="ai-nodes"></div>
+    <div class="binary-code" id="binary-code"></div>
     
     <div class="container">
+        <div class="theme-selector">
+            <div class="theme-btn active" style="background: linear-gradient(135deg, #00ffd1, #6200ff);" onclick="setTheme('cyber')"></div>
+            <div class="theme-btn" style="background: linear-gradient(135deg, #ff00c8, #ffae00);" onclick="setTheme('neon')"></div>
+            <div class="theme-btn" style="background: linear-gradient(135deg, #00ff88, #0088ff);" onclick="setTheme('matrix')"></div>
+            <div class="theme-btn" style="background: linear-gradient(135deg, #ff007b, #7b00ff);" onclick="setTheme('synthwave')"></div>
+        </div>
+        
         <div class="header">
-            <h1>Neon Voice Assistant</h1>
+            <h1>AI VOICE ASSISTANT</h1>
         </div>
         
         <div class="chat-container" id="chat-container">
             <!-- Messages will appear here -->
         </div>
         
-        <div class="status" id="status"></div>
+        <div class="status" id="status">Tap mic to activate</div>
         <button class="mic-btn" id="mic-btn">🎤</button>
     </div>
 
@@ -246,63 +409,124 @@
         const chatContainer = document.getElementById('chat-container');
         const micBtn = document.getElementById('mic-btn');
         const statusEl = document.getElementById('status');
-        const particlesEl = document.getElementById('particles');
+        const aiNodesEl = document.getElementById('ai-nodes');
+        const binaryCodeEl = document.getElementById('binary-code');
 
-        // Create floating particles
-        function createParticles() {
-            const count = Math.floor(window.innerWidth / 20);
-            for (let i = 0; i < count; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('particle');
+        // Create AI nodes background
+        function createAiNodes() {
+            const colors = ['rgba(0, 255, 209, 0.3)', 'rgba(98, 0, 255, 0.3)', 'rgba(255, 0, 200, 0.3)'];
+            for (let i = 0; i < 15; i++) {
+                const node = document.createElement('div');
+                node.classList.add('ai-node');
                 
-                const size = Math.random() * 5 + 1;
-                const posX = Math.random() * window.innerWidth;
-                const duration = Math.random() * 20 + 10;
+                const size = Math.random() * 200 + 100;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const duration = Math.random() * 30 + 20;
                 const delay = Math.random() * -20;
                 
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-                particle.style.left = `${posX}px`;
-                particle.style.bottom = `-10px`;
-                particle.style.animationDuration = `${duration}s`;
-                particle.style.animationDelay = `${delay}s`;
-                particle.style.opacity = Math.random() * 0.5 + 0.1;
+                node.style.width = `${size}px`;
+                node.style.height = `${size}px`;
+                node.style.background = color;
+                node.style.left = `${Math.random() * 100}%`;
+                node.style.top = `${Math.random() * 100}%`;
+                node.style.animationDuration = `${duration}s`;
+                node.style.animationDelay = `${delay}s`;
                 
-                particlesEl.appendChild(particle);
+                aiNodesEl.appendChild(node);
             }
         }
-        
-        createParticles();
+
+        // Create binary code rain
+        function createBinaryRain() {
+            const characters = ['0', '1', '0', '1', '0', '1', '0', '1'];
+            for (let i = 0; i < 50; i++) {
+                const digit = document.createElement('div');
+                digit.classList.add('binary-digit');
+                digit.textContent = characters[Math.floor(Math.random() * characters.length)];
+                
+                const left = Math.random() * 100;
+                const delay = Math.random() * -20;
+                const duration = Math.random() * 10 + 10;
+                
+                digit.style.left = `${left}%`;
+                digit.style.animationDuration = `${duration}s`;
+                digit.style.animationDelay = `${delay}s`;
+                digit.style.opacity = Math.random() * 0.5 + 0.1;
+                
+                binaryCodeEl.appendChild(digit);
+            }
+        }
+
+        // Themes configuration
+        const themes = {
+            cyber: {
+                primary: 'rgba(0, 255, 209, 0.85)',
+                secondary: 'rgba(98, 0, 255, 0.85)',
+                bg: 'rgba(10, 10, 20, 0.96)',
+                text: 'rgba(255, 255, 255, 0.95)'
+            },
+            neon: {
+                primary: 'rgba(255, 0, 200, 0.85)',
+                secondary: 'rgba(255, 174, 0, 0.85)',
+                bg: 'rgba(20, 5, 30, 0.96)',
+                text: 'rgba(255, 255, 255, 0.95)'
+            },
+            matrix: {
+                primary: 'rgba(0, 255, 88, 0.85)',
+                secondary: 'rgba(0, 136, 255, 0.85)',
+                bg: 'rgba(5, 10, 5, 0.98)',
+                text: 'rgba(0, 255, 88, 0.9)'
+            },
+            synthwave: {
+                primary: 'rgba(255, 0, 123, 0.85)',
+                secondary: 'rgba(123, 0, 255, 0.85)',
+                bg: 'rgba(15, 5, 30, 0.96)',
+                text: 'rgba(255, 255, 255, 0.95)'
+            }
+        };
+
+        // Set theme function
+        function setTheme(themeName) {
+            const theme = themes[themeName];
+            document.documentElement.style.setProperty('--primary', theme.primary);
+            document.documentElement.style.setProperty('--secondary', theme.secondary);
+            document.documentElement.style.setProperty('--bg', theme.bg);
+            document.documentElement.style.setProperty('--text', theme.text);
+            
+            // Update active theme button
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
 
         // Knowledge Base with more natural responses
         const knowledgeBase = {
-            "greeting": ["Hey there! ✨", "Hello! How can I help?", "Hi! What can I do for you today?"],
-            "name": ["I'm Nova, your voice assistant", "You can call me Nova", "I'm Nova - here to help!"],
-            "creator": ["I was created by the amazing Keshika", "Keshika brought me to life", "All credit goes to Keshika for making me"],
-            "time": [`The time is ${new Date().toLocaleTimeString()}`, `My clock shows ${new Date().toLocaleTimeString()}`],
-            "date": [`Today's date is ${new Date().toLocaleDateString()}`, `It's ${new Date().toLocaleDateString()} today`],
-            "weather": ["I'd need an internet connection to check that", "I can't access weather data offline"],
-            "joke": [
-                "Why did the scarecrow win an award? Because he was outstanding in his field!",
-                "What do you call a fish wearing a bowtie? Sofishticated."
-            ],
-            "goodbye": ["Goodbye! 👋", "See you later!", "Have a wonderful day!"],
+            "greeting": ["SYSTEM INITIALIZED. HELLO USER.", "CONNECTION ESTABLISHED. HOW MAY I ASSIST?", "AI ONLINE. READY FOR QUERIES."],
+            "name": ["I AM NEXUS-7. YOUR AI INTERFACE.", "DESIGNATION: NEXUS-7 AI CORE.", "IDENTITY CONFIRMED AS NEXUS-7."],
+            "creator": ["CREATION PROTOCOLS INITIATED BY KESHIKA.", "DEVELOPER IDENTITY: KESHIKA.", "ORIGIN: KESHIKA AI LABS."],
+            "time": [`TEMPORAL ANALYSIS COMPLETE. CURRENT TIME IS ${new Date().toLocaleTimeString()}`],
+            "date": [`DATE SCAN COMPLETE. TODAY IS ${new Date().toLocaleDateString()}`],
+            "weather": ["WEATHER SENSORS OFFLINE. NETWORK CONNECTION REQUIRED.", "ATMOSPHERIC DATA UNAVAILABLE IN CURRENT MODE."],
+            "joke": ["WHY DID THE ROBOT GO ON VACATION? IT NEEDED TO RECHARGE ITS BATTERIES.", 
+                    "HOW MANY AI PROGRAMMERS DOES IT TAKE TO CHANGE A LIGHTBULB? NONE. THAT'S A HARDWARE PROBLEM."],
+            "goodbye": ["SESSION TERMINATED. GOODBYE USER.", "DISCONNECTING. FAREWELL.", "SHUTTING DOWN INTERFACE. UNTIL NEXT TIME."],
             "default": [
-                "I'm not sure I understand. Could you rephrase that?",
-                "I don't have an answer for that yet",
-                "That's beyond my capabilities right now"
+                "QUERY NOT RECOGNIZED. PLEASE REPHRASE.",
+                "INSUFFICIENT DATA FOR MEANINGFUL RESPONSE.",
+                "COMMAND PARAMETERS INVALID."
             ]
         };
 
         // Question patterns with more natural language matching
         const questionPatterns = [
             { pattern: ["hi", "hello", "hey", "greetings"], responseKey: "greeting" },
-            { pattern: ["your name", "who are you", "identify yourself"], responseKey: "name" },
-            { pattern: ["who made you", "who created you", "your creator", "who built you"], responseKey: "creator" },
-            { pattern: ["time", "what time is it", "current time", "what's the time"], responseKey: "time" },
-            { pattern: ["date", "today's date", "what day is it", "current date"], responseKey: "date" },
-            { pattern: ["weather", "temperature", "forecast", "how's the weather"], responseKey: "weather" },
-            { pattern: ["joke", "funny", "make me laugh", "tell me a joke"], responseKey: "joke" },
+            { pattern: ["your name", "who are you", "identify"], responseKey: "name" },
+            { pattern: ["who made you", "creator", "who built you", "who designed you"], responseKey: "creator" },
+            { pattern: ["time", "what time is it", "current time"], responseKey: "time" },
+            { pattern: ["date", "today's date", "what day is it"], responseKey: "date" },
+            { pattern: ["weather", "temperature", "forecast"], responseKey: "weather" },
+            { pattern: ["joke", "funny", "make me laugh"], responseKey: "joke" },
             { pattern: ["bye", "goodbye", "see you", "later"], responseKey: "goodbye" }
         ];
 
@@ -315,6 +539,7 @@
 
         // Speech synthesis with better voice
         const synth = window.speechSynthesis;
+        let currentUtterance = null;
         
         // Add message to chat
         function addMessage(text, sender) {
@@ -334,7 +559,6 @@
                 <div class="typing-dot"></div>
                 <div class="typing-dot"></div>
             `;
-            typingDiv.classList.add('message', 'bot');
             chatContainer.appendChild(typingDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight;
             return typingDiv;
@@ -344,20 +568,26 @@
         function speak(text) {
             synth.cancel(); // Cancel any ongoing speech
             
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 1.1;
-            utterance.pitch = 1;
-            utterance.volume = 1;
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            currentUtterance.rate = 0.9;
+            currentUtterance.pitch = 0.8;
+            currentUtterance.volume = 1;
             
             // Try to get a nice voice
             const voices = synth.getVoices();
             const preferredVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('en')) || 
                                  voices.find(v => v.lang.includes('en'));
             if (preferredVoice) {
-                utterance.voice = preferredVoice;
+                currentUtterance.voice = preferredVoice;
             }
             
-            synth.speak(utterance);
+            synth.speak(currentUtterance);
+            
+            // When speech ends, re-enable mic
+            currentUtterance.onend = () => {
+                statusEl.textContent = "Tap mic to activate";
+                micBtn.disabled = false;
+            };
         }
 
         // Get response from knowledge base
@@ -387,6 +617,7 @@
             micBtn.classList.add('listening');
             statusEl.textContent = "Listening...";
             recognition.start();
+            micBtn.disabled = true;
         }
 
         function stopListening() {
@@ -409,25 +640,28 @@
             
             setTimeout(() => {
                 // Remove typing indicator
-                chatContainer.removeChild(typingIndicator);
+                if (typingIndicator && typingIndicator.parentNode) {
+                    chatContainer.removeChild(typingIndicator);
+                }
                 
                 // Get and display response
                 const response = getResponse(userText);
                 addMessage(response, 'bot');
                 speak(response);
-                
-                statusEl.textContent = "Tap mic to speak";
             }, 1500); // Simulate thinking time
         };
 
         recognition.onerror = (event) => {
             statusEl.textContent = "Error: " + event.error;
             micBtn.classList.remove('listening');
+            micBtn.disabled = false;
         };
 
         recognition.onend = () => {
             if (!micBtn.classList.contains('listening')) {
-                statusEl.textContent = "Tap mic to speak";
+                if (statusEl.textContent === "Listening...") {
+                    statusEl.textContent = "Tap mic to activate";
+                }
             }
         };
 
@@ -436,7 +670,7 @@
             const greeting = knowledgeBase.greeting[0];
             addMessage(greeting, 'bot');
             speak(greeting);
-        }, 800);
+        }, 1000);
 
         // Load voices when available
         if (speechSynthesis.onvoiceschanged !== undefined) {
@@ -444,6 +678,10 @@
                 // Voices are loaded
             };
         }
+
+        // Initialize background effects
+        createAiNodes();
+        createBinaryRain();
     </script>
 </body>
 </html>
