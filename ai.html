@@ -72,6 +72,7 @@
         const knowledgeBase = {
             "greeting": ["Hi there!", "Hello!", "Hey! How can I help?"],
             "name": ["I'm VoiceBot", "Call me Assistant", "I'm your helpful AI"],
+            "creator": ["My creator is Keshika", "I was made by Keshika", "Keshika built me"],
             "time": [`It's currently ${new Date().toLocaleTimeString()}`],
             "date": [`Today is ${new Date().toLocaleDateString()}`],
             "weather": ["I can't check weather offline", "You might need an internet connection for that"],
@@ -84,6 +85,7 @@
         const questionPatterns = [
             { pattern: ["hi", "hello", "hey"], responseKey: "greeting" },
             { pattern: ["your name", "who are you"], responseKey: "name" },
+            { pattern: ["who made you", "who created you", "your creator"], responseKey: "creator" },
             { pattern: ["time", "what time is it"], responseKey: "time" },
             { pattern: ["date", "today's date"], responseKey: "date" },
             { pattern: ["weather", "temperature"], responseKey: "weather" },
