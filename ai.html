@@ -2,254 +2,233 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI Voice Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline Voice Assistant</title>
     <style>
         :root {
-            --primary: rgba(0, 255, 209, 0.85);
-            --secondary: rgba(98, 0, 255, 0.85);
-            --text: rgba(255, 255, 255, 0.95);
-            --bg: rgba(10, 10, 20, 0.96);
-            --glass: rgba(255, 255, 255, 0.05);
-            --neon-glow: 0 0 10px var(--primary), 0 0 20px var(--secondary);
+            --primary-color: #4285f4;
+            --user-message-color: #e3f2fd;
+            --bot-message-color: #f1f1f1;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-
+        
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
-
+        
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            font-family: 'Arial', sans-serif;
+            background: #f9f9f9;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            overflow-x: hidden;
-            touch-action: manipulation;
+            padding: 15px;
         }
-
-        .container {
+        
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin: 15px 0;
+            font-size: clamp(1.5rem, 5vw, 2rem);
+        }
+        
+        #chat-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            margin-bottom: 20px;
             width: 100%;
             max-width: 800px;
-            height: 85vh;
-            min-height: 500px;
-            display: flex;
-            flex-direction: column;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            background: var(--glass);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: var(--neon-glow), 
-                        inset 0 4px 12px rgba(255, 255, 255, 0.05);
-            overflow: hidden;
-            position: relative;
+            margin-left: auto;
+            margin-right: auto;
         }
-
-        .header {
-            padding: 20px;
-            text-align: center;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            position: relative;
-        }
-
-        h1 {
-            font-weight: 600;
-            font-size: 1.5rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .chat-container {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            scroll-behavior: smooth;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
+        
         .message {
-            max-width: 80%;
-            padding: 12px 16px;
+            margin: 10px;
+            padding: 12px 15px;
             border-radius: 18px;
-            line-height: 1.4;
-            position: relative;
-            animation: fadeIn 0.4s ease-out;
+            max-width: 80%;
+            animation: fadeIn 0.3s;
             word-wrap: break-word;
+            line-height: 1.4;
         }
-
+        
         .user {
-            align-self: flex-end;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border-bottom-right-radius: 4px;
-            box-shadow: 0 4px 12px rgba(104, 109, 224, 0.3);
+            background: var(--user-message-color);
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
         }
-
+        
         .bot {
-            align-self: flex-start;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-bottom-left-radius: 4px;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background: var(--bot-message-color);
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
         }
-
-        .typing-indicator {
-            display: inline-flex;
-            gap: 4px;
-            align-self: flex-start;
+        
+        #controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
         }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 50%;
-            animation: typingPulse 1.4s infinite ease-in-out;
-        }
-
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-        .mic-btn {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        
+        #mic-btn {
+            background: var(--primary-color);
             border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
             color: white;
-            font-size: 28px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            box-shadow: var(--shadow);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 20px auto;
+        }
+        
+        #mic-btn.listening {
+            animation: pulse 1.5s infinite;
+            background: #ea4335;
+        }
+        
+        #mic-btn:active {
+            transform: scale(0.95);
+        }
+        
+        #quick-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .quick-btn {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 8px 15px;
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(104, 109, 224, 0.4);
-            transition: all 0.3s ease;
-            position: relative;
-            z-index: 10;
-            -webkit-user-select: none;
-            user-select: none;
+            transition: all 0.2s;
+            font-size: 14px;
         }
-
-        .mic-btn.listening {
-            animation: pulse 1.5s infinite, glow 2s infinite alternate;
+        
+        .quick-btn:hover {
+            background: #f0f0f0;
         }
-
-        .status {
-            text-align: center;
-            font-size: 0.9rem;
-            opacity: 0.7;
-            margin-top: -10px;
-            margin-bottom: 10px;
-            height: 20px;
-        }
-
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        @keyframes typingPulse {
-            0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
-            30% { transform: translateY(-5px); opacity: 1; }
-        }
-
+        
         @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(225, 112, 255, 0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(225, 112, 255, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(225, 112, 255, 0); }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
-
-        @keyframes glow {
-            from { box-shadow: 0 0 10px -5px var(--secondary); }
-            to { box-shadow: 0 0 20px 5px var(--secondary); }
-        }
-
-        /* Mobile-specific styles */
-        @media (max-width: 600px) {
-            .container {
-                height: 90vh;
-                border-radius: 16px;
+        
+        /* Tablet and desktop adjustments */
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            #chat-container {
+                padding: 20px;
             }
             
             .message {
+                max-width: 65%;
+            }
+        }
+        
+        /* Very small devices */
+        @media (max-width: 400px) {
+            .message {
                 max-width: 90%;
-                padding: 10px 14px;
-                font-size: 0.9rem;
+                padding: 10px 12px;
+                font-size: 14px;
             }
             
-            .mic-btn {
-                width: 80px;
-                height: 80px;
-                font-size: 32px;
-            }
-            
-            .mic-btn:active {
-                transform: scale(0.85);
-                transition: transform 0.1s;
-            }
-            
-            h1 {
-                font-size: 1.3rem;
+            #mic-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 18px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>AI Voice Assistant</h1>
+    <h1>Voice Assistant</h1>
+    <div id="chat-container"></div>
+    
+    <div id="controls">
+        <div id="quick-actions">
+            <button class="quick-btn" data-query="What's the time?">⏰ Time</button>
+            <button class="quick-btn" data-query="What's today's date?">📅 Date</button>
+            <button class="quick-btn" data-query="Tell me a joke">😂 Joke</button>
+            <button class="quick-btn" data-query="Who made you?">👩‍💻 Creator</button>
         </div>
-        
-        <div class="chat-container" id="chat-container">
-            <!-- Messages will appear here -->
-        </div>
-        
-        <div class="status" id="status">Tap mic to speak</div>
-        <button class="mic-btn" id="mic-btn">🎤</button>
+    </div>
+    
+    <div style="text-align: center;">
+        <button id="mic-btn" aria-label="Microphone">🎤</button>
     </div>
 
     <script>
-        // DOM Elements
         const chatContainer = document.getElementById('chat-container');
         const micBtn = document.getElementById('mic-btn');
-        const statusEl = document.getElementById('status');
+        const quickButtons = document.querySelectorAll('.quick-btn');
         
-        // Knowledge Base
+        // Enhanced knowledge base with more variations
         const knowledgeBase = {
-            "greeting": ["Hello! How can I help you today?", "Hi there! What can I do for you?", "Welcome! I'm ready to assist."],
-            "name": ["I'm your AI assistant", "You can call me Nova", "I'm your helpful AI companion"],
-            "creator": ["I was created by Keshika", "Keshika is my developer", "All credit goes to Keshika for creating me"],
-            "time": [`The current time is ${new Date().toLocaleTimeString()}`, `It's now ${new Date().toLocaleTimeString()}`],
+            "greeting": ["Hi there!", "Hello!", "Hey! How can I help?", "Greetings!", "Hi! What can I do for you today?"],
+            "name": ["I'm VoiceBot", "Call me Assistant", "I'm your helpful AI", "You can call me VA", "I'm your virtual assistant"],
+            "creator": ["My creator is Keshika", "I was made by Keshika", "Keshika built me", "A developer named Keshika created me"],
+            "time": [`It's currently ${new Date().toLocaleTimeString()}`, `The time is now ${new Date().toLocaleTimeString()}`],
             "date": [`Today is ${new Date().toLocaleDateString()}`, `The date is ${new Date().toLocaleDateString()}`],
-            "weather": ["I can't check weather right now", "Weather information isn't available offline"],
-            "joke": ["Why don't scientists trust atoms? Because they make up everything!", 
-                    "What do you call fake spaghetti? An impasta!"],
-            "goodbye": ["Goodbye! Have a great day!", "See you later!", "Until next time!"],
-            "default": ["I'm not sure I understand", "Could you rephrase that?", "I don't have an answer for that yet"]
+            "weather": ["I can't check weather offline", "You might need an internet connection for that", "I'm offline so I can't access weather data"],
+            "joke": [
+                "Why don't scientists trust atoms? Because they make up everything!", 
+                "What do you call fake spaghetti? An impasta!",
+                "Why did the scarecrow win an award? Because he was outstanding in his field!",
+                "How do you organize a space party? You planet!"
+            ],
+            "goodbye": ["Goodbye!", "See you later!", "Have a nice day!", "Bye! Come back soon!", "Farewell!"],
+            "default": [
+                "I'm not sure how to answer that.",
+                "Could you try asking something else?",
+                "I don't understand that yet. Try asking about time or date.",
+                "My knowledge is limited offline. Try a different question."
+            ]
         };
 
-        // Question patterns
+        // Expanded question patterns
         const questionPatterns = [
-            { pattern: ["hi", "hello", "hey"], responseKey: "greeting" },
-            { pattern: ["your name", "who are you"], responseKey: "name" },
-            { pattern: ["who made you", "who created you", "your creator"], responseKey: "creator" },
-            { pattern: ["time", "what time is it"], responseKey: "time" },
-            { pattern: ["date", "today's date"], responseKey: "date" },
-            { pattern: ["weather", "temperature"], responseKey: "weather" },
-            { pattern: ["joke", "funny"], responseKey: "joke" },
-            { pattern: ["bye", "goodbye", "see you"], responseKey: "goodbye" }
+            { pattern: ["hi", "hello", "hey", "greetings"], responseKey: "greeting" },
+            { pattern: ["your name", "who are you", "identify yourself"], responseKey: "name" },
+            { pattern: ["who made you", "who created you", "your creator", "who built you"], responseKey: "creator" },
+            { pattern: ["time", "what time is it", "current time", "what's the time"], responseKey: "time" },
+            { pattern: ["date", "today's date", "current date", "what's the date"], responseKey: "date" },
+            { pattern: ["weather", "temperature", "forecast", "how's the weather"], responseKey: "weather" },
+            { pattern: ["joke", "funny", "make me laugh", "tell joke"], responseKey: "joke" },
+            { pattern: ["bye", "goodbye", "see you", "farewell"], responseKey: "goodbye" }
         ];
+
+        // Check for speech recognition support
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            addMessage("Your browser doesn't support speech recognition. Try Chrome or Edge.", 'bot');
+            micBtn.disabled = true;
+            micBtn.title = "Speech recognition not supported";
+        }
 
         // Initialize speech recognition
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -258,11 +237,65 @@
         recognition.interimResults = false;
         recognition.lang = 'en-US';
 
-        // Speech synthesis
-        const synth = window.speechSynthesis;
-        let currentUtterance = null;
+        // Quick action buttons
+        quickButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const query = button.getAttribute('data-query');
+                addMessage(query, 'user');
+                
+                setTimeout(() => {
+                    const response = getResponse(query.toLowerCase());
+                    addMessage(response, 'bot');
+                    speak(response);
+                }, 500);
+            });
+        });
 
-        // Add message to chat
+        // Microphone button
+        micBtn.addEventListener('click', () => {
+            if (micBtn.classList.contains('listening')) {
+                recognition.stop();
+                micBtn.classList.remove('listening');
+                addMessage("Stopped listening", 'bot');
+                return;
+            }
+            
+            recognition.start();
+            addMessage("Listening...", 'bot');
+            micBtn.classList.add('listening');
+        });
+
+        recognition.onresult = (event) => {
+            const userText = event.results[0][0].transcript;
+            addMessage(userText, 'user');
+            micBtn.classList.remove('listening');
+            
+            setTimeout(() => {
+                const response = getResponse(userText.toLowerCase());
+                addMessage(response, 'bot');
+                speak(response);
+            }, 800);
+        };
+
+        recognition.onerror = (event) => {
+            micBtn.classList.remove('listening');
+            addMessage(`Error: ${event.error}`, 'bot');
+        };
+
+        recognition.onend = () => {
+            micBtn.classList.remove('listening');
+        };
+
+        function getResponse(userInput) {
+            for (const item of questionPatterns) {
+                if (item.pattern.some(keyword => userInput.includes(keyword))) {
+                    const possibleAnswers = knowledgeBase[item.responseKey];
+                    return possibleAnswers[Math.floor(Math.random() * possibleAnswers.length)];
+                }
+            }
+            return knowledgeBase.default[Math.floor(Math.random() * knowledgeBase.default.length)];
+        }
+
         function addMessage(text, sender) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message', sender);
@@ -271,125 +304,21 @@
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
-        // Show typing indicator
-        function showTyping() {
-            const typingDiv = document.createElement('div');
-            typingDiv.classList.add('typing-indicator');
-            typingDiv.innerHTML = `
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-            `;
-            chatContainer.appendChild(typingDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            return typingDiv;
-        }
-
-        // Speak response
         function speak(text) {
-            synth.cancel(); // Cancel any ongoing speech
-            
-            currentUtterance = new SpeechSynthesisUtterance(text);
-            currentUtterance.rate = 1.1;
-            currentUtterance.pitch = 1;
-            
-            // Try to get a nice voice
-            const voices = synth.getVoices();
-            const preferredVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('en')) || 
-                                 voices.find(v => v.lang.includes('en'));
-            if (preferredVoice) {
-                currentUtterance.voice = preferredVoice;
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.1;
+                utterance.pitch = 1;
+                window.speechSynthesis.speak(utterance);
             }
-            
-            synth.speak(currentUtterance);
-            
-            // When speech ends, re-enable mic
-            currentUtterance.onend = () => {
-                statusEl.textContent = "Tap mic to speak";
-                micBtn.disabled = false;
-                micBtn.classList.remove('listening');
-            };
         }
-
-        // Get response from knowledge base
-        function getResponse(userInput) {
-            const input = userInput.toLowerCase();
-            
-            for (const item of questionPatterns) {
-                if (item.pattern.some(keyword => input.includes(keyword))) {
-                    const responses = knowledgeBase[item.responseKey];
-                    return responses[Math.floor(Math.random() * responses.length)];
-                }
-            }
-            
-            const defaults = knowledgeBase.default;
-            return defaults[Math.floor(Math.random() * defaults.length)];
-        }
-
-        // Mic button handlers
-        micBtn.addEventListener('mousedown', startListening);
-        micBtn.addEventListener('mouseup', stopListening);
-        micBtn.addEventListener('touchstart', startListening, { passive: true });
-        micBtn.addEventListener('touchend', stopListening);
-
-        function startListening() {
-            micBtn.classList.add('listening');
-            statusEl.textContent = "Listening...";
-            micBtn.disabled = true;
-            recognition.start();
-        }
-
-        function stopListening() {
-            micBtn.classList.remove('listening');
-            recognition.stop();
-        }
-
-        // Speech recognition events
-        recognition.onresult = (event) => {
-            const userText = event.results[0][0].transcript;
-            addMessage(userText, 'user');
-            statusEl.textContent = "Processing...";
-            
-            // Show typing indicator while "thinking"
-            const typingIndicator = showTyping();
-            
-            setTimeout(() => {
-                // Remove typing indicator
-                chatContainer.removeChild(typingIndicator);
-                
-                // Get and display response
-                const response = getResponse(userText);
-                addMessage(response, 'bot');
-                speak(response);
-            }, 800);
-        };
-
-        recognition.onerror = (event) => {
-            statusEl.textContent = "Error: " + event.error;
-            micBtn.classList.remove('listening');
-            micBtn.disabled = false;
-        };
-
-        recognition.onend = () => {
-            if (!micBtn.classList.contains('listening') && statusEl.textContent === "Listening...") {
-                statusEl.textContent = "Tap mic to speak";
-                micBtn.disabled = false;
-            }
-        };
 
         // Initial greeting
         setTimeout(() => {
-            const greeting = knowledgeBase.greeting[0];
+            const greeting = knowledgeBase.greeting[Math.floor(Math.random() * knowledgeBase.greeting.length)];
             addMessage(greeting, 'bot');
             speak(greeting);
-        }, 800);
-
-        // Load voices when available
-        if (speechSynthesis.onvoiceschanged !== undefined) {
-            speechSynthesis.onvoiceschanged = () => {
-                // Voices are loaded
-            };
-        }
+        }, 500);
     </script>
 </body>
 </html>
