@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Offline Voice Assistant</title>
+    <title>Enhanced Voice Assistant</title>
     <style>
         :root {
             --primary-color: #4285f4;
@@ -167,7 +167,7 @@
     </style>
 </head>
 <body>
-    <h1>Voice Assistant</h1>
+    <h1>Enhanced Voice Assistant</h1>
     <div id="chat-container"></div>
     
     <div id="controls">
@@ -176,6 +176,8 @@
             <button class="quick-btn" data-query="What's today's date?">📅 Date</button>
             <button class="quick-btn" data-query="Tell me a joke">😂 Joke</button>
             <button class="quick-btn" data-query="Who made you?">👩‍💻 Creator</button>
+            <button class="quick-btn" data-query="What's the meaning of life?">🤔 Philosophy</button>
+            <button class="quick-btn" data-query="Tell me a fun fact">💡 Fun Fact</button>
         </div>
     </div>
     
@@ -188,8 +190,9 @@
         const micBtn = document.getElementById('mic-btn');
         const quickButtons = document.querySelectorAll('.quick-btn');
         
-        // Enhanced knowledge base with more variations
+        // Expanded knowledge base with multiple genres
         const knowledgeBase = {
+            // Basic interactions
             "greeting": ["Hi there!", "Hello!", "Hey! How can I help?", "Greetings!", "Hi! What can I do for you today?"],
             "name": ["I'm VoiceBot", "Call me Assistant", "I'm your helpful AI", "You can call me VA", "I'm your virtual assistant"],
             "creator": ["My creator is Keshika", "I was made by Keshika", "Keshika built me", "A developer named Keshika created me"],
@@ -200,19 +203,114 @@
                 "Why don't scientists trust atoms? Because they make up everything!", 
                 "What do you call fake spaghetti? An impasta!",
                 "Why did the scarecrow win an award? Because he was outstanding in his field!",
-                "How do you organize a space party? You planet!"
+                "How do you organize a space party? You planet!",
+                "Why did the math book look sad? Because it had too many problems."
             ],
             "goodbye": ["Goodbye!", "See you later!", "Have a nice day!", "Bye! Come back soon!", "Farewell!"],
+            
+            // Science and Technology
+            "science": [
+                "The speed of light is approximately 299,792 kilometers per second.",
+                "DNA stands for Deoxyribonucleic Acid.",
+                "The human body contains enough DNA to stretch from the sun to Pluto and back 17 times.",
+                "A single bolt of lightning contains enough energy to toast 100,000 slices of bread."
+            ],
+            "space": [
+                "There are more stars in the universe than grains of sand on all Earth's beaches.",
+                "A day on Venus is longer than a year on Venus.",
+                "Neutron stars are so dense that a teaspoonful would weigh about 10 million tons.",
+                "The footprints on the Moon will be there for 100 million years."
+            ],
+            "computer": [
+                "The first computer programmer was Ada Lovelace in the 1840s.",
+                "The first computer virus was created in 1983.",
+                "The world's first website is still online at http://info.cern.ch",
+                "The QWERTY keyboard layout was designed to slow typists down to prevent jamming on old typewriters."
+            ],
+            
+            // History and Geography
+            "history": [
+                "The Great Pyramid of Giza was the tallest man-made structure for over 3,800 years.",
+                "The shortest war in history was between Britain and Zanzibar in 1896 (38 minutes).",
+                "Cleopatra lived closer in time to the moon landing than to the building of the Great Pyramid.",
+                "The Titanic's distress calls were heard by another ship that was only 10 miles away but didn't respond."
+            ],
+            "geography": [
+                "Canada has more lakes than the rest of the world's lakes combined.",
+                "Russia spans 11 time zones.",
+                "The Amazon Rainforest produces 20% of the world's oxygen.",
+                "Istanbul is the only city in the world located on two continents (Europe and Asia)."
+            ],
+            
+            // Arts and Literature
+            "art": [
+                "Vincent van Gogh only sold one painting during his lifetime.",
+                "The Mona Lisa has no eyebrows - it was fashionable to shave them off during the Renaissance.",
+                "Leonardo da Vinci could write with one hand and draw with the other simultaneously.",
+                "The color orange was named after the fruit, not the other way around."
+            ],
+            "literature": [
+                "William Shakespeare invented over 1,700 words in the English language.",
+                "The longest sentence in literature is in Victor Hugo's Les Misérables (823 words).",
+                "J.K. Rowling was rejected by 12 publishers before Harry Potter was accepted.",
+                "The first novel ever written is considered to be The Tale of Genji from 11th century Japan."
+            ],
+            
+            // Health and Wellness
+            "health": [
+                "Laughing 100 times is equivalent to 15 minutes on an exercise bike.",
+                "Your stomach acid is strong enough to dissolve razor blades.",
+                "Humans are the only animals that blush.",
+                "The average person will walk the equivalent of 5 times around the Earth in their lifetime."
+            ],
+            "nutrition": [
+                "Bananas are berries, but strawberries aren't.",
+                "Honey never spoils - archaeologists have found edible honey in ancient Egyptian tombs.",
+                "Almonds are members of the peach family.",
+                "Carrots were originally purple, not orange."
+            ],
+            
+            // Philosophy and Psychology
+            "philosophy": [
+                "The meaning of life is a philosophical question with many possible answers - what does it mean to you?",
+                "Cogito, ergo sum - I think, therefore I am (René Descartes).",
+                "The unexamined life is not worth living (Socrates).",
+                "We are what we repeatedly do. Excellence, then, is not an act, but a habit (Aristotle)."
+            ],
+            "psychology": [
+                "The brain treats rejection like physical pain.",
+                "It takes about 66 days to form a new habit on average.",
+                "Your decisions are more rational when thought in a foreign language.",
+                "The 'Baader-Meinhof phenomenon' is when you learn something new and then see it everywhere."
+            ],
+            
+            // Fun Facts and Trivia
+            "funfact": [
+                "A group of flamingos is called a flamboyance.",
+                "Octopuses have three hearts and blue blood.",
+                "The Eiffel Tower can be 15 cm taller during summer due to thermal expansion.",
+                "A day on Mercury is about 59 Earth days, but a year is only 88 Earth days."
+            ],
+            "random": [
+                "The dot over the letter 'i' is called a tittle.",
+                "The longest English word without a vowel is 'rhythms'.",
+                "The shortest war in history was between Britain and Zanzibar in 1896 (38 minutes).",
+                "The inventor of the frisbee was turned into a frisbee after he died."
+            ],
+            
+            // Default responses
             "default": [
                 "I'm not sure how to answer that.",
                 "Could you try asking something else?",
-                "I don't understand that yet. Try asking about time or date.",
-                "My knowledge is limited offline. Try a different question."
+                "I don't understand that yet. Try asking about time, date, or fun facts.",
+                "My knowledge is limited offline. Try a different question.",
+                "That's an interesting question! I wish I had a better answer for you."
             ]
         };
 
-        // Expanded question patterns
+        // Expanded question patterns covering multiple genres
         const questionPatterns = [
+            // Basic interactions
             { pattern: ["hi", "hello", "hey", "greetings"], responseKey: "greeting" },
             { pattern: ["your name", "who are you", "identify yourself"], responseKey: "name" },
             { pattern: ["who made you", "who created you", "your creator", "who built you"], responseKey: "creator" },
@@ -220,7 +318,32 @@
             { pattern: ["date", "today's date", "current date", "what's the date"], responseKey: "date" },
             { pattern: ["weather", "temperature", "forecast", "how's the weather"], responseKey: "weather" },
             { pattern: ["joke", "funny", "make me laugh", "tell joke"], responseKey: "joke" },
-            { pattern: ["bye", "goodbye", "see you", "farewell"], responseKey: "goodbye" }
+            { pattern: ["bye", "goodbye", "see you", "farewell"], responseKey: "goodbye" },
+            
+            // Science and Technology
+            { pattern: ["science", "scientific", "physics", "chemistry", "biology"], responseKey: "science" },
+            { pattern: ["space", "astronomy", "planet", "moon", "stars", "galaxy"], responseKey: "space" },
+            { pattern: ["computer", "programming", "technology", "software", "hardware"], responseKey: "computer" },
+            
+            // History and Geography
+            { pattern: ["history", "historical", "ancient", "medieval"], responseKey: "history" },
+            { pattern: ["geography", "country", "countries", "capital", "map"], responseKey: "geography" },
+            
+            // Arts and Literature
+            { pattern: ["art", "painting", "artist", "museum"], responseKey: "art" },
+            { pattern: ["literature", "book", "books", "novel", "author", "poetry"], responseKey: "literature" },
+            
+            // Health and Wellness
+            { pattern: ["health", "healthy", "body", "exercise", "fitness"], responseKey: "health" },
+            { pattern: ["nutrition", "food", "diet", "eat", "eating", "fruit", "vegetable"], responseKey: "nutrition" },
+            
+            // Philosophy and Psychology
+            { pattern: ["philosophy", "meaning of life", "existential", "philosopher"], responseKey: "philosophy" },
+            { pattern: ["psychology", "mind", "brain", "behavior", "habit"], responseKey: "psychology" },
+            
+            // Fun Facts and Trivia
+            { pattern: ["fun fact", "interesting fact", "did you know", "trivia"], responseKey: "funfact" },
+            { pattern: ["random", "tell me something", "anything else"], responseKey: "random" }
         ];
 
         // Check for speech recognition support
