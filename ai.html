@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Voice Assistant</title>
+    <title>Interactive AI Assistant</title>
     <style>
         :root {
             --primary-color: #4285f4;
             --user-message-color: #e3f2fd;
             --bot-message-color: #f1f1f1;
             --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --thinking-color: #ff9800;
         }
         
         * {
@@ -56,6 +57,7 @@
             animation: fadeIn 0.3s;
             word-wrap: break-word;
             line-height: 1.4;
+            position: relative;
         }
         
         .user {
@@ -68,6 +70,37 @@
             background: var(--bot-message-color);
             margin-right: auto;
             border-bottom-left-radius: 5px;
+        }
+        
+        .typing-indicator {
+            display: inline-block;
+            padding: 10px 15px;
+            background: var(--bot-message-color);
+            border-radius: 18px;
+            margin: 10px;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .typing-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #666;
+            margin: 0 2px;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
         }
         
         #controls {
@@ -124,6 +157,41 @@
             background: #f0f0f0;
         }
         
+        #text-input-container {
+            display: flex;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 15px;
+        }
+        
+        #text-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+        }
+        
+        #text-input:focus {
+            border-color: var(--primary-color);
+        }
+        
+        #send-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 0 20px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        #send-btn:hover {
+            background: #3367d6;
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -133,6 +201,11 @@
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
+        }
+        
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
         }
         
         /* Tablet and desktop adjustments */
@@ -163,22 +236,30 @@
                 height: 50px;
                 font-size: 18px;
             }
+            
+            #text-input {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Enhanced Voice Assistant</h1>
+    <h1>Interactive AI Assistant</h1>
     <div id="chat-container"></div>
     
     <div id="controls">
         <div id="quick-actions">
-            <button class="quick-btn" data-query="What's the time?">⏰ Time</button>
-            <button class="quick-btn" data-query="What's today's date?">📅 Date</button>
-            <button class="quick-btn" data-query="Tell me a joke">😂 Joke</button>
-            <button class="quick-btn" data-query="Who made you?">👩‍💻 Creator</button>
-            <button class="quick-btn" data-query="What's the meaning of life?">🤔 Philosophy</button>
-            <button class="quick-btn" data-query="Tell me a fun fact">💡 Fun Fact</button>
+            <button class="quick-btn" data-query="What can you do?">ℹ️ Capabilities</button>
+            <button class="quick-btn" data-query="Tell me about science">🔬 Science</button>
+            <button class="quick-btn" data-query="Explain philosophy">🤔 Philosophy</button>
+            <button class="quick-btn" data-query="Share a fun fact">💡 Fun Fact</button>
         </div>
+    </div>
+    
+    <div id="text-input-container">
+        <input type="text" id="text-input" placeholder="Type your question here..." autocomplete="off">
+        <button id="send-btn">Send</button>
     </div>
     
     <div style="text-align: center;">
@@ -189,161 +270,169 @@
         const chatContainer = document.getElementById('chat-container');
         const micBtn = document.getElementById('mic-btn');
         const quickButtons = document.querySelectorAll('.quick-btn');
+        const textInput = document.getElementById('text-input');
+        const sendBtn = document.getElementById('send-btn');
         
-        // Expanded knowledge base with multiple genres
+        // Conversation state
+        let conversationState = {
+            userName: null,
+            lastTopic: null,
+            context: [],
+            mood: 'neutral' // can be 'neutral', 'happy', 'curious', etc.
+        };
+        
+        // Enhanced knowledge base with dynamic responses
         const knowledgeBase = {
             // Basic interactions
-            "greeting": ["Hi there!", "Hello!", "Hey! How can I help?", "Greetings!", "Hi! What can I do for you today?"],
-            "name": ["I'm VoiceBot", "Call me Assistant", "I'm your helpful AI", "You can call me VA", "I'm your virtual assistant"],
-            "creator": ["My creator is Keshika", "I was made by Keshika", "Keshika built me", "A developer named Keshika created me"],
-            "time": [`It's currently ${new Date().toLocaleTimeString()}`, `The time is now ${new Date().toLocaleTimeString()}`],
-            "date": [`Today is ${new Date().toLocaleDateString()}`, `The date is ${new Date().toLocaleDateString()}`],
-            "weather": ["I can't check weather offline", "You might need an internet connection for that", "I'm offline so I can't access weather data"],
-            "joke": [
-                "Why don't scientists trust atoms? Because they make up everything!", 
-                "What do you call fake spaghetti? An impasta!",
-                "Why did the scarecrow win an award? Because he was outstanding in his field!",
-                "How do you organize a space party? You planet!",
-                "Why did the math book look sad? Because it had too many problems."
-            ],
-            "goodbye": ["Goodbye!", "See you later!", "Have a nice day!", "Bye! Come back soon!", "Farewell!"],
+            "greeting": (userInput) => {
+                if (!conversationState.userName) {
+                    conversationState.mood = 'friendly';
+                    return [
+                        "Hello there! What's your name?",
+                        "Hi! I don't believe we've met. What should I call you?",
+                        "Greetings! May I know your name?"
+                    ];
+                } else {
+                    conversationState.mood = 'happy';
+                    return [
+                        `Welcome back, ${conversationState.userName}! How can I help you today?`,
+                        `Hello again, ${conversationState.userName}! What would you like to know?`,
+                        `Hi ${conversationState.userName}! Ready for another chat?`
+                    ];
+                }
+            },
+            "name": (userInput) => {
+                // Extract name from input like "My name is John"
+                const nameMatch = userInput.match(/(?:my name is|i am|i'm|call me)\s+([^\s,.!?]+)/i);
+                if (nameMatch) {
+                    conversationState.userName = nameMatch[1];
+                    conversationState.mood = 'happy';
+                    return [
+                        `Nice to meet you, ${conversationState.userName}! How can I help you today?`,
+                        `Pleased to meet you, ${conversationState.userName}! What would you like to talk about?`,
+                        `Hello ${conversationState.userName}! I'm ready to assist you.`
+                    ];
+                } else {
+                    conversationState.mood = 'neutral';
+                    return ["I'm VoiceBot, your AI assistant. What's your name?"];
+                }
+            },
+            "capabilities": () => {
+                conversationState.lastTopic = 'capabilities';
+                conversationState.mood = 'helpful';
+                return [
+                    "I can discuss many topics including science, history, philosophy, and more. I can also tell jokes, share fun facts, and have general conversations. What would you like to know?",
+                    "I'm knowledgeable about various subjects like technology, arts, health, and trivia. I can answer questions, explain concepts, or just chat. What interests you?",
+                    "My skills include answering questions, providing explanations, sharing interesting facts, and maintaining conversation. Feel free to ask me anything!"
+                ];
+            },
             
             // Science and Technology
-            "science": [
-                "The speed of light is approximately 299,792 kilometers per second.",
-                "DNA stands for Deoxyribonucleic Acid.",
-                "The human body contains enough DNA to stretch from the sun to Pluto and back 17 times.",
-                "A single bolt of lightning contains enough energy to toast 100,000 slices of bread."
-            ],
-            "space": [
-                "There are more stars in the universe than grains of sand on all Earth's beaches.",
-                "A day on Venus is longer than a year on Venus.",
-                "Neutron stars are so dense that a teaspoonful would weigh about 10 million tons.",
-                "The footprints on the Moon will be there for 100 million years."
-            ],
-            "computer": [
-                "The first computer programmer was Ada Lovelace in the 1840s.",
-                "The first computer virus was created in 1983.",
-                "The world's first website is still online at http://info.cern.ch",
-                "The QWERTY keyboard layout was designed to slow typists down to prevent jamming on old typewriters."
-            ],
-            
-            // History and Geography
-            "history": [
-                "The Great Pyramid of Giza was the tallest man-made structure for over 3,800 years.",
-                "The shortest war in history was between Britain and Zanzibar in 1896 (38 minutes).",
-                "Cleopatra lived closer in time to the moon landing than to the building of the Great Pyramid.",
-                "The Titanic's distress calls were heard by another ship that was only 10 miles away but didn't respond."
-            ],
-            "geography": [
-                "Canada has more lakes than the rest of the world's lakes combined.",
-                "Russia spans 11 time zones.",
-                "The Amazon Rainforest produces 20% of the world's oxygen.",
-                "Istanbul is the only city in the world located on two continents (Europe and Asia)."
-            ],
-            
-            // Arts and Literature
-            "art": [
-                "Vincent van Gogh only sold one painting during his lifetime.",
-                "The Mona Lisa has no eyebrows - it was fashionable to shave them off during the Renaissance.",
-                "Leonardo da Vinci could write with one hand and draw with the other simultaneously.",
-                "The color orange was named after the fruit, not the other way around."
-            ],
-            "literature": [
-                "William Shakespeare invented over 1,700 words in the English language.",
-                "The longest sentence in literature is in Victor Hugo's Les Misérables (823 words).",
-                "J.K. Rowling was rejected by 12 publishers before Harry Potter was accepted.",
-                "The first novel ever written is considered to be The Tale of Genji from 11th century Japan."
-            ],
-            
-            // Health and Wellness
-            "health": [
-                "Laughing 100 times is equivalent to 15 minutes on an exercise bike.",
-                "Your stomach acid is strong enough to dissolve razor blades.",
-                "Humans are the only animals that blush.",
-                "The average person will walk the equivalent of 5 times around the Earth in their lifetime."
-            ],
-            "nutrition": [
-                "Bananas are berries, but strawberries aren't.",
-                "Honey never spoils - archaeologists have found edible honey in ancient Egyptian tombs.",
-                "Almonds are members of the peach family.",
-                "Carrots were originally purple, not orange."
-            ],
+            "science": (userInput) => {
+                conversationState.lastTopic = 'science';
+                conversationState.mood = 'enthusiastic';
+                
+                if (userInput.includes('quantum')) {
+                    return [
+                        "Quantum mechanics is fascinating! Did you know particles can be in multiple states at once until observed? This is called superposition.",
+                        "Quantum physics shows that particles can be entangled, where the state of one instantly affects another, no matter how far apart they are."
+                    ];
+                } else if (userInput.includes('biology') || userInput.includes('life')) {
+                    return [
+                        "Life is amazing! The human body contains about 37 trillion cells, each with its own specialized function.",
+                        "Did you know DNA in your cells, if stretched out, would reach to the sun and back over 300 times?"
+                    ];
+                } else {
+                    return [
+                        "Science is wonderful! The speed of light is about 299,792 km per second - nothing can travel faster!",
+                        "Did you know there are more atoms in a glass of water than glasses of water in all the oceans?",
+                        "The human brain generates about 20 watts of electrical power - enough to power a dim light bulb!"
+                    ];
+                }
+            },
             
             // Philosophy and Psychology
-            "philosophy": [
-                "The meaning of life is a philosophical question with many possible answers - what does it mean to you?",
-                "Cogito, ergo sum - I think, therefore I am (René Descartes).",
-                "The unexamined life is not worth living (Socrates).",
-                "We are what we repeatedly do. Excellence, then, is not an act, but a habit (Aristotle)."
-            ],
-            "psychology": [
-                "The brain treats rejection like physical pain.",
-                "It takes about 66 days to form a new habit on average.",
-                "Your decisions are more rational when thought in a foreign language.",
-                "The 'Baader-Meinhof phenomenon' is when you learn something new and then see it everywhere."
-            ],
+            "philosophy": (userInput) => {
+                conversationState.lastTopic = 'philosophy';
+                conversationState.mood = 'thoughtful';
+                
+                if (userInput.includes('meaning of life')) {
+                    return [
+                        "The meaning of life is a profound question. Many philosophers suggest it's about finding purpose, connection, and personal growth.",
+                        "As Viktor Frankl said, 'Life is never made unbearable by circumstances, but only by lack of meaning and purpose.' What gives your life meaning?"
+                    ];
+                } else if (userInput.includes('exist')) {
+                    return [
+                        "Existentialism explores human freedom and responsibility. Sartre said 'Existence precedes essence' - we create our own meaning through choices.",
+                        "The existential view suggests we're born without purpose and must create our own through authentic living."
+                    ];
+                } else {
+                    return [
+                        "Philosophy helps us examine life's big questions. As Socrates said, 'The unexamined life is not worth living.'",
+                        "Plato believed true knowledge comes from rational thought, while Aristotle emphasized empirical observation. Both approaches remain valuable today."
+                    ];
+                }
+            },
             
             // Fun Facts and Trivia
-            "funfact": [
-                "A group of flamingos is called a flamboyance.",
-                "Octopuses have three hearts and blue blood.",
-                "The Eiffel Tower can be 15 cm taller during summer due to thermal expansion.",
-                "A day on Mercury is about 59 Earth days, but a year is only 88 Earth days."
-            ],
-            "random": [
-                "The dot over the letter 'i' is called a tittle.",
-                "The longest English word without a vowel is 'rhythms'.",
-                "The shortest war in history was between Britain and Zanzibar in 1896 (38 minutes).",
-                "The inventor of the frisbee was turned into a frisbee after he died."
-            ],
+            "funfact": (userInput) => {
+                conversationState.lastTopic = 'funfact';
+                conversationState.mood = 'playful';
+                
+                const facts = [
+                    "Honey never spoils - archaeologists have found edible honey in ancient Egyptian tombs!",
+                    "A day on Venus is longer than a year on Venus - it takes 243 Earth days to rotate once but only 225 to orbit the sun.",
+                    "Octopuses have three hearts, nine brains, and blue blood.",
+                    "The Eiffel Tower can be 15 cm taller during summer due to thermal expansion.",
+                    "There's a species of jellyfish that's biologically immortal - it can revert back to its juvenile form."
+                ];
+                
+                return [facts[Math.floor(Math.random() * facts.length)];
+            },
             
-            // Default responses
-            "default": [
-                "I'm not sure how to answer that.",
-                "Could you try asking something else?",
-                "I don't understand that yet. Try asking about time, date, or fun facts.",
-                "My knowledge is limited offline. Try a different question.",
-                "That's an interesting question! I wish I had a better answer for you."
-            ]
+            // Default responses with context awareness
+            "default": (userInput) => {
+                // Try to maintain context from previous questions
+                if (conversationState.lastTopic) {
+                    if (userInput.includes('more') || userInput.includes('else') || userInput.includes('another')) {
+                        conversationState.mood = 'helpful';
+                        return knowledgeBase[conversationState.lastTopic](userInput);
+                    }
+                    
+                    if (userInput.includes('why') || userInput.includes('how')) {
+                        conversationState.mood = 'thoughtful';
+                        return [
+                            "That's an interesting question. Let me think about that...",
+                            "I'm not entirely sure about that aspect. Maybe we could explore it together?",
+                            "The exact reason isn't clear to me. Would you like to discuss possibilities?"
+                        ];
+                    }
+                }
+                
+                conversationState.mood = 'neutral';
+                return [
+                    "I'm not sure I understand. Could you rephrase that?",
+                    "That's an interesting point. Could you tell me more about what you're asking?",
+                    "I'm still learning. Could you ask me something about science, philosophy, or general knowledge?"
+                ];
+            }
         };
 
-        // Expanded question patterns covering multiple genres
+        // Expanded question patterns with context awareness
         const questionPatterns = [
             // Basic interactions
             { pattern: ["hi", "hello", "hey", "greetings"], responseKey: "greeting" },
             { pattern: ["your name", "who are you", "identify yourself"], responseKey: "name" },
-            { pattern: ["who made you", "who created you", "your creator", "who built you"], responseKey: "creator" },
-            { pattern: ["time", "what time is it", "current time", "what's the time"], responseKey: "time" },
-            { pattern: ["date", "today's date", "current date", "what's the date"], responseKey: "date" },
-            { pattern: ["weather", "temperature", "forecast", "how's the weather"], responseKey: "weather" },
-            { pattern: ["joke", "funny", "make me laugh", "tell joke"], responseKey: "joke" },
-            { pattern: ["bye", "goodbye", "see you", "farewell"], responseKey: "goodbye" },
+            { pattern: ["what can you do", "your capabilities", "what do you know"], responseKey: "capabilities" },
             
             // Science and Technology
-            { pattern: ["science", "scientific", "physics", "chemistry", "biology"], responseKey: "science" },
-            { pattern: ["space", "astronomy", "planet", "moon", "stars", "galaxy"], responseKey: "space" },
-            { pattern: ["computer", "programming", "technology", "software", "hardware"], responseKey: "computer" },
-            
-            // History and Geography
-            { pattern: ["history", "historical", "ancient", "medieval"], responseKey: "history" },
-            { pattern: ["geography", "country", "countries", "capital", "map"], responseKey: "geography" },
-            
-            // Arts and Literature
-            { pattern: ["art", "painting", "artist", "museum"], responseKey: "art" },
-            { pattern: ["literature", "book", "books", "novel", "author", "poetry"], responseKey: "literature" },
-            
-            // Health and Wellness
-            { pattern: ["health", "healthy", "body", "exercise", "fitness"], responseKey: "health" },
-            { pattern: ["nutrition", "food", "diet", "eat", "eating", "fruit", "vegetable"], responseKey: "nutrition" },
+            { pattern: ["science", "scientific", "physics", "chemistry", "biology", "quantum", "space", "astronomy"], responseKey: "science" },
             
             // Philosophy and Psychology
-            { pattern: ["philosophy", "meaning of life", "existential", "philosopher"], responseKey: "philosophy" },
-            { pattern: ["psychology", "mind", "brain", "behavior", "habit"], responseKey: "psychology" },
+            { pattern: ["philosophy", "meaning of life", "existential", "philosopher", "purpose"], responseKey: "philosophy" },
             
             // Fun Facts and Trivia
-            { pattern: ["fun fact", "interesting fact", "did you know", "trivia"], responseKey: "funfact" },
-            { pattern: ["random", "tell me something", "anything else"], responseKey: "random" }
+            { pattern: ["fun fact", "interesting fact", "did you know", "trivia", "tell me something"], responseKey: "funfact" }
         ];
 
         // Check for speech recognition support
@@ -366,13 +455,40 @@
                 const query = button.getAttribute('data-query');
                 addMessage(query, 'user');
                 
+                showTypingIndicator();
                 setTimeout(() => {
-                    const response = getResponse(query.toLowerCase());
+                    removeTypingIndicator();
+                    const response = getResponse(query.toLowerCase(), query);
                     addMessage(response, 'bot');
                     speak(response);
-                }, 500);
+                }, 1500);
             });
         });
+
+        // Text input handling
+        textInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        sendBtn.addEventListener('click', sendMessage);
+        
+        function sendMessage() {
+            const message = textInput.value.trim();
+            if (message) {
+                addMessage(message, 'user');
+                textInput.value = '';
+                
+                showTypingIndicator();
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    const response = getResponse(message.toLowerCase(), message);
+                    addMessage(response, 'bot');
+                    speak(response);
+                }, 1500);
+            }
+        }
 
         // Microphone button
         micBtn.addEventListener('click', () => {
@@ -393,11 +509,13 @@
             addMessage(userText, 'user');
             micBtn.classList.remove('listening');
             
+            showTypingIndicator();
             setTimeout(() => {
-                const response = getResponse(userText.toLowerCase());
+                removeTypingIndicator();
+                const response = getResponse(userText.toLowerCase(), userText);
                 addMessage(response, 'bot');
                 speak(response);
-            }, 800);
+            }, 1500);
         };
 
         recognition.onerror = (event) => {
@@ -409,14 +527,35 @@
             micBtn.classList.remove('listening');
         };
 
-        function getResponse(userInput) {
+        function getResponse(userInput, originalInput) {
+            // Store context
+            conversationState.context.push({
+                user: originalInput,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Keep only last 5 messages for context
+            if (conversationState.context.length > 5) {
+                conversationState.context.shift();
+            }
+            
+            // Check for name in greeting response
+            if (userInput.includes("my name is") || userInput.includes("i am") || userInput.includes("i'm")) {
+                const responses = knowledgeBase["name"](userInput);
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+            
+            // Check patterns
             for (const item of questionPatterns) {
                 if (item.pattern.some(keyword => userInput.includes(keyword))) {
-                    const possibleAnswers = knowledgeBase[item.responseKey];
-                    return possibleAnswers[Math.floor(Math.random() * possibleAnswers.length)];
+                    const responses = knowledgeBase[item.responseKey](userInput);
+                    return responses[Math.floor(Math.random() * responses.length)];
                 }
             }
-            return knowledgeBase.default[Math.floor(Math.random() * knowledgeBase.default.length)];
+            
+            // Default response
+            const responses = knowledgeBase["default"](userInput);
+            return responses[Math.floor(Math.random() * responses.length)];
         }
 
         function addMessage(text, sender) {
@@ -426,22 +565,49 @@
             chatContainer.appendChild(messageDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
+        
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.classList.add('typing-indicator');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+            chatContainer.appendChild(typingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
 
         function speak(text) {
             if ('speechSynthesis' in window) {
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.rate = 1.1;
                 utterance.pitch = 1;
+                
+                // Adjust voice based on mood
+                if (conversationState.mood === 'happy') {
+                    utterance.rate = 1.2;
+                    utterance.pitch = 1.1;
+                } else if (conversationState.mood === 'thoughtful') {
+                    utterance.rate = 0.9;
+                    utterance.pitch = 0.95;
+                }
+                
                 window.speechSynthesis.speak(utterance);
             }
         }
 
         // Initial greeting
         setTimeout(() => {
-            const greeting = knowledgeBase.greeting[Math.floor(Math.random() * knowledgeBase.greeting.length)];
+            const responses = knowledgeBase["greeting"]("");
+            const greeting = responses[Math.floor(Math.random() * responses.length)];
             addMessage(greeting, 'bot');
             speak(greeting);
-        }, 500);
+        }, 800);
     </script>
 </body>
 </html>
