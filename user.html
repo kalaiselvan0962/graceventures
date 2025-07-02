@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            text-align: center;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 10px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .pdf-button {
+            background-color: #2196F3;
+        }
+        .pdf-button:hover {
+            background-color: #0b7dda;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Document Viewer</h1>
+        <button class="button pdf-button" onclick="viewPDF()">View PDF Document</button>
+        <button class="button" onclick="openURL()">Open Website</button>
+    </div>
+
+    <script>
+        function viewPDF() {
+            // Replace with your PDF file path or URL
+            const pdfUrl = 'user.pdf';
+            window.open(pdfUrl, '_blank');
+        }
+
+        function openURL() {
+            // Replace with your desired URL
+            const websiteUrl = 'https://hcljigsaw.hyrenet.in/login';
+            window.open(websiteUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
