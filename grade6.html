@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falling Blocks - Pygame Code</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #00ffcc;
+            text-align: center;
+        }
+        pre {
+            background-color: #2d2d2d;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            overflow-x: auto;
+            width: 90%;
+            max-width: 800px;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #00ffcc;
+            border: none;
+            border-radius: 5px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #00ccaa;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 Falling Blocks - Pygame Code</h1>
+    <pre id="code">
+import pygame
+import sys
+
+# 1. Initialize Pygame
+pygame.init()
+
+# 2. Set up game grid values
+ROWS, COLS = 10, 10
+BLOCK_SIZE = 40  # Each block is 40px wide
+
+# 3. Calculate game window size
+WIDTH, HEIGHT = COLS * BLOCK_SIZE, ROWS * BLOCK_SIZE
+TOP_MARGIN = 40  # Extra space at the top for score or text
+
+# 4. Create the actual game window
+screen = pygame.display.set_mode((WIDTH, HEIGHT + TOP_MARGIN))
+
+# 5. Set the window title
+pygame.display.set_caption("Falling Blocks")
+
+# 6. Create a clock to control FPS
+clock = pygame.time.Clock()
+
+# 7. Function to draw the grid lines
+def draw_grid():
+    for row in range(ROWS):
+        for col in range(COLS):
+            pygame.draw.rect(
+                screen,
+                (40, 40, 40),  # Dark gray grid lines
+                (col * BLOCK_SIZE, row * BLOCK_SIZE + TOP_MARGIN, BLOCK_SIZE, BLOCK_SIZE),
+                1  # Border thickness
+            )
+
+# 8. Game loop
+running = True
+while running:
+    for event in pygame.event.get():
+        # If user clicks close button, exit game
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Fill background black
+    screen.fill((0, 0, 0))
+
+    # Draw the grid
+    draw_grid()
+
+    # Update the display
+    pygame.display.update()
+
+    # Control game speed (60 FPS)
+    clock.tick(60)
+
+# Quit Pygame safely
+pygame.quit()
+sys.exit()
+    </pre>
+    <button onclick="copyCode()">📋 Copy Code</button>
+
+    <script>
+        function copyCode() {
+            const codeElement = document.getElementById("code");
+            const range = document.createRange();
+            range.selectNode(codeElement);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand("copy");
+            window.getSelection().removeAllRanges();
+            alert("✅ Code copied to clipboard!");
+        }
+    </script>
+</body>
+</html>
