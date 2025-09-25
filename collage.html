@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Square Frame Collage Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
+        .controls {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            margin-right: 20px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .preview {
+            flex: 2;
+            min-width: 500px;
+            background-color: #f0f2f5;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 600px;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #444;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 8px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input[type="text"], input[type="color"], input[type="number"], select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            transition: border 0.3s;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            border-color: #6a11cb;
+            outline: none;
+        }
+
+        .file-input {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 12px;
+            background: #e9ecef;
+            border: 2px dashed #adb5bd;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-input-label:hover {
+            background: #dee2e6;
+            border-color: #6a11cb;
+        }
+
+        button {
+            background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #resetBtn {
+            background: linear-gradient(to right, #f093fb 0%, #f5576c 100%);
+        }
+
+        .collage-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header-text, .footer-text {
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            background-color: #f8f9fa;
+        }
+
+        .header-text {
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .footer-text {
+            border-top: 1px solid #eaeaea;
+        }
+
+        .collage-images {
+            display: grid;
+            gap: 5px;
+            padding: 10px;
+            min-height: 400px;
+            transition: background 0.3s;
+        }
+
+        .collage-item {
+            background-color: #f0f2f5;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .collage-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .placeholder {
+            color: #adb5bd;
+            font-size: 3rem;
+        }
+
+        .download-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #downloadBtn {
+            background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+            width: auto;
+            padding: 12px 30px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .controls {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+        }
+
+        .status-message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .image-quality {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quality-value {
+            font-weight: bold;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .aspect-ratio-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .gradient-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .gradient-option {
+            height: 60px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .gradient-option:hover {
+            transform: scale(1.05);
+        }
+        
+        .gradient-option.active {
+            border-color: #333;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        
+      .gradient-1 {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.gradient-2 {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.gradient-3 {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.gradient-4 {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.gradient-5 {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.gradient-6 {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.gradient-7 {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+.gradient-8 {
+    background: linear-gradient(135deg, #a3bded 0%, #6991c7 100%);
+}
+
+.gradient-9 {
+    background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%);
+}
+
+.gradient-10 {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+}
+
+.gradient-11 {
+    background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+}
+
+.gradient-12 {
+    background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
+}
+
+.gradient-13 {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+}
+
+.gradient-14 {
+    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+}
+
+.gradient-15 {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+}
+
+.gradient-16 {
+    background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+}
+
+.gradient-17 {
+    background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+}
+
+.gradient-18 {
+    background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+}
+
+.gradient-19 {
+    background: linear-gradient(135deg, #ffdde1 0%, #ee9ca7 100%);
+}
+
+.gradient-20 {
+    background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%);
+}
+
+.gradient-21 {
+    background: linear-gradient(135deg, #c6ffdd 0%, #fbd786 50%, #f7797d 100%);
+}
+
+.gradient-22 {
+    background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+}
+
+.gradient-23 {
+    background: linear-gradient(135deg, #5ee7df 0%, #b490ca 100%);
+}
+
+.gradient-24 {
+    background: linear-gradient(135deg, #c33764 0%, #1d2671 100%);
+}
+
+.gradient-25 {
+    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+}
+        /* Layout options styling */
+        .layout-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .layout-option {
+            height: 80px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f0f2f5;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .layout-option:hover {
+            transform: scale(1.05);
+        }
+        
+        .layout-option.active {
+            border-color: #6a11cb;
+            box-shadow: 0 0 10px rgba(106, 17, 203, 0.3);
+        }
+        
+        .layout-preview {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            gap: 2px;
+            padding: 5px;
+        }
+        
+        .layout-cell {
+            background-color: #adb5bd;
+            border-radius: 2px;
+        }
+        
+        .layout-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px;
+            text-align: center;
+        }
+        /* Add to existing layout styles */
+.layout-2x2 .layout-preview {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+}
+
+/* Add to existing collage preview styles */
+.collage-images.layout-2x2 {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+}
+        /* Specific layout styles */
+        .layout-2x3 .layout-preview {
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+        
+        .layout-3x3 .layout-preview {
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+        }
+        
+        .layout-4x4 .layout-preview {
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+        }
+        
+        .layout-2x4 .layout-preview {
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+        
+        .layout-3x4 .layout-preview {
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+        }
+        
+        .layout-2x2 .layout-preview {
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+        
+        .layout-1x6 .layout-preview {
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: 1fr;
+        }
+        
+        .layout-6x1 .layout-preview {
+            grid-template-columns: 1fr;
+            grid-template-rows: repeat(6, 1fr);
+        }
+        
+        .layout-2x2-2 .layout-preview {
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+        
+        .layout-2x2-2 .layout-cell:nth-child(1) {
+            grid-column: span 2;
+        }
+        
+        .layout-3x2-1 .layout-preview {
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+        
+        .layout-3x2-1 .layout-cell:nth-child(1) {
+            grid-column: span 3;
+        }
+        
+        .layout-1-2-3 .layout-preview {
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+        }
+        
+        .layout-1-2-3 .layout-cell:nth-child(1) {
+            grid-column: span 3;
+        }
+        
+        .layout-1-2-3 .layout-cell:nth-child(2) {
+            grid-column: span 2;
+        }
+        
+        .layout-center-focus .layout-preview {
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+        }
+        
+        .layout-center-focus .layout-cell:nth-child(5) {
+            grid-column: span 1;
+            grid-row: span 1;
+        }
+        
+        .layout-center-focus .layout-cell:not(:nth-child(5)) {
+            opacity: 0.7;
+        }
+        
+        .layout-symmetrical .layout-preview {
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+        }
+        
+        .layout-symmetrical .layout-cell:nth-child(1),
+        .layout-symmetrical .layout-cell:nth-child(4),
+        .layout-symmetrical .layout-cell:nth-child(13),
+        .layout-symmetrical .layout-cell:nth-child(16) {
+            background-color: #6a11cb;
+        }
+        
+        /* Frame style options */
+        .frame-style-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .frame-style-option {
+            height: 60px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            color: white;
+        }
+        
+        .frame-style-option:hover {
+            transform: scale(1.05);
+        }
+        
+        .frame-style-option.active {
+            border-color: #333;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        
+        .frame-style-1 {
+            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
+        }
+        
+        .frame-style-2 {
+            background: linear-gradient(135deg, #2F4F4F 0%, #708090 100%);
+        }
+        
+        .frame-style-3 {
+            background: linear-gradient(135deg, #800020 0%, #B22222 100%);
+        }
+        
+        .frame-style-4 {
+            background: linear-gradient(135deg, #2E8B57 0%, #3CB371 100%);
+        }
+        
+        .frame-style-5 {
+            background: linear-gradient(135deg, #4B0082 0%, #9370DB 100%);
+        }
+        
+        .frame-style-6 {
+            background: linear-gradient(135deg, #DAA520 0%, #F0E68C 100%);
+        }
+        
+        /* Additional styling for the collage preview */
+        .collage-images.layout-2x3 {
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+        
+        .collage-images.layout-3x3 {
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+        }
+        
+        .collage-images.layout-4x4 {
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+        }
+        
+        .collage-images.layout-2x4 {
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+        
+        .collage-images.layout-3x4 {
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+        }
+        
+        .collage-images.layout-2x2 {
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+        
+        .collage-images.layout-1x6 {
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: 1fr;
+        }
+        
+        .collage-images.layout-6x1 {
+            grid-template-columns: 1fr;
+            grid-template-rows: repeat(6, 1fr);
+        }
+        
+        .collage-images.layout-2x2-2 {
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+        
+        .collage-images.layout-2x2-2 .collage-item:nth-child(1) {
+            grid-column: span 2;
+        }
+        
+        .collage-images.layout-3x2-1 {
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+        
+        .collage-images.layout-3x2-1 .collage-item:nth-child(1) {
+            grid-column: span 3;
+        }
+        
+        .collage-images.layout-1-2-3 {
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+        }
+        
+        .collage-images.layout-1-2-3 .collage-item:nth-child(1) {
+            grid-column: span 3;
+        }
+        
+        .collage-images.layout-1-2-3 .collage-item:nth-child(2) {
+            grid-column: span 2;
+        }
+        
+        .collage-images.layout-center-focus {
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+        }
+        
+        .collage-images.layout-center-focus .collage-item:nth-child(5) {
+            grid-column: span 1;
+            grid-row: span 1;
+            z-index: 2;
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        
+        .collage-images.layout-center-focus .collage-item:not(:nth-child(5)) {
+            opacity: 0.7;
+        }
+        
+        .collage-images.layout-symmetrical {
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+        }
+        
+        .collage-images.layout-symmetrical .collage-item:nth-child(1),
+        .collage-images.layout-symmetrical .collage-item:nth-child(4),
+        .collage-images.layout-symmetrical .collage-item:nth-child(13),
+        .collage-images.layout-symmetrical .collage-item:nth-child(16) {
+            background-color: #6a11cb;
+        }
+        
+        /* Frame styling */
+        .frame {
+            border: 15px solid transparent;
+            border-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="0" y="0" width="100" height="100" fill="none" stroke="%238B4513" stroke-width="10"/></svg>') 30 round;
+            padding: 10px;
+            background-color: white;
+        }
+        
+        .frame-wood {
+            border: 15px solid transparent;
+            border-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="0" y="0" width="100" height="100" fill="%238B4513" stroke="%235D4037" stroke-width="5"/></svg>') 30 round;
+            padding: 10px;
+            background-color: #F5F5DC;
+        }
+        
+        .frame-modern {
+            border: 10px solid #2F4F4F;
+            padding: 15px;
+            background-color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .frame-test {
+            border: 10px solid #11c8ac;
+            padding: 15px;
+            background-color: white;
+            box-shadow: 0 5px 15px rgba(239, 14, 14, 0.2);
+        }
+        
+        .frame-vintage {
+            border: 20px solid #800020;
+            padding: 5px;
+            background-color: #F5F5DC;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        .frame-nature {
+            border: 12px solid #2E8B57;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+        }
+        
+        .frame-royal {
+            border: 18px solid #4B0082;
+            padding: 8px;
+            background-color: #F0F8FF;
+            box-shadow: 0 0 20px rgba(75,0,130,0.3);
+        }
+        
+        .frame-gold {
+            border: 15px solid #DAA520;
+            padding: 10px;
+            background-color: white;
+            box-shadow: 0 5px 15px rgba(218,165,32,0.3);
+        }
+        
+        .collage-frame {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Square Frame Collage Generator</h1>
+            <p class="subtitle">Create beautiful collages with various square frame styles</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="controls">
+                <div class="control-group">
+                    <h2>Text Customization</h2>
+                    
+                    <label for="headerText">Header Text</label>
+                    <input type="text" id="headerText" placeholder="Enter header text" value="My Photo Collage">
+                    
+                    <label for="headerColor">Header Color</label>
+                    <input type="color" id="headerColor" value="#6a11cb">
+                    
+                    <label for="footerText">Footer Text</label>
+                    <input type="text" id="footerText" placeholder="Enter footer text" value="Created with Collage Generator">
+                    
+                    <label for="footerColor">Footer Color</label>
+                    <input type="color" id="footerColor" value="#2575fc">
+                    
+                    <label for="fontSize">Font Size</label>
+                    <input type="number" id="fontSize" min="12" max="48" value="24">
+                </div>
+                
+                <div class="control-group">
+                    <h2>Layout Options</h2>
+                    <p>Select a collage layout (supports 6-8 images)</p>
+                    
+                    <div class="layout-options">
+                        <div class="layout-option layout-2x3 active" data-layout="2x3">
+                            <div class="layout-preview">
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                            </div>
+                            <div class="layout-label">2x3 Grid (6 images)</div>
+                        </div>
+                        
+                        <div class="layout-option layout-3x3" data-layout="3x3">
+                            <div class="layout-preview">
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                            </div>
+                            <div class="layout-label">3x3 Grid (9 images)</div>
+                        </div>
+                        
+                        <div class="layout-option layout-2x4" data-layout="2x4">
+                            <div class="layout-preview">
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                            </div>
+                            <div class="layout-label">2x4 Grid (8 images)</div>
+                        </div>
+                        
+                        <div class="layout-option layout-3x4" data-layout="3x4">
+                            <div class="layout-preview">
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                            </div>
+                            <div class="layout-label">3x4 Grid (12 images)</div>
+                        </div>
+                        
+                        <div class="layout-option layout-2x2-2" data-layout="2x2-2">
+                            <div class="layout-preview">
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                            </div>
+                            <div class="layout-label">Featured + 3 (4 images)</div>
+                        </div>
+                        
+                        <div class="layout-option layout-3x2-1" data-layout="3x2-1">
+                            <div class="layout-preview">
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                            </div>
+                            <div class="layout-label">Featured + 5 (6 images)</div>
+                        </div>
+                        
+                        <div class="layout-option layout-1-2-3" data-layout="1-2-3">
+                            <div class="layout-preview">
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                            </div>
+                            <div class="layout-label">1-2-3 Pattern (6 images)</div>
+                        </div>
+                        
+                        <div class="layout-option layout-center-focus" data-layout="center-focus">
+                            <div class="layout-preview">
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                            </div>
+                            <div class="layout-label">Center Focus (8 images)</div>
+                        </div>
+                        
+                        <div class="layout-option layout-symmetrical" data-layout="symmetrical">
+                            <div class="layout-preview">
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                                <div class="layout-cell"></div>
+                            </div>
+                            <div class="layout-label">Symmetrical (8 images)</div>
+                        </div>
+                        <div class="layout-option layout-2x2" data-layout="2x2">
+    <div class="layout-preview">
+        <div class="layout-cell"></div>
+        <div class="layout-cell"></div>
+        <div class="layout-cell"></div>
+        <div class="layout-cell"></div>
+    </div>
+    <div class="layout-label">2x2 Grid (4 images)</div>
+</div>
+                    </div>
+                    
+                    <label for="borderSize">Image Border Size</label>
+                    <input type="number" id="borderSize" min="0" max="20" value="5">
+                    
+                    <div class="aspect-ratio-option">
+                        <input type="checkbox" id="preserveAspectRatio" checked>
+                        <label for="preserveAspectRatio">Preserve image proportions</label>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h2>Frame Style</h2>
+                    <p>Choose a frame style for your collage</p>
+                    
+                    <div class="frame-style-options">
+                        <div class="frame-style-option frame-style-1 active" data-frame="wood">Wood Frame</div>
+                        <div class="frame-style-option frame-style-2" data-frame="modern">Modern Frame</div>
+                        <div class="frame-style-option frame-style-2" data-frame="test">Modern Frame</div>
+
+                        <div class="frame-style-option frame-style-3" data-frame="vintage">Vintage Frame</div>
+                        <div class="frame-style-option frame-style-4" data-frame="nature">Nature Frame</div>
+                        <div class="frame-style-option frame-style-5" data-frame="royal">Royal Frame</div>
+                        <div class="frame-style-option frame-style-6" data-frame="gold">Gold Frame</div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h2>Background Options</h2>
+                    <p>Select a gradient background for your collage</p>
+                    
+                    <div class="gradient-options">
+<div class="gradient-option gradient-10" data-gradient="linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)">Rose</div>
+<div class="gradient-option gradient-11" data-gradient="linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)">Aqua</div>
+<div class="gradient-option gradient-12" data-gradient="linear-gradient(135deg, #ff9966 0%, #ff5e62 100%)">Coral</div>
+<div class="gradient-option gradient-13" data-gradient="linear-gradient(135deg, #56ab2f 0%, #a8e063 100%)">Lime</div>
+<div class="gradient-option gradient-14" data-gradient="linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)">Grey Mist</div>
+<div class="gradient-option gradient-15" data-gradient="linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)">Indigo</div>
+<div class="gradient-option gradient-16" data-gradient="linear-gradient(135deg, #f7971e 0%, #ffd200 100%)">Orange</div>
+<div class="gradient-option gradient-17" data-gradient="linear-gradient(135deg, #00c6ff 0%, #0072ff 100%)">Ocean</div>
+<div class="gradient-option gradient-18" data-gradient="linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%)">Royal</div>
+<div class="gradient-option gradient-19" data-gradient="linear-gradient(135deg, #ffdde1 0%, #ee9ca7 100%)">Soft Pink</div>
+<div class="gradient-option gradient-20" data-gradient="linear-gradient(135deg, #fceabb 0%, #f8b500 100%)">Golden</div>
+<div class="gradient-option gradient-21" data-gradient="linear-gradient(135deg, #c6ffdd 0%, #fbd786 50%, #f7797d 100%)">Tropical</div>
+<div class="gradient-option gradient-22" data-gradient="linear-gradient(135deg, #30cfd0 0%, #330867 100%)">Deep Space</div>
+<div class="gradient-option gradient-23" data-gradient="linear-gradient(135deg, #5ee7df 0%, #b490ca 100%)">Mint Purple</div>
+<div class="gradient-option gradient-24" data-gradient="linear-gradient(135deg, #c33764 0%, #1d2671 100%)">Crimson</div>
+<div class="gradient-option gradient-25" data-gradient="linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)">Dark Sea</div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h2>Image Upload</h2>
+                    <p>Upload images for your collage (up to 12 for some layouts)</p>
+                    
+                    <div class="file-input">
+                        <label class="file-input-label" for="imageUpload">Choose Images</label>
+                        <input type="file" id="imageUpload" accept="image/*" multiple>
+                    </div>
+                    
+                    <div id="imagePreview" style="margin-top: 15px;"></div>
+                </div>
+                
+                <div class="control-group">
+                    <h2>Download Settings</h2>
+                    
+                    <label for="imageQuality">Image Quality</label>
+                    <div class="image-quality">
+                        <input type="range" id="imageQuality" min="0.5" max="1" step="0.1" value="1">
+                        <span class="quality-value" id="qualityValue">1.0</span>
+                    </div>
+                    
+                    <label for="imageFormat">Image Format</label>
+                    <select id="imageFormat">
+                        <option value="png">PNG (High Quality)</option>
+                        <option value="jpeg">JPEG (Smaller File)</option>
+                    </select>
+                </div>
+                
+                <button id="generateBtn">Generate Collage</button>
+                <button id="resetBtn">Reset All</button>
+            </div>
+            
+            <div class="preview">
+                <h2>Collage Preview</h2>
+                
+                <div class="collage-frame frame-wood" id="collageFrame">
+                    <div class="collage-container" id="collageContainer">
+                        <div class="header-text" id="previewHeader">My Photo Collage</div>
+                        
+                        <div class="collage-images layout-2x3" id="collageGrid" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
+                            <div class="collage-item"><span class="placeholder">+</span></div>
+                            <div class="collage-item"><span class="placeholder">+</span></div>
+                            <div class="collage-item"><span class="placeholder">+</span></div>
+                            <div class="collage-item"><span class="placeholder">+</span></div>
+                            <div class="collage-item"><span class="placeholder">+</span></div>
+                            <div class="collage-item"><span class="placeholder">+</span></div>
+                        </div>
+                        
+                        <div class="footer-text" id="previewFooter">Created with Collage Generator</div>
+                    </div>
+                </div>
+                
+                <div id="statusMessage" class="status-message"></div>
+                
+                <div class="download-section">
+                    <button id="downloadBtn">Download Collage as Image</button>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Square Frame Collage Generator &copy; 2023 | Create beautiful collages with various frame styles</p>
+        </footer>
+    </div>
+
+    <!-- Include html2canvas library for image conversion -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const headerTextInput = document.getElementById('headerText');
+            const headerColorInput = document.getElementById('headerColor');
+            const footerTextInput = document.getElementById('footerText');
+            const footerColorInput = document.getElementById('footerColor');
+            const fontSizeInput = document.getElementById('fontSize');
+            const imageUploadInput = document.getElementById('imageUpload');
+            const borderSizeInput = document.getElementById('borderSize');
+            const generateBtn = document.getElementById('generateBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const previewHeader = document.getElementById('previewHeader');
+            const previewFooter = document.getElementById('previewFooter');
+            const collageGrid = document.getElementById('collageGrid');
+            const imagePreview = document.getElementById('imagePreview');
+            const statusMessage = document.getElementById('statusMessage');
+            const collageContainer = document.getElementById('collageContainer');
+            const collageFrame = document.getElementById('collageFrame');
+            const imageQualityInput = document.getElementById('imageQuality');
+            const qualityValue = document.getElementById('qualityValue');
+            const imageFormatSelect = document.getElementById('imageFormat');
+            const preserveAspectRatioCheckbox = document.getElementById('preserveAspectRatio');
+            const gradientOptions = document.querySelectorAll('.gradient-option');
+            const layoutOptions = document.querySelectorAll('.layout-option');
+            const frameStyleOptions = document.querySelectorAll('.frame-style-option');
+            
+            // Store uploaded images with their original dimensions
+            let uploadedImages = [];
+            let selectedGradient = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+            let selectedLayout = "2x3";
+            let selectedFrameStyle = "wood";
+            
+            // Event Listeners
+            headerTextInput.addEventListener('input', updateHeaderText);
+            headerColorInput.addEventListener('input', updateHeaderColor);
+            footerTextInput.addEventListener('input', updateFooterText);
+            footerColorInput.addEventListener('input', updateFooterColor);
+            fontSizeInput.addEventListener('input', updateFontSize);
+            imageUploadInput.addEventListener('change', handleImageUpload);
+            borderSizeInput.addEventListener('input', updateBorderSize);
+            generateBtn.addEventListener('click', generateCollage);
+            resetBtn.addEventListener('click', resetAll);
+            downloadBtn.addEventListener('click', downloadCollage);
+            imageQualityInput.addEventListener('input', updateQualityValue);
+            
+            // Gradient selection
+            gradientOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    gradientOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedGradient = this.getAttribute('data-gradient');
+                    collageGrid.style.background = selectedGradient;
+                });
+            });
+            
+            // Layout selection
+            layoutOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    layoutOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedLayout = this.getAttribute('data-layout');
+                    updateLayout();
+                });
+            });
+            
+            // Frame style selection
+            frameStyleOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    frameStyleOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedFrameStyle = this.getAttribute('data-frame');
+                    updateFrameStyle();
+                });
+            });
+            
+            // Update functions
+            function updateHeaderText() {
+                previewHeader.textContent = headerTextInput.value || 'Header Text';
+            }
+            
+            function updateHeaderColor() {
+                previewHeader.style.color = headerColorInput.value;
+            }
+            
+            function updateFooterText() {
+                previewFooter.textContent = footerTextInput.value || 'Footer Text';
+            }
+            
+            function updateFooterColor() {
+                previewFooter.style.color = footerColorInput.value;
+            }
+            
+            function updateFontSize() {
+                const fontSize = fontSizeInput.value + 'px';
+                previewHeader.style.fontSize = fontSize;
+                previewFooter.style.fontSize = fontSize;
+            }
+            
+            function updateQualityValue() {
+                qualityValue.textContent = imageQualityInput.value;
+            }
+            
+            function updateFrameStyle() {
+                collageFrame.className = 'collage-frame';
+                collageFrame.classList.add(`frame-${selectedFrameStyle}`);
+            }
+            
+            function handleImageUpload(e) {
+                const files = e.target.files;
+                uploadedImages = [];
+                imagePreview.innerHTML = '';
+                
+                // Determine max images based on layout
+                let maxImages = 12; // Default maximum
+                
+                switch(selectedLayout) {
+                    case '2x2': maxImages = 4; break; 
+                    case '2x3': maxImages = 6; break;
+                    case '3x3': maxImages = 9; break;
+                    case '2x4': maxImages = 8; break;
+                    case '3x4': maxImages = 12; break;
+                    case '2x2-2': maxImages = 4; break;
+                    case '3x2-1': maxImages = 6; break;
+                    case '1-2-3': maxImages = 6; break;
+                    case 'center-focus': maxImages = 8; break;
+                    case 'symmetrical': maxImages = 12; break;
+                }
+                
+                // Limit to max images
+                const fileCount = Math.min(files.length, maxImages);
+                
+                for (let i = 0; i < fileCount; i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(event) {
+                        const img = new Image();
+                        img.onload = function() {
+                            uploadedImages.push({
+                                src: event.target.result,
+                                width: img.width,
+                                height: img.height,
+                                aspectRatio: img.width / img.height
+                            });
+                            
+                            // Create thumbnail preview
+                            const thumbImg = document.createElement('img');
+                            thumbImg.src = event.target.result;
+                            thumbImg.style.width = '80px';
+                            thumbImg.style.height = '80px';
+                            thumbImg.style.objectFit = 'cover';
+                            thumbImg.style.margin = '5px';
+                            thumbImg.style.borderRadius = '5px';
+                            imagePreview.appendChild(thumbImg);
+                            
+                            // Update collage preview if we have images
+                            if (uploadedImages.length === fileCount) {
+                                updateCollagePreview();
+                            }
+                        };
+                        img.src = event.target.result;
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            }
+            
+            function updateLayout() {
+                // Remove all existing classes that start with "layout-"
+                collageGrid.className = 'collage-images';
+                Array.from(collageGrid.classList).forEach(className => {
+                    if (className.startsWith('layout-')) {
+                        collageGrid.classList.remove(className);
+                    }
+                });
+                
+                // Add the new layout class
+                collageGrid.classList.add(`layout-${selectedLayout}`);
+                
+                // Clear the grid
+                collageGrid.innerHTML = '';
+                
+                // Determine number of items needed
+                let itemCount = 6; // Default
+                
+                switch(selectedLayout) {
+                    case '2x2': itemCount = 4; break;
+                    case '2x3': itemCount = 6; break;
+                    case '3x3': itemCount = 9; break;
+                    case '2x4': itemCount = 8; break;
+                    case '3x4': itemCount = 12; break;
+                    case '2x2-2': itemCount = 4; break;
+                    case '3x2-1': itemCount = 6; break;
+                    case '1-2-3': itemCount = 6; break;
+                    case 'center-focus': itemCount = 9; break;
+                    case 'symmetrical': itemCount = 16; break;
+                }
+                
+                // Create the grid items
+                for (let i = 0; i < itemCount; i++) {
+                    const collageItem = document.createElement('div');
+                    collageItem.className = 'collage-item';
+                    
+                    if (i < uploadedImages.length) {
+                        const img = document.createElement('img');
+                        img.src = uploadedImages[i].src;
+                        
+                        if (preserveAspectRatioCheckbox.checked) {
+                            img.style.objectFit = 'contain';
+                        } else {
+                            img.style.objectFit = 'cover';
+                        }
+                        
+                        collageItem.appendChild(img);
+                    } else {
+                        const placeholder = document.createElement('span');
+                        placeholder.className = 'placeholder';
+                        placeholder.textContent = '+';
+                        collageItem.appendChild(placeholder);
+                    }
+                    
+                    collageGrid.appendChild(collageItem);
+                }
+                
+                updateBorderSize();
+            }
+            
+            function updateBorderSize() {
+                const borderSize = borderSizeInput.value + 'px';
+                const collageItems = document.querySelectorAll('.collage-item');
+                
+                collageItems.forEach(item => {
+                    item.style.border = `${borderSize} solid white`;
+                });
+            }
+            
+            function updateCollagePreview() {
+                const collageItems = document.querySelectorAll('.collage-item');
+                
+                collageItems.forEach((item, index) => {
+                    if (index < uploadedImages.length) {
+                        item.innerHTML = '';
+                        const img = document.createElement('img');
+                        img.src = uploadedImages[index].src;
+                        
+                        if (preserveAspectRatioCheckbox.checked) {
+                            img.style.objectFit = 'contain';
+                        } else {
+                            img.style.objectFit = 'cover';
+                        }
+                        
+                        item.appendChild(img);
+                    } else {
+                        if (!item.querySelector('.placeholder')) {
+                            item.innerHTML = '';
+                            const placeholder = document.createElement('span');
+                            placeholder.className = 'placeholder';
+                            placeholder.textContent = '+';
+                            item.appendChild(placeholder);
+                        }
+                    }
+                });
+            }
+            
+            function generateCollage() {
+                updateCollagePreview();
+                showStatus('Collage generated successfully!', 'success');
+            }
+            
+            function resetAll() {
+                headerTextInput.value = 'My Photo Collage';
+                headerColorInput.value = '#6a11cb';
+                footerTextInput.value = 'Created with Collage Generator';
+                footerColorInput.value = '#2575fc';
+                fontSizeInput.value = 24;
+                imageUploadInput.value = '';
+                borderSizeInput.value = 5;
+                imageQualityInput.value = 1;
+                qualityValue.textContent = '1.0';
+                imageFormatSelect.value = 'png';
+                preserveAspectRatioCheckbox.checked = true;
+                
+                // Reset gradient to default
+                gradientOptions.forEach(opt => opt.classList.remove('active'));
+                document.querySelector('.gradient-1').classList.add('active');
+                selectedGradient = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+                collageGrid.style.background = selectedGradient;
+                
+                // Reset layout to default
+                layoutOptions.forEach(opt => opt.classList.remove('active'));
+                document.querySelector('.layout-2x3').classList.add('active');
+                selectedLayout = "2x3";
+                
+                // Reset frame style to default
+                frameStyleOptions.forEach(opt => opt.classList.remove('active'));
+                document.querySelector('.frame-style-1').classList.add('active');
+                selectedFrameStyle = "wood";
+                updateFrameStyle();
+                
+                uploadedImages = [];
+                imagePreview.innerHTML = '';
+                
+                updateHeaderText();
+                updateHeaderColor();
+                updateFooterText();
+                updateFooterColor();
+                updateFontSize();
+                updateLayout();
+                updateBorderSize();
+                
+                showStatus('All settings have been reset.', 'success');
+            }
+            
+            function downloadCollage() {
+                if (uploadedImages.length === 0) {
+                    showStatus('Please upload at least one image before downloading.', 'error');
+                    return;
+                }
+                
+                showStatus('Generating image, please wait...', 'success');
+                
+                // Create a temporary container for the download
+                const tempContainer = document.createElement('div');
+                tempContainer.style.width = collageFrame.offsetWidth + 'px';
+                tempContainer.style.position = 'absolute';
+                tempContainer.style.left = '-9999px';
+                document.body.appendChild(tempContainer);
+                
+                // Clone the collage frame
+                const clone = collageFrame.cloneNode(true);
+                tempContainer.appendChild(clone);
+                
+                // Apply the selected gradient to the clone
+                const cloneGrid = clone.querySelector('.collage-images');
+                cloneGrid.style.background = selectedGradient;
+                
+                // Ensure all images maintain their aspect ratios in the clone
+                if (preserveAspectRatioCheckbox.checked) {
+                    const images = clone.querySelectorAll('img');
+                    images.forEach((img, index) => {
+                        if (index < uploadedImages.length) {
+                            img.style.objectFit = 'contain';
+                        }
+                    });
+                }
+                
+                // Use html2canvas to convert the collage to an image
+                html2canvas(clone, {
+                    width: clone.offsetWidth,
+                    height: clone.offsetHeight,
+                    scale: window.devicePixelRatio * parseFloat(imageQualityInput.value),
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff',
+                    allowTaint: false
+                }).then(canvas => {
+                    // Convert canvas to image data URL
+                    const format = imageFormatSelect.value;
+                    const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
+                    const quality = format === 'png' ? 1 : 0.9;
+                    
+                    const imageData = canvas.toDataURL(mimeType, quality);
+                    
+                    // Create a temporary link to download the image
+                    const link = document.createElement('a');
+                    link.download = `my-collage.${format}`;
+                    link.href = imageData;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // Clean up
+                    document.body.removeChild(tempContainer);
+                    
+                    showStatus('Collage downloaded successfully!', 'success');
+                }).catch(error => {
+                    console.error('Error generating image:', error);
+                    showStatus('Error generating image. Please try again.', 'error');
+                    
+                    // Clean up even on error
+                    document.body.removeChild(tempContainer);
+                });
+            }
+            
+            function showStatus(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = `status-message ${type}`;
+                statusMessage.style.display = 'block';
+                
+                // Hide the message after 5 seconds
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 5000);
+            }
+            
+            // Initialize
+            updateHeaderText();
+            updateHeaderColor();
+            updateFooterText();
+            updateFooterColor();
+            updateFontSize();
+            updateLayout();
+            updateBorderSize();
+            updateQualityValue();
+            updateFrameStyle();
+            
+            // Add resize listener to maintain aspect ratios on window resize
+            window.addEventListener('resize', function() {
+                if (preserveAspectRatioCheckbox.checked) {
+                    updateCollagePreview();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
