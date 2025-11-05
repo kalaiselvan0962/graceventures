@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wizklub| Instructors Helpdesk</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="background">
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+            <div class="shape shape-5"></div>
+        </div>
+        <div class="light-beam"></div>
+    </div>
+
+    <!-- Main Login Container -->
+    <div class="container">
+        <div class="login-card">
+            <!-- Header -->
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <h1>Wizklub</h1>
+                </div>
+                <p class="subtitle">Instructors Helpdesk</p>
+            </div>
+
+            <!-- Login Form -->
+            <form class="login-form" id="loginForm">
+                <div class="input-group">
+                    <div class="input-container">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="employeeId" placeholder="Employee ID" required>
+                        <div class="input-highlight"></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-btn">
+                    <span class="btn-text">Access Portal</span>
+                    <div class="btn-loader">
+                        <div class="loader-dot"></div>
+                        <div class="loader-dot"></div>
+                        <div class="loader-dot"></div>
+                    </div>
+                    <i class="fas fa-arrow-right btn-arrow"></i>
+                </button>
+            </form>
+
+        
+            <!-- Status Messages -->
+            <div class="status-message" id="statusMessage">
+                <div class="message-content">
+                    <i class="fas fa-check message-icon"></i>
+                    <span class="message-text" id="messageText"></span>
+                </div>
+                <div class="countdown" id="countdown"></div>
+            </div>
+        </div>
+
+        <!-- Features Panel -->
+        <div class="features-panel">
+           
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="feature-content">
+                    <h3>Lightning Fast Solution</h3>
+                    <p>Raise a ticket and solve it in few minutes</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="feature-content">
+                    <h3>Directly connect with the team</h3>
+                    <p>To get issues resolved</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="login-animations.js"></script>
+    <script type="module" src="login-firebase.js"></script>
+</body>
+</html>

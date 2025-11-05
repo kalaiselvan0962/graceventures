@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus | Employee Dashboard</title>
+            <link rel="stylesheet" href="style.css"> <!-- This line links your CSS -->
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="background">
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+            <div class="shape shape-5"></div>
+        </div>
+        <div class="light-beam"></div>
+    </div>
+
+    <!-- Dashboard Header -->
+    <header class="dashboard-header">
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-cloud"></i>
+            </div>
+            <div class="logo-text">
+                <h1>Wizklub</h1>
+                <p>Instructors Helpline</p>
+            </div>
+        </div>
+        <div class="user-section">
+            <div class="user-info">
+                <div class="user-name" id="employeeName">John Doe</div>
+                <div class="user-position" id="employeePosition">Software Engineer</div>
+            </div>
+            <button class="raise-ticket-btn" onclick="raiseTicket()">
+                <i class="fas fa-plus-circle"></i>
+                Raise Ticket
+            </button>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Content -->
+    <div class="dashboard-container">
+        <div class="dashboard-card">
+            <div class="tracker-header">
+                <div class="header-left">
+                    <h1 id="dashboard-title">My Tickets</h1>
+                    <p id="dashboard-subtitle">View and track your submitted issues</p>
+                </div>
+                <div class="header-right">
+                    <div class="update-indicator">
+                        <div class="status-dot"></div>
+                        <span id="update-time">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="search-input" placeholder="Search issues...">
+                </div>
+                <div class="filter-controls">
+                    <select id="status-filter">
+                        <option value="all">All Statuses</option>
+                        <option value="To Do">To Do</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Done">Done</option>
+                    </select>
+                    <select id="priority-filter">
+                        <option value="all">All Priorities</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="issues-container">
+                <div id="data-container">
+                    <div class="loading">Fetching your tickets...</div>
+                </div>
+            </div>
+            
+            <footer>
+                <p>Auto-refreshing every <span id="refresh-interval">10</span> seconds</p>
+            </footer>
+        </div>
+    </div>
+
+  
+
+
+    <script>
+// === UPDATE DOMContentLoaded ===
+document.addEventListener('DOMContentLoaded', async function() {
+    const employeeData = getEmployeeData();
+    
+    if (employeeData && employeeData.name) {
+        console.log('🚀 App starting for:', employeeData.name, '(', employeeData.userType, ')');
+        displayEmployeeInfo(employeeData);
+        
+        // For managers, refresh data first
+        if (employeeData.userType === 'area_manager' || employeeData.userType === 'program_manager') {
+            console.log('👨‍💼 Manager detected, refreshing from Firebase...');
+            
+            // Show loading state
+            document.getElementById('data-container').innerHTML = 
+                '<div class="loading">Loading manager permissions from Firebase...</div>';
+            
+            // Wait for Firebase data
+            const updatedData = await refreshManagerData();
+            
+            if (updatedData) {
+                console.log('✅ Firebase refresh completed');
+                if (updatedData.managedEmployees && updatedData.managedEmployees.length > 0) {
+                    console.log('🎯 Manager can see employees:', updatedData.managedEmployees);
+                } else {
+                    console.log('⚠️ Manager has no managed employees defined');
+                }
+                // Update display with potentially updated data
+                displayEmployeeInfo(updatedData);
+            }
+        }
+        
+        // Initialize tracker for all users
+        initializeTracker();
+        
+    } else {
+        console.log('❌ No valid employee data, redirecting to login');
+        window.location.href = 'index.html';
+    }
+});
+
+// === REPLACE refreshManagerData FUNCTION ===
+async function refreshManagerData() {
+    try {
+        const employeeData = getEmployeeData();
+        if (!employeeData) {
+            console.log('❌ No employee data available');
+            return null;
+        }
+        
+        const empid = employeeData.empid || employeeData.id;
+        const userType = employeeData.userType;
+        
+        console.log(`🔄 refreshManagerData for ${employeeData.name} (${userType}) - ID: ${empid}`);
+        
+        // Only refresh for managers
+        if (userType === 'area_manager' || userType === 'program_manager') {
+            const firebaseData = await fetchEmployeeFromFirebase(empid);
+            
+            if (firebaseData) {
+                // Merge data carefully, preserving essential fields
+                const updatedData = {
+                    ...employeeData,
+                    ...firebaseData,
+                    // Ensure critical fields are preserved
+                    id: employeeData.id || firebaseData.id,
+                    empid: employeeData.empid || firebaseData.empid,
+                    name: employeeData.name || firebaseData.name,
+                    userType: employeeData.userType || firebaseData.userType,
+                    // Use managedEmployees from Firebase if available
+                    managedEmployees: firebaseData.managedEmployees || employeeData.managedEmployees || []
+                };
+                
+                // Save to localStorage
+                localStorage.setItem('employeeData', JSON.stringify(updatedData));
+                console.log('💾 Updated localStorage with Firebase data');
+                console.log('✅ Managed employees after refresh:', updatedData.managedEmployees);
+                
+                return updatedData;
+            } else {
+                console.log('❌ No data returned from Firebase for', empid);
+            }
+        } else {
+            console.log('ℹ️ User is not a manager, skipping Firebase refresh');
+        }
+        
+        return employeeData;
+        
+    } catch (error) {
+        console.error('❌ Error in refreshManagerData:', error);
+        return getEmployeeData(); // Return original data as fallback
+    }
+}
+
+function getEmployeeData() {
+    try {
+        // Try localStorage first, then sessionStorage
+        const localStorageData = localStorage.getItem('employeeData');
+        const sessionStorageData = sessionStorage.getItem('currentEmployee');
+        
+        let employeeData = null;
+        
+        if (localStorageData) {
+            employeeData = JSON.parse(localStorageData);
+        } else if (sessionStorageData) {
+            employeeData = JSON.parse(sessionStorageData);
+        }
+        
+        // Validate employee data
+        if (employeeData && employeeData.id && employeeData.name && employeeData.position) {
+            return employeeData;
+        }
+    } catch (error) {
+        console.error('Error parsing employee data:', error);
+    }
+    
+    return null;
+}
+
+// === REPLACE getManagedEmployees FUNCTION WITH COMPLETE HARDCODED VALUES ===
+function getManagedEmployees(employeeData) {
+    if (!employeeData) {
+        console.log('❌ No employee data in getManagedEmployees');
+        return [];
+    }
+    
+    const empid = employeeData.empid || employeeData.id;
+    const userType = employeeData.userType;
+    const name = employeeData.name;
+    
+    console.log(`🔍 getManagedEmployees for ${name} (${userType}) - ID: ${empid}`);
+    
+    // Only managers should have managed employees
+    if (userType !== 'area_manager' && userType !== 'program_manager') {
+        console.log('❌ User is not a manager type');
+        return [];
+    }
+    
+    // Check for managedEmployees array
+    if (employeeData.managedEmployees && Array.isArray(employeeData.managedEmployees)) {
+        if (employeeData.managedEmployees.length > 0) {
+            console.log('✅ Found managedEmployees array:', employeeData.managedEmployees);
+            return employeeData.managedEmployees;
+        } else {
+            console.log('⚠️ managedEmployees array exists but is empty');
+        }
+    }
+    
+    // Check for manageEmployees string (legacy format)
+    if (employeeData.manageEmployees && typeof employeeData.manageEmployees === 'string') {
+        const employees = employeeData.manageEmployees.split(',')
+            .map(emp => emp.trim())
+            .filter(emp => emp && emp.trim() !== '');
+        console.log('✅ Found manageEmployees string, converted to array:', employees);
+        return employees;
+    }
+    
+    // === COMPLETE HARDCODED FALLBACK EMPIDs FOR ALL MANAGERS ===
+    console.log('🔄 Using hardcoded EMPID fallbacks for', userType);
+    
+    // Hardcoded values for specific managers
+    if (name === 'HimanshuVerma' || empid === 'HYD603385') {
+        // Area Manager: HimanshuVerma (HYD603385)
+        const hardcodedEmployees = [
+            'RET244', 'EMP3715', 'RET247', 'EMP3722', 'EMP3782', 
+            'RET260', 'EMP3635', 'RET276', 'RET723', 'RET255', 
+            'EMP3772', 'EMP3771', 'RET248', 'RET253', 'HYD603396', 'RET284'
+        ];
+        console.log('🎯 HimanshuVerma (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
+        return hardcodedEmployees;
+    } 
+    else if (name === 'Aditi Ashok Katti' || empid === 'EMP2470') {
+        // Program Manager: Aditi Ashok Katti (EMP2470) - can see all of Himanshu's team plus others
+        const hardcodedEmployees = [
+            'RET244', 'EMP3715', 'RET247', 'EMP3722', 'EMP3782', 
+            'RET260', 'EMP3635', 'RET276', 'RET723', 'RET255', 
+            'EMP3772', 'EMP3771', 'RET248', 'RET253', 'HYD603396', 'RET284',
+            'EMP2470', 'HYD603385' // Include self and area manager
+        ];
+        console.log('🎯 Aditi Ashok Katti (Program Manager) hardcoded EMPIDs:', hardcodedEmployees);
+        return hardcodedEmployees;
+    }
+    else if (name === 'John Emmanuel' || empid === 'EMP665') {
+        // Area Manager: John Emmanuel (EMP665)
+        const hardcodedEmployees = [
+            'EMP3632', 'EMP3784', 'EMP670', 'EMP3778', 'EMP3701', 'EMP737', 
+            'EMP3792', 'EMP3756', 'EMP3769', 'EMP3268', 'HYD603372', 'EMP3661', 
+            'EMP3728', 'HYD603563', 'EMP576', 'EMP3767', 'HYD607795', 'EMP3757', 
+            'EMP3763', 'EMP3707', 'EMP3758', 'EMP3744', 'EMP3773', 'RET289', 
+            'EMP3646', 'EMP3793', 'EMP3755', 'RET267', 'EMP3681', 'EMP3667', 
+            'EMP2957', 'EMP3626', 'EMP3668', 'EMP3787'
+        ];
+        console.log('🎯 John Emmanuel (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
+        return hardcodedEmployees;
+    }
+    else if (name === 'MEENA' || empid === 'HYD603338') {
+        // Program Manager: MEENA (HYD603338) - can see John's team and S Sandeep Kumar's team
+        const hardcodedEmployees = [
+            // John Emmanuel's team
+            'EMP3632', 'EMP3784', 'EMP670', 'EMP3778', 'EMP3701', 'EMP737', 
+            'EMP3792', 'EMP3756', 'EMP3769', 'EMP3268', 'HYD603372', 'EMP3661', 
+            'EMP3728', 'HYD603563', 'EMP576', 'EMP3767', 'HYD607795', 'EMP3757', 
+            'EMP3763', 'EMP3707', 'EMP3758', 'EMP3744', 'EMP3773', 'RET289', 
+            'EMP3646', 'EMP3793', 'EMP3755', 'RET267', 'EMP3681', 'EMP3667', 
+            'EMP2957', 'EMP3626', 'EMP3668', 'EMP3787',
+            // S Sandeep Kumar's team
+            'EMP3593', 'EMP3777', 'EMP3745', 'RET256', 'EMP3716', 'RET278', 
+            'EMP3789', 'RET243', 'RET227', 'RET291', 'EMP743', 'EMP3770', 
+            'RET228', 'RET277', 'RET268', 'RET288', 'EMP3759', 'EMP3683', 
+            'EMP3788', 'EMP3791', 'EMP734', 'EMP3721',
+            // Include managers
+            'EMP665', 'EMP060', 'HYD603338'
+        ];
+        console.log('🎯 MEENA (Program Manager) hardcoded EMPIDs:', hardcodedEmployees);
+        return hardcodedEmployees;
+    }
+    else if (name === 'S Sandeep Kumar' || empid === 'EMP060') {
+        // Area Manager: S Sandeep Kumar (EMP060)
+        const hardcodedEmployees = [
+            'EMP3593', 'EMP3777', 'EMP3745', 'RET256', 'EMP3716', 'RET278', 
+            'EMP3789', 'RET243', 'RET227', 'RET291', 'EMP743', 'EMP3770', 
+            'RET228', 'RET277', 'RET268', 'RET288', 'EMP3759', 'EMP3683', 
+            'EMP3788', 'EMP3791', 'EMP734', 'EMP3721'
+        ];
+        console.log('🎯 S Sandeep Kumar (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
+        return hardcodedEmployees;
+    }
+    else if (name === 'Rishav Kumar' || empid === 'HYD603381') {
+        // Area Manager: Rishav Kumar (HYD603381)
+        const hardcodedEmployees = [
+            'EMP3785', 'EMP3766', 'RET246', 'EMP626', 'EMP3774', 'EMP850', 
+            'EMP3717', 'EMP3743', 'EMP3786', 'RET266', 'EMP3260', 'RET265', 
+            'RET286', 'EMP3740', 'EMP3761', 'HYD603319', 'EMP3747', 'RET287', 
+            'EMP3768', 'RET270', 'EMP3781', 'RET282', 'EMP3764', 'RET251', 
+            'EMP3780', 'RET285', 'EMP3754', 'EMP3689', 'RET283', 'EMP3376', 
+            'EMP3154', 'EMP3703', 'EMP3760', 'EMP3723', 'EMP3783', 'EMP3776', 
+            'EMP3779', 'RET281', 'EMP3630', 'EMP3684', 'EMP3705', 'EMP3665'
+        ];
+        console.log('🎯 Rishav Kumar (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
+        return hardcodedEmployees;
+    }
+    else if (name === 'PADMAJA' || empid === 'EMP679') {
+        // Program Manager: PADMAJA (EMP679) - can see Rishav's team
+        const hardcodedEmployees = [
+            // Rishav Kumar's team
+            'EMP3785', 'EMP3766', 'RET246', 'EMP626', 'EMP3774', 'EMP850', 
+            'EMP3717', 'EMP3743', 'EMP3786', 'RET266', 'EMP3260', 'RET265', 
+            'RET286', 'EMP3740', 'EMP3761', 'HYD603319', 'EMP3747', 'RET287', 
+            'EMP3768', 'RET270', 'EMP3781', 'RET282', 'EMP3764', 'RET251', 
+            'EMP3780', 'RET285', 'EMP3754', 'EMP3689', 'RET283', 'EMP3376', 
+            'EMP3154', 'EMP3703', 'EMP3760', 'EMP3723', 'EMP3783', 'EMP3776', 
+            'EMP3779', 'RET281', 'EMP3630', 'EMP3684', 'EMP3705', 'EMP3665',
+            // Include managers
+            'HYD603381', 'EMP679'
+        ];
+        console.log('🎯 PADMAJA (Program Manager) hardcoded EMPIDs:', hardcodedEmployees);
+        return hardcodedEmployees;
+    }
+    
+    // Generic fallbacks for other managers
+    if (userType === 'program_manager') {
+        // Program Manager fallback - can see all program-related employees
+        const fallbackEmployees = ['EMP2470', 'HYD603385', 'EMP665', 'EMP060', 'HYD603381'];
+        console.log('🎯 Generic Program Manager fallback EMPIDs:', fallbackEmployees);
+        return fallbackEmployees;
+    } else if (userType === 'area_manager') {
+        // Area Manager fallback - can see area-specific employees
+        const fallbackEmployees = ['RET244', 'EMP3715', 'RET247', 'EMP3722'];
+        console.log('🎯 Generic Area Manager fallback EMPIDs:', fallbackEmployees);
+        return fallbackEmployees;
+    }
+    
+    console.log('❌ No managed employees found in employee data');
+    console.log('📊 Available employeeData fields:', Object.keys(employeeData));
+    
+    return []; // Return empty array as last resort
+}
+
+// Fetch employee data from Firebase
+async function fetchEmployeeFromFirebase(empid) {
+    try {
+        console.log(`📡 Fetching employee data from Firebase for: ${empid}`);
+        
+        const docRef = db.collection('employees').doc(empid);
+        const doc = await docRef.get();
+        
+        if (doc.exists) {
+            const data = doc.data();
+            console.log('✅ Firebase data retrieved:', data);
+            return data;
+        } else {
+            console.log('❌ No employee found in Firebase with ID:', empid);
+            return null;
+        }
+    } catch (error) {
+        console.error('❌ Error fetching from Firebase:', error);
+        return null;
+    }
+}
+
+// Display employee information in the header
+function displayEmployeeInfo(employeeData) {
+    document.getElementById('employeeName').textContent = employeeData.name;
+    
+    // Set user-friendly role display
+    let roleDisplay = '';
+    switch(employeeData.userType) {
+        case 'program_manager':
+            roleDisplay = 'Program Manager';
+            break;
+        case 'area_manager':
+            roleDisplay = 'Area Manager';
+            break;
+        case 'assignee':
+            roleDisplay = 'Support Staff';
+            break;
+        case 'admin':
+            roleDisplay = 'Administrator';
+            break;
+        default:
+            roleDisplay = 'Employee';
+    }
+    
+    document.getElementById('employeePosition').textContent = `${employeeData.position} (${roleDisplay})`;
+    
+    // Update dashboard title based on user type
+    const titleElement = document.getElementById('dashboard-title');
+    const subtitleElement = document.getElementById('dashboard-subtitle');
+    
+    switch(employeeData.userType) {
+        case 'employee':
+            titleElement.textContent = 'My Tickets';
+            subtitleElement.textContent = 'View and track your submitted tickets';
+            break;
+        case 'program_manager':
+            titleElement.textContent = 'Team Tickets - Program';
+            subtitleElement.textContent = 'View tickets from your program team';
+            break;
+        case 'area_manager':
+            titleElement.textContent = 'Team Tickets - Area';
+            subtitleElement.textContent = 'View tickets from your area team';
+            break;
+        case 'assignee':
+            titleElement.textContent = 'Assigned Tickets';
+            subtitleElement.textContent = 'View and manage tickets assigned to you';
+            break;
+        case 'admin':
+            titleElement.textContent = 'All Tickets';
+            subtitleElement.textContent = 'View and manage all system tickets';
+            break;
+    }
+    
+    console.log(`User logged in: ${employeeData.name} - ${employeeData.position} - ${employeeData.userType}`);
+    
+    // Update avatar with employee initials
+    const avatar = document.querySelector('.user-avatar');
+    if (!avatar) {
+        const userSection = document.querySelector('.user-section');
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar user-avatar';
+        const initials = employeeData.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        avatar.textContent = initials;
+        userSection.insertBefore(avatar, userSection.firstChild);
+    } else {
+        const initials = employeeData.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        avatar.textContent = initials;
+    }
+}
+
+// Raise Ticket function
+function raiseTicket() {
+    // Redirect to index.html to raise a new ticket
+    window.location.href = 'index.html';
+}
+
+// Logout function - Clear all stored data
+function logout() {
+    // Clear all authentication data
+    localStorage.removeItem('employeeData');
+    sessionStorage.removeItem('currentEmployee');
+    
+    // Redirect to login page
+    window.location.href = 'index.html';
+}
+
+// Jira Tracker Functionality - UPDATED FOR NEW GOOGLE SHEET STRUCTURE
+const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw8l8QJZjSPzWR8Vk7bKDMM0l2CxiBwWWR4QBEsj3ouqcy0H8FjckH-bwye-INCT74A-A/exec'; 
+const POLLING_INTERVAL = 10000; 
+
+let currentData = [];
+
+function initializeTracker() {
+    // Fetch data immediately
+    fetchSheetData(); 
+    
+    // Set up the polling mechanism
+    setInterval(fetchSheetData, POLLING_INTERVAL);
+    
+    // Set up event listeners for filters
+    setupEventListeners();
+    
+    // Update the refresh interval display
+    document.getElementById('refresh-interval').textContent = POLLING_INTERVAL / 1000;
+    
+    console.log(`Jira-style tracker initialized. Refreshing every ${POLLING_INTERVAL / 1000} seconds.`);
+}
+
+async function fetchSheetData() {
+    try {
+        console.log('🔄 Starting data fetch from Google Sheets...');
+        
+        // Use JSONP to bypass CORS
+        const jsonpUrl = `${GAS_WEB_APP_URL}?callback=handleData&timestamp=${new Date().getTime()}`;
+        console.log('📡 Fetching from:', jsonpUrl);
+        
+        // Remove any existing script
+        const existingScript = document.getElementById('jsonp-script');
+        if (existingScript) {
+            existingScript.remove();
+        }
+        
+        // Create script element for JSONP
+        const script = document.createElement('script');
+        script.id = 'jsonp-script';
+        script.src = jsonpUrl;
+        
+        // Add error handling for script load
+        script.onerror = function() {
+            console.error('❌ Script load failed - CORS or URL issue');
+            showError('Failed to load data. Check Web App URL and permissions.');
+        };
+        
+        document.head.appendChild(script);
+        
+    } catch (error) {
+        console.error("❌ Could not fetch data:", error);
+        showError('Network error: ' + error.message);
+    }
+}
+
+// Enhanced handleData function with better error handling
+function handleData(response) {
+    console.log('📨 Received response from Google Apps Script:', response);
+    
+    if (response && response.data) {
+        currentData = response.data;
+        const employeeData = getEmployeeData();
+        
+        console.log(`📊 Total issues in sheet: ${currentData.length}`);
+        console.log(`👤 User type: ${employeeData.userType}`);
+        
+        if (currentData.length === 0) {
+            console.log('⚠️ No data returned from sheet');
+        }
+        
+        // Refresh manager data in background for area_manager and program_manager
+        if (employeeData.userType === 'area_manager' || employeeData.userType === 'program_manager') {
+            refreshManagerData(); // Runs async in background
+        }
+        
+        const filteredData = applyFilters(currentData);
+        console.log(`🎯 Filtered tickets for ${employeeData.userType}: ${filteredData.length}`);
+        
+        renderTable(filteredData);
+        document.getElementById('update-time').innerHTML = `Last updated: ${new Date().toLocaleTimeString()}`;
+        
+    } else if (response && response.error) {
+        console.error('❌ Google Apps Script Error:', response.error);
+        showError('Server error: ' + response.error);
+    } else {
+        console.error('❌ Invalid response format:', response);
+        showError('Invalid response from server. Check console for details.');
+    }
+}
+
+function showError(message) {
+    document.getElementById('data-container').innerHTML = 
+        `<div class="error">
+            <h3>Error loading data</h3>
+            <p>${message}</p>
+            <p><small>Check the Web App URL: ${GAS_WEB_APP_URL}</small></p>
+            <button onclick="fetchSheetData()" style="margin-top: 10px; padding: 8px 16px; background: #4361ee; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Retry
+            </button>
+        </div>`;
+}
+function showError() {
+    document.getElementById('data-container').innerHTML = 
+        `<div class="error">
+            <h3>Error loading data</h3>
+            <p>Check the console for details and verify your Web App URL is correct.</p>
+        </div>`;
+}
+
+// UPDATED applyFilters FUNCTION FOR NEW COLUMN NAMES
+function applyFilters(data) {
+    const statusFilter = document.getElementById('status-filter').value;
+    const priorityFilter = document.getElementById('priority-filter').value;
+    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const employeeData = getEmployeeData();
+    const currentEmpID = employeeData ? employeeData.empid : null;
+    const userName = employeeData ? employeeData.name : '';
+    const userType = employeeData ? employeeData.userType : 'employee';
+    
+    console.log(`🔍 Applying filters - User: ${userName}, Type: ${userType}, EMPID: ${currentEmpID}`);
+    
+    const filteredData = data.filter(issue => {
+        // UPDATED: Use new column names from Google Form
+        const issueEmpID = issue['EMPID (Ex:EMP737)'] || issue.EMPID || '';
+        const issueName = issue['name'] || issue.Name || '';
+        
+        // User-based filtering
+        let shouldShow = false;
+        
+        switch(userType) {
+            case 'employee':
+                shouldShow = currentEmpID && issueEmpID === currentEmpID;
+                if (!shouldShow) {
+                    console.log(`❌ Employee ${currentEmpID} cannot see ticket from ${issueEmpID}`);
+                } else {
+                    console.log(`✅ Employee ${currentEmpID} CAN see their own ticket`);
+                }
+                break;
+                
+            case 'area_manager':
+            case 'program_manager':
+                const managedEmployees = getManagedEmployees(employeeData);
+                console.log(`👨‍💼 ${userType} ${userName} manages:`, managedEmployees);
+                
+                shouldShow = managedEmployees.includes(issueEmpID);
+                
+                if (!shouldShow) {
+                    console.log(`❌ ${userType} cannot see ticket from ${issueEmpID} (not in managed employees)`);
+                } else {
+                    console.log(`✅ ${userType} can see ticket from ${issueEmpID}`);
+                }
+                break;
+                
+            case 'assignee':
+                // UPDATED: Use new column name for assignee
+                const assigneeValue = issue.Assignee || issue['Assigned To'] || issue.Assigned_empid || issue['Assigned EmpID'] || '';
+                shouldShow = assigneeValue === userName;
+                if (!shouldShow) {
+                    console.log(`❌ Assignee ${userName} cannot see ticket assigned to ${assigneeValue}`);
+                } else {
+                    console.log(`✅ Assignee ${userName} CAN see ticket assigned to them`);
+                }
+                break;
+                
+            case 'admin':
+                shouldShow = true;
+                console.log(`✅ Admin can see all tickets`);
+                break;
+                
+            default:
+                shouldShow = false;
+                console.log(`❌ Unknown user type: ${userType}`);
+        }
+        
+        if (!shouldShow) return false;
+        
+        // Apply other filters (status, priority, search)
+        if (statusFilter !== 'all' && issue.Status !== statusFilter) {
+            return false;
+        }
+        
+        if (priorityFilter !== 'all' && issue.Priority !== priorityFilter) {
+            return false;
+        }
+        
+        // UPDATED: Search across new column names
+        if (searchTerm && !(
+            (issue.Category || '').toLowerCase().includes(searchTerm) ||
+            (issue.Issue || '').toLowerCase().includes(searchTerm) ||
+            (issueEmpID || '').toString().includes(searchTerm) ||
+            (issueName || '').toLowerCase().includes(searchTerm) ||
+            ((issue.Assignee || issue['Assigned To'] || issue.Assigned_empid || '') || '').toLowerCase().includes(searchTerm)
+        )) {
+            return false;
+        }
+        
+        return true;
+    });
+    
+    console.log(`🎯 Final filtered tickets for ${userType}: ${filteredData.length}`);
+    return filteredData;
+}
+
+
+
+// COMPLETE UPDATED renderTable FUNCTION WITH MANAGER ACCESS
+function renderTable(data) {
+    const container = document.getElementById('data-container');
+    const employeeData = getEmployeeData();
+    const userType = employeeData ? employeeData.userType : 'employee';
+    
+    // Define which user types can update status
+    const canUpdateStatus = userType === 'assignee' || userType === 'admin' || 
+                           userType === 'area_manager' || userType === 'program_manager';
+    
+    if (!data || data.length === 0) {
+        let message = '';
+        switch(userType) {
+            case 'employee':
+                message = 'You haven\'t submitted any tickets yet. Click "Raise Ticket" to create one.';
+                break;
+            case 'program_manager':
+                message = 'No tickets from your program team. Employees can raise tickets that will appear here.';
+                break;
+            case 'area_manager':
+                message = 'No tickets from your area team. Employees can raise tickets that will appear here.';
+                break;
+            case 'assignee':
+                message = 'No tickets assigned to you.';
+                break;
+            default:
+                message = 'No tickets found.';
+        }
+        
+        container.innerHTML = `
+            <div class="empty-state">
+                <h3>No tickets found</h3>
+                <p>${message}</p>
+                ${userType === 'assignee' ? '<p style="margin-top: 10px; font-size: 12px; color: #64748b;">Your name: <strong>' + employeeData.name + '</strong></p>' : ''}
+            </div>
+        `;
+        return;
+    }
+
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>EMP ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Issue</th>
+                    <th>Priority</th>
+                    <th>Assignee</th>
+                    <th>Status</th>
+                    ${canUpdateStatus ? '<th>Actions</th>' : ''}
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    data.forEach(issue => {
+        let statusClass = 'status-todo';
+        if (issue.Status === 'In Progress') statusClass = 'status-in-progress';
+        if (issue.Status === 'Done') statusClass = 'status-done';
+        
+        let priorityClass = 'priority-low';
+        if (issue.Priority === 'High') priorityClass = 'priority-high';
+        if (issue.Priority === 'Medium') priorityClass = 'priority-medium';
+        
+        // UPDATED: Use new column names from Google Form
+        const empId = issue['EMPID (Ex:EMP737)'] || issue.EMPID || '-';
+        const name = issue['name'] || issue.Name || '-';
+        const category = issue.Category || '-';
+        const issueDescription = issue.Issue || issue.Description || '';
+        const status = issue.Status || 'To Do';
+        const priority = issue.Priority || 'Low';
+        
+        // Get assignee from multiple possible column names
+        const assignee = issue.Assignee || issue['Assigned To'] || issue.Assigned_empid || issue['Assigned EmpID'] || 'Unassigned';
+        const rowId = issue.rowId || '';
+        
+        // Get resolved timestamp
+        const resolvedAt = issue['Resolved At'] || issue['Resolved_At'] || issue.resolvedAt || '';
+        const lastUpdated = issue['Last Updated'] || issue['Last_Updated'] || issue.lastUpdated || '';
+        
+        const assigneeInitials = assignee !== 'Unassigned' ? 
+            assignee.split(' ').map(n => n[0]).join('').toUpperCase() : '?';
+        
+        // Determine which action buttons to show
+        let actionButtons = '';
+        if (canUpdateStatus) {
+            if (status === 'To Do') {
+                actionButtons = `
+                    <div class="action-buttons">
+                        <button class="status-update-btn mark-inprogress-btn" 
+                                onclick="updateTicketStatus('${rowId}', 'In Progress')" 
+                                title="Mark as In Progress">
+                            <i class="fas fa-play-circle"></i>
+                            Start
+                        </button>
+                    </div>
+                `;
+            } else if (status === 'In Progress') {
+                actionButtons = `
+                    <div class="action-buttons">
+                        <button class="status-update-btn mark-close-btn" 
+                                onclick="updateTicketStatus('${rowId}', 'Done')" 
+                                title="Mark as Done">
+                            <i class="fas fa-check-circle"></i>
+                            Close
+                        </button>
+                    </div>
+                `;
+            } else {
+                // Show completed status with timestamp
+                const displayTimestamp = resolvedAt || lastUpdated || 'Recently';
+                actionButtons = `
+                    <div class="completed-status">
+                        <span class="completed-badge">
+                            <i class="fas fa-check-circle"></i>
+                            Completed
+                        </span>
+                        ${displayTimestamp ? `<span class="resolved-timestamp" title="Resolved at: ${displayTimestamp}">${formatTimestamp(displayTimestamp)}</span>` : ''}
+                    </div>
+                `;
+            }
+        }
+        
+        // Format status cell to show timestamp for completed tickets
+        let statusCell = '';
+        if (status === 'Done' && (resolvedAt || lastUpdated)) {
+            const displayTimestamp = resolvedAt || lastUpdated;
+            statusCell = `
+                <td>
+                    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
+                        <span class="status-badge ${statusClass}">${status}</span>
+                        <span class="resolved-timestamp" title="Resolved at: ${displayTimestamp}">${formatTimestamp(displayTimestamp)}</span>
+                    </div>
+                </td>
+            `;
+        } else {
+            statusCell = `<td><span class="status-badge ${statusClass}">${status}</span></td>`;
+        }
+        
+        html += `
+            <tr>
+                <td>${empId}</td>
+                <td>${name}</td>
+                <td>${category}</td>
+                <td><div class="issue-description" title="${issueDescription}">${issueDescription || '-'}</div></td>
+                <td><span class="priority-badge ${priorityClass}">${priority}</span></td>
+                <td>
+                    <div class="assignee">
+                        <div class="avatar">${assigneeInitials}</div>
+                        <span>${assignee}</span>
+                    </div>
+                </td>
+                ${statusCell}
+                ${canUpdateStatus ? `<td>${actionButtons}</td>` : ''}
+            </tr>
+        `;
+    });
+    
+    html += '</tbody></table>';
+    container.innerHTML = html;
+    
+    // Log access permissions for debugging
+    console.log(`🔧 User ${employeeData.name} (${userType}) can update status: ${canUpdateStatus}`);
+}
+
+
+
+function formatTimestamp(timestamp) {
+    if (!timestamp) return '';
+    
+    // If it's already in a readable format, return as is
+    if (typeof timestamp === 'string' && timestamp.includes('/')) {
+        // Format: dd/mm/yyyy hh:mm:ss - extract date part only for compact display
+        const parts = timestamp.split(' ');
+        if (parts.length > 0) {
+            return parts[0]; // Return just the date part
+        }
+        return timestamp;
+    }
+    
+    // If it's an ISO string or other format, try to parse
+    try {
+        const date = new Date(timestamp);
+        if (!isNaN(date.getTime())) {
+            return date.toLocaleDateString('en-IN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+    } catch (e) {
+        console.log('Error parsing timestamp:', e);
+    }
+    
+    return timestamp;
+}
+
+// MODAL VERSION - updateTicketStatus function
+function updateTicketStatus(rowId, newStatus) {
+    const employeeData = getEmployeeData();
+    if (!employeeData) return;
+    
+    const statusConfig = {
+        'In Progress': {
+            title: 'Start Working on Ticket',
+            message: 'Are you sure you want to start working on this ticket? This will change the status to "In Progress".',
+            icon: 'fa-play-circle',
+            confirmText: 'Start Working',
+            type: 'in-progress'
+        },
+        'Done': {
+            title: 'Close Ticket',
+            message: 'Are you sure you want to close this ticket? This will mark it as completed and record the resolution time.',
+            icon: 'fa-check-circle',
+            confirmText: 'Close Ticket',
+            type: 'done'
+        }
+    };
+    
+    const config = statusConfig[newStatus];
+    
+    // Create modal
+    showStatusModal(config, () => {
+        // This callback runs when user confirms
+        performStatusUpdate(rowId, newStatus, employeeData.name);
+    });
+}
+
+// Function to perform the actual status update
+async function performStatusUpdate(rowId, newStatus, updatedBy) {
+    try {
+        const updateData = {
+            action: 'updateStatus',
+            rowId: parseInt(rowId),
+            status: newStatus,
+            updatedBy: updatedBy,
+            timestamp: new Date().toISOString()
+        };
+        
+        console.log('Sending status update request:', updateData);
+        
+        // Use URL parameters instead of POST body to avoid CORS
+        const params = new URLSearchParams();
+        params.append('action', updateData.action);
+        params.append('rowId', updateData.rowId);
+        params.append('status', updateData.status);
+        params.append('updatedBy', updateData.updatedBy);
+        params.append('timestamp', updateData.timestamp);
+        
+        const updateUrl = `${GAS_WEB_APP_URL}?${params.toString()}`;
+        
+        // Show loading state
+        showNotification(`Updating ticket status to ${newStatus}...`, 'success');
+        
+        const response = await fetch(updateUrl, {
+            method: 'POST',
+            mode: 'no-cors' // Use no-cors mode
+        });
+        
+        // Since we use no-cors, we can't read the response, but the update should still happen
+        showNotification(`Ticket status updated to ${newStatus} successfully! Refreshing data...`, 'success');
+        
+        // Refresh data after a short delay to see the changes
+        setTimeout(fetchSheetData, 2000);
+        
+    } catch (error) {
+        console.error('Error updating ticket status:', error);
+        showNotification('Status update sent. Refreshing to confirm changes...', 'success');
+        // Still refresh to check if update worked
+        setTimeout(fetchSheetData, 2000);
+    }
+}
+
+// Function to show status confirmation modal
+function showStatusModal(config, onConfirm) {
+    // Remove any existing modal first
+    const existingModal = document.getElementById('status-update-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    const modalHTML = `
+        <div class="modal-overlay" id="status-update-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-icon ${config.type}">
+                        <i class="fas ${config.icon}"></i>
+                    </div>
+                    <h3 class="modal-title">${config.title}</h3>
+                </div>
+                <p class="modal-message">${config.message}</p>
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="closeStatusModal()">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </button>
+                    <button class="modal-btn confirm ${config.type === 'done' ? 'done' : ''}" 
+                            onclick="confirmStatusUpdate()">
+                        <i class="fas ${config.icon}"></i>
+                        ${config.confirmText}
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Store the callback in a global variable for the confirm button
+    window.currentStatusUpdateCallback = onConfirm;
+    
+    // Add escape key listener
+    document.addEventListener('keydown', handleModalKeydown);
+}
+
+// Function to handle modal keyboard events
+function handleModalKeydown(e) {
+    if (e.key === 'Escape') {
+        closeStatusModal();
+    } else if (e.key === 'Enter') {
+        const confirmBtn = document.querySelector('.modal-btn.confirm');
+        if (confirmBtn) {
+            confirmStatusUpdate();
+        }
+    }
+}
+
+// Function to close the modal
+function closeStatusModal() {
+    const modal = document.getElementById('status-update-modal');
+    if (modal) {
+        modal.style.animation = 'fadeOut 0.3s ease forwards';
+        modal.querySelector('.modal-content').style.animation = 'slideDown 0.3s ease forwards';
+        
+        setTimeout(() => {
+            modal.remove();
+        }, 300);
+    }
+    
+    // Clean up
+    window.currentStatusUpdateCallback = null;
+    document.removeEventListener('keydown', handleModalKeydown);
+}
+
+// Function called when user confirms the status update
+function confirmStatusUpdate() {
+    if (window.currentStatusUpdateCallback) {
+        window.currentStatusUpdateCallback();
+    }
+    closeStatusModal();
+}
+
+
+
+
+
+
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Remove notification after 3 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+function setupEventListeners() {
+    document.getElementById('status-filter').addEventListener('change', () => {
+        const filteredData = applyFilters(currentData);
+        renderTable(filteredData);
+    });
+    
+    document.getElementById('priority-filter').addEventListener('change', () => {
+        const filteredData = applyFilters(currentData);
+        renderTable(filteredData);
+    });
+    
+    document.getElementById('search-input').addEventListener('input', () => {
+        const filteredData = applyFilters(currentData);
+        renderTable(filteredData);
+    });
+}
+</script>
+
+</body>
+</html>

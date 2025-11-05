@@ -1,0 +1,1 @@
+1. after successful login before loding the dashboard, it should show animated modal like Good morning (EMployee name), it should vary based on timings, mornng , afternoon and evening.
