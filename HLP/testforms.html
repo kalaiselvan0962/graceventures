@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wizklub Instructors Helpline</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --primary-dark: #2980b9;
+            --secondary: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+            --border: #dee2e6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 2rem;
+            border-radius: 10px 10px 0 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+        }
+        
+        .header p {
+            opacity: 0.9;
+        }
+        
+        .form-card {
+            background-color: white;
+            border-radius: 0 0 10px 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .required::after {
+            content: " *";
+            color: var(--danger);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23343a40' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 12px;
+            padding-right: 2.5rem;
+        }
+        
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border: 1px dashed var(--border);
+            border-radius: 5px;
+            background-color: var(--light);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .file-label:hover {
+            background-color: #e9ecef;
+        }
+        
+        .file-info {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--gray);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .form-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+        
+        .form-note {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--gray);
+            text-align: center;
+        }
+        
+        .priority-high {
+            color: var(--danger);
+            font-weight: 600;
+        }
+        
+        .priority-medium {
+            color: var(--warning);
+            font-weight: 600;
+        }
+        
+        .priority-low {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+        
+        .success-message {
+            display: none;
+            background-color: var(--secondary);
+            color: white;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        @media (max-width: 576px) {
+            .form-footer {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>WIZKLUB INSTRUCTORS HELPLINE</h1>
+            <p>Submit your technical issues and get assistance quickly</p>
+        </div>
+        
+        <div class="form-card">
+            <form id="helplineForm" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSd4uLHDE4qP9BTAorYPVLPMGc-e-hhNeeM35Q4SF0ZzPQkKXg/formResponse" method="POST">
+                
+                <div id="successMessage" class="success-message">
+                    ✅ Your issue has been submitted successfully! Our team will contact you soon.
+                </div>
+                
+                <div class="form-group">
+                    <label for="empid" class="form-label required">EMPID (Ex: EMP737)</label>
+                    <input type="text" id="empid" name="entry.415672604" class="form-control" placeholder="Enter your Employee ID" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="name" class="form-label required">Name</label>
+                    <input type="text" id="name" name="entry.1650628212" class="form-control" placeholder="Enter your full name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category" class="form-label required">Category</label>
+                    <select id="category" name="entry.1964477240" class="form-control" required>
+                        <option value="">Select a category</option>
+                        <option value="Platform">Platform</option>
+                        <option value="Infrastructure">Infrastructure</option>
+                        <option value="Hardware">Hardware</option>
+                        <option value="Curriculum">Curriculum</option>
+                        <option value="Content Delivery">Content Delivery</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="issue" class="form-label required">Issue</label>
+                    <select id="issue" name="entry.2110805653" class="form-control" required>
+                        <option value="">Select an issue</option>
+                        <optgroup label="Platform">
+                            <option value="Platform not working">1. Platform not working</option>
+                            <option value="User Management - Platform">2. User Management - Platform</option>
+                            <option value="Missed Class / Rescheduling Sessions - Platform">3. Missed Class / Rescheduling Sessions - Platform</option>
+                            <option value="Resetting the Student password - Platform">4. Resetting the Student password - Platform</option>
+                            <option value="Batch enrollment of additional students post batch creation - Platform">5. Batch enrollment of additional students post batch creation - Platform</option>
+                            <option value="Enhancements - Platform">6. Enhancements - Platform</option>
+                        </optgroup>
+                        <optgroup label="Hardware">
+                            <option value="Configuration Issue - Hardware">7. Configuration Issue - Hardware</option>
+                            <option value="Troubleshooting Hardware - Hardware">8. Troubleshooting Hardware - Hardware</option>
+                            <option value="Loss of Hardware - Hardware">9. Loss of Hardware - Hardware</option>
+                        </optgroup>
+                        <optgroup label="Infrastructure">
+                            <option value="WiFi / Router is not working - Infrastructure">10. WiFi / Router is not working - Infrastructure</option>
+                            <option value="ISP Down - Infrastructure">11. ISP Down - Infrastructure</option>
+                            <option value="Frequent Power Shutdown - Infrastructure">12. Frequent Power Shutdown - Infrastructure</option>
+                            <option value="System not working - Infrastructure">13. System not working - Infrastructure</option>
+                            <option value="Electrical Ports (Switch Box) & Wiring - Infrastructure">14. Electrical Ports (Switch Box) & Wiring - Infrastructure</option>
+                            <option value="Projector unavailability Issue - Infrastructure">15. Projector unavailability Issue - Infrastructure</option>
+                            <option value="Shared Lab - Infrastructure">16. Shared Lab - Infrastructure</option>
+                            <option value="Lab Assigned for other purpose during scheduled hours - Infrastructure">17. Lab Assigned for other purpose during scheduled hours - Infrastructure</option>
+                            <option value="During Exams (Eg. Saffal) - Infrastructure">18. During Exams (Eg. Saffal) - Infrastructure</option>
+                            <option value="Computer Peripheral not working (Eg. Keyboard, Mouse) - Infrastructure">19. Computer Peripheral not working (Eg. Keyboard, Mouse) - Infrastructure</option>
+                            <option value="CPU Load Issue - Infrastructure">20. CPU Load Issue - Infrastructure</option>
+                        </optgroup>
+                        <optgroup label="Curriculum">
+                            <option value="Guide & Session are not matching - Curriculum">21. Guide & Session are not matching - Curriculum</option>
+                            <option value="Assessment Parameters & timeline - Curriculum">22. Assessment Parameters & timeline - Curriculum</option>
+                            <option value="Session Topic Correction + Image - Curriculum">23. Session Topic Correction + Image - Curriculum</option>
+                            <option value="Duration of Session - Curriculum">24. Duration of Session - Curriculum</option>
+                            <option value="Assessment questions and options are not relevant - Curriculum">25. Assessment questions and options are not relevant - Curriculum</option>
+                        </optgroup>
+                        <optgroup label="Content Delivery">
+                            <option value="Topic Retraining - Content Delivery">26. Topic Retraining - Content Delivery</option>
+                        </optgroup>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="priority" class="form-label required">Priority</label>
+                    <select id="priority" name="entry.1309913329" class="form-control" required>
+                        <option value="">Select priority level</option>
+                        <option value="High" class="priority-high">1. High</option>
+                        <option value="Medium" class="priority-medium">2. Medium</option>
+                        <option value="Low" class="priority-low">3. Low</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="screenshot" class="form-label">Screenshot (File not submitted to Google Form)</label>
+                    <div class="file-upload">
+                        <input type="file" id="screenshot" class="file-input" accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx">
+                        <label for="screenshot" class="file-label">
+                            <span>Choose file</span>
+                            <span class="file-info">Max: 1GB (JPG, PNG, GIF, PDF, DOC)</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-footer">
+                    <button type="reset" class="btn btn-secondary" id="clearForm">Clear Form</button>
+                    <button type="submit" class="btn btn-primary">Submit Issue</button>
+                </div>
+                
+                <p class="form-note">Your issue will be addressed by our technical team as soon as possible.</p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('helplineForm');
+            const clearBtn = document.getElementById('clearForm');
+            const fileInput = document.querySelector('.file-input');
+            const fileLabel = document.querySelector('.file-label span:first-child');
+            const successMessage = document.getElementById('successMessage');
+            
+            // Handle file input change
+            fileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    fileLabel.textContent = this.files[0].name;
+                } else {
+                    fileLabel.textContent = 'Choose file';
+                }
+            });
+            
+            // Clear form button
+            clearBtn.addEventListener('click', function() {
+                // Ensure the form actually clears when reset is clicked
+                form.reset();
+                fileLabel.textContent = 'Choose file';
+                successMessage.style.display = 'none';
+                
+                // Reset border colors on required fields
+                const formControls = document.querySelectorAll('.form-control');
+                formControls.forEach(control => {
+                    control.style.borderColor = 'var(--border)';
+                });
+            });
+            
+            // Form submission using fetch (new logic)
+            form.addEventListener('submit', function(e) {
+                e.preventDefault(); // Stop the default form submission
+                
+                const formAction = this.action;
+                const formData = new FormData(this);
+
+                // IMPORTANT: Remove the file input field from FormData.
+                // Google Forms does not support file uploads via this method.
+                // The name for the screenshot field should be confirmed against the Google Form.
+                // If you had an entry ID for the screenshot field, you'd use formData.delete('entry.xxxxxxxxx');
+                // Since it was removed in the HTML, this is fine, but good to know for future reference.
+
+                // Use fetch to send the data
+                fetch(formAction, {
+                    method: 'POST',
+                    body: formData,
+                    // 'no-cors' is required for submitting to Google Forms from a different domain
+                    mode: 'no-cors' 
+                })
+                .then(() => {
+                    // Success is assumed because 'no-cors' prevents us from seeing the actual response status.
+                    // If the fetch call succeeds, the data was likely submitted to Google Forms.
+                    successMessage.style.display = 'block';
+                    
+                    // Scroll to top to show the success message
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                    // Reset form after submission
+                    setTimeout(() => {
+                        form.reset();
+                        fileLabel.textContent = 'Choose file';
+                        successMessage.style.display = 'none';
+                        // Also reset border colors
+                        const formControls = document.querySelectorAll('.form-control');
+                        formControls.forEach(control => {
+                            control.style.borderColor = 'var(--border)';
+                        });
+                    }, 3000);
+                })
+                .catch(error => {
+                    // Handle network errors
+                    console.error('Submission failed:', error);
+                    alert('A network error occurred. Please check your network and try again.');
+                });
+            });
+            
+            // Add visual feedback for required fields (existing logic)
+            const requiredFields = document.querySelectorAll('.required');
+            requiredFields.forEach(field => {
+                const input = field.closest('.form-group').querySelector('.form-control');
+                if (input) {
+                    input.addEventListener('blur', function() {
+                        if (this.value.trim() === '') {
+                            this.style.borderColor = 'var(--danger)';
+                        } else {
+                            this.style.borderColor = 'var(--border)';
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
