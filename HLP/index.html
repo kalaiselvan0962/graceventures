@@ -92,5 +92,64 @@
 
     <script src="login-animations.js"></script>
     <script type="module" src="login-firebase.js"></script>
+
+
+<!-- Welcome Modal -->
+<div class="welcome-modal" id="welcomeModal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container">
+        <div class="modal-content">
+            <!-- Animated Background -->
+            <div class="modal-bg-shapes">
+                <div class="modal-shape shape-1"></div>
+                <div class="modal-shape shape-2"></div>
+                <div class="modal-shape shape-3"></div>
+            </div>
+            
+            <!-- Header -->
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <i class="fas fa-sparkles"></i>
+                </div>
+                <h2 class="modal-title" id="welcomeTitle">Welcome Back!</h2>
+            </div>
+            
+            <!-- Content -->
+            <div class="modal-body">
+                <p class="welcome-message" id="welcomeMessage">We're preparing your dashboard...</p>
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-details">
+                        <h4 id="userName">Employee Name</h4>
+                        <p id="userPosition">Position</p>
+                        <p id="userType">User Type</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Loading Animation -->
+            <div class="modal-loader">
+                <div class="loader-ring">
+                    <div class="loader-circle"></div>
+                    <div class="loader-circle"></div>
+                    <div class="loader-circle"></div>
+                </div>
+                <p class="loader-text">Loading your workspace...</p>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <span class="progress-text">Initializing</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 </body>
 </html>
