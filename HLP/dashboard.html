@@ -93,7 +93,7 @@
             </div>
             
             <footer>
-                <p>Auto-refreshing every <span id="refresh-interval">10</span> seconds</p>
+                <p>Synced Now 🚀 <span id="refresh-interval"></span>Secs ago</p>
             </footer>
         </div>
     </div>
@@ -111,12 +111,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         displayEmployeeInfo(employeeData);
         
         // For managers, refresh data first
-        if (employeeData.userType === 'area_manager' || employeeData.userType === 'program_manager') {
+        if (employeeData.userType === 'account_manager' || employeeData.userType === 'program_manager') {
             console.log('👨‍💼 Manager detected, refreshing from Firebase...');
             
             // Show loading state
             document.getElementById('data-container').innerHTML = 
-                '<div class="loading">Loading manager permissions from Firebase...</div>';
+                '<div class="loading">Loading Data 📊</div>';
             
             // Wait for Firebase data
             const updatedData = await refreshManagerData();
@@ -157,7 +157,7 @@ async function refreshManagerData() {
         console.log(`🔄 refreshManagerData for ${employeeData.name} (${userType}) - ID: ${empid}`);
         
         // Only refresh for managers
-        if (userType === 'area_manager' || userType === 'program_manager') {
+        if (userType === 'account_manager' || userType === 'program_manager') {
             const firebaseData = await fetchEmployeeFromFirebase(empid);
             
             if (firebaseData) {
@@ -234,7 +234,7 @@ function getManagedEmployees(employeeData) {
     console.log(`🔍 getManagedEmployees for ${name} (${userType}) - ID: ${empid}`);
     
     // Only managers should have managed employees
-    if (userType !== 'area_manager' && userType !== 'program_manager') {
+    if (userType !== 'account_manager' && userType !== 'program_manager') {
         console.log('❌ User is not a manager type');
         return [];
     }
@@ -261,112 +261,116 @@ function getManagedEmployees(employeeData) {
     // === COMPLETE HARDCODED FALLBACK EMPIDs FOR ALL MANAGERS ===
     console.log('🔄 Using hardcoded EMPID fallbacks for', userType);
     
-    // Hardcoded values for specific managers
-    if (name === 'HimanshuVerma' || empid === 'HYD603385') {
-        // Area Manager: HimanshuVerma (HYD603385)
-        const hardcodedEmployees = [
-            'RET244', 'EMP3715', 'RET247', 'EMP3722', 'EMP3782', 
-            'RET260', 'EMP3635', 'RET276', 'RET723', 'RET255', 
-            'EMP3772', 'EMP3771', 'RET248', 'RET253', 'HYD603396', 'RET284'
-        ];
-        console.log('🎯 HimanshuVerma (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
-        return hardcodedEmployees;
-    } 
-    else if (name === 'Aditi Ashok Katti' || empid === 'EMP2470') {
-        // Program Manager: Aditi Ashok Katti (EMP2470) - can see all of Himanshu's team plus others
-        const hardcodedEmployees = [
-            'RET244', 'EMP3715', 'RET247', 'EMP3722', 'EMP3782', 
-            'RET260', 'EMP3635', 'RET276', 'RET723', 'RET255', 
-            'EMP3772', 'EMP3771', 'RET248', 'RET253', 'HYD603396', 'RET284',
-            'EMP2470', 'HYD603385' // Include self and area manager
-        ];
-        console.log('🎯 Aditi Ashok Katti (Program Manager) hardcoded EMPIDs:', hardcodedEmployees);
-        return hardcodedEmployees;
-    }
-    else if (name === 'John Emmanuel' || empid === 'EMP665') {
-        // Area Manager: John Emmanuel (EMP665)
-        const hardcodedEmployees = [
-            'EMP3632', 'EMP3784', 'EMP670', 'EMP3778', 'EMP3701', 'EMP737', 
-            'EMP3792', 'EMP3756', 'EMP3769', 'EMP3268', 'HYD603372', 'EMP3661', 
-            'EMP3728', 'HYD603563', 'EMP576', 'EMP3767', 'HYD607795', 'EMP3757', 
-            'EMP3763', 'EMP3707', 'EMP3758', 'EMP3744', 'EMP3773', 'RET289', 
-            'EMP3646', 'EMP3793', 'EMP3755', 'RET267', 'EMP3681', 'EMP3667', 
-            'EMP2957', 'EMP3626', 'EMP3668', 'EMP3787'
-        ];
-        console.log('🎯 John Emmanuel (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
-        return hardcodedEmployees;
-    }
-    else if (name === 'MEENA' || empid === 'HYD603338') {
-        // Program Manager: MEENA (HYD603338) - can see John's team and S Sandeep Kumar's team
-        const hardcodedEmployees = [
-            // John Emmanuel's team
-            'EMP3632', 'EMP3784', 'EMP670', 'EMP3778', 'EMP3701', 'EMP737', 
-            'EMP3792', 'EMP3756', 'EMP3769', 'EMP3268', 'HYD603372', 'EMP3661', 
-            'EMP3728', 'HYD603563', 'EMP576', 'EMP3767', 'HYD607795', 'EMP3757', 
-            'EMP3763', 'EMP3707', 'EMP3758', 'EMP3744', 'EMP3773', 'RET289', 
-            'EMP3646', 'EMP3793', 'EMP3755', 'RET267', 'EMP3681', 'EMP3667', 
-            'EMP2957', 'EMP3626', 'EMP3668', 'EMP3787',
-            // S Sandeep Kumar's team
-            'EMP3593', 'EMP3777', 'EMP3745', 'RET256', 'EMP3716', 'RET278', 
-            'EMP3789', 'RET243', 'RET227', 'RET291', 'EMP743', 'EMP3770', 
-            'RET228', 'RET277', 'RET268', 'RET288', 'EMP3759', 'EMP3683', 
-            'EMP3788', 'EMP3791', 'EMP734', 'EMP3721',
-            // Include managers
-            'EMP665', 'EMP060', 'HYD603338'
-        ];
-        console.log('🎯 MEENA (Program Manager) hardcoded EMPIDs:', hardcodedEmployees);
-        return hardcodedEmployees;
-    }
-    else if (name === 'S Sandeep Kumar' || empid === 'EMP060') {
-        // Area Manager: S Sandeep Kumar (EMP060)
-        const hardcodedEmployees = [
-            'EMP3593', 'EMP3777', 'EMP3745', 'RET256', 'EMP3716', 'RET278', 
-            'EMP3789', 'RET243', 'RET227', 'RET291', 'EMP743', 'EMP3770', 
-            'RET228', 'RET277', 'RET268', 'RET288', 'EMP3759', 'EMP3683', 
-            'EMP3788', 'EMP3791', 'EMP734', 'EMP3721'
-        ];
-        console.log('🎯 S Sandeep Kumar (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
-        return hardcodedEmployees;
-    }
-    else if (name === 'Rishav Kumar' || empid === 'HYD603381') {
-        // Area Manager: Rishav Kumar (HYD603381)
-        const hardcodedEmployees = [
-            'EMP3785', 'EMP3766', 'RET246', 'EMP626', 'EMP3774', 'EMP850', 
-            'EMP3717', 'EMP3743', 'EMP3786', 'RET266', 'EMP3260', 'RET265', 
-            'RET286', 'EMP3740', 'EMP3761', 'HYD603319', 'EMP3747', 'RET287', 
-            'EMP3768', 'RET270', 'EMP3781', 'RET282', 'EMP3764', 'RET251', 
-            'EMP3780', 'RET285', 'EMP3754', 'EMP3689', 'RET283', 'EMP3376', 
-            'EMP3154', 'EMP3703', 'EMP3760', 'EMP3723', 'EMP3783', 'EMP3776', 
-            'EMP3779', 'RET281', 'EMP3630', 'EMP3684', 'EMP3705', 'EMP3665'
-        ];
-        console.log('🎯 Rishav Kumar (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
-        return hardcodedEmployees;
-    }
-    else if (name === 'PADMAJA' || empid === 'EMP679') {
-        // Program Manager: PADMAJA (EMP679) - can see Rishav's team
-        const hardcodedEmployees = [
-            // Rishav Kumar's team
-            'EMP3785', 'EMP3766', 'RET246', 'EMP626', 'EMP3774', 'EMP850', 
-            'EMP3717', 'EMP3743', 'EMP3786', 'RET266', 'EMP3260', 'RET265', 
-            'RET286', 'EMP3740', 'EMP3761', 'HYD603319', 'EMP3747', 'RET287', 
-            'EMP3768', 'RET270', 'EMP3781', 'RET282', 'EMP3764', 'RET251', 
-            'EMP3780', 'RET285', 'EMP3754', 'EMP3689', 'RET283', 'EMP3376', 
-            'EMP3154', 'EMP3703', 'EMP3760', 'EMP3723', 'EMP3783', 'EMP3776', 
-            'EMP3779', 'RET281', 'EMP3630', 'EMP3684', 'EMP3705', 'EMP3665',
-            // Include managers
-            'HYD603381', 'EMP679'
-        ];
-        console.log('🎯 PADMAJA (Program Manager) hardcoded EMPIDs:', hardcodedEmployees);
-        return hardcodedEmployees;
-    }
-    
+if (name === 'HimanshuVerma' || empid === 'HYD603385') {
+    // Area Manager: HimanshuVerma (HYD603385)
+    const hardcodedEmployees = [
+        'RET244', 'EMP3715', 'RET247', 'EMP3722', 'EMP3782', 
+        'RET260', 'EMP3635', 'RET276', 'RET723', 'RET255', 
+        'EMP3772', 'EMP3771', 'RET248', 'RET253', 'HYD603396', 'RET284'
+    ];
+    console.log('🎯 HimanshuVerma (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
+    return hardcodedEmployees;
+} 
+else if (name === 'Aditi Ashok Katti' || empid === 'EMP2470') {
+    // Program Manager: Aditi Ashok Katti (EMP2470) - can see both teams
+    const hardcodedEmployees = [
+        // Himanshu Verma's team
+        'RET244', 'EMP3715', 'RET247', 'EMP3722', 'EMP3782', 
+        'RET260', 'EMP3635', 'RET276', 'RET723', 'RET255', 
+        'EMP3772', 'EMP3771', 'RET248', 'RET253', 'HYD603396', 'RET284',
+        // Aditi's direct team
+        'EMP3714', 'RET269', 'HYD603412', 'HYD603388', 'EMP3742', 
+        'RET275', 'RET264', 'RET290', 'EMP3718', 'EMP3775', 
+        'EMP3710', 'RET252',
+        // Include managers
+        'EMP2470', 'HYD603385'
+    ];
+    console.log('🎯 Aditi Ashok Katti (Program Manager) hardcoded EMPIDs:', hardcodedEmployees);
+    return hardcodedEmployees;
+}
+else if (name === 'John Emmanuel' || empid === 'EMP665') {
+    // Area Manager: John Emmanuel (EMP665)
+    const hardcodedEmployees = [
+        'EMP3632', 'EMP3784', 'EMP670', 'EMP3778', 'EMP3701', 'EMP737', 
+        'EMP3792', 'EMP3756', 'EMP3769', 'EMP3268', 'HYD603372', 'EMP3661', 
+        'EMP3728', 'HYD603563', 'EMP576', 'EMP3767', 'HYD607795', 'EMP3757', 
+        'EMP3763', 'EMP3707', 'EMP3758', 'EMP3744', 'EMP3773', 'RET289', 
+        'EMP3646', 'EMP3793', 'EMP3755', 'RET267', 'EMP3681', 'EMP3667', 
+        'EMP2957', 'EMP3626', 'EMP3668', 'EMP3787'
+    ];
+    console.log('🎯 John Emmanuel (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
+    return hardcodedEmployees;
+}
+else if (name === 'MEENA' || empid === 'HYD603338') {
+    // Program Manager: MEENA (HYD603338) - can see John's team and S Sandeep Kumar's team
+    const hardcodedEmployees = [
+        // John Emmanuel's team
+        'EMP3632', 'EMP3784', 'EMP670', 'EMP3778', 'EMP3701', 'EMP737', 
+        'EMP3792', 'EMP3756', 'EMP3769', 'EMP3268', 'HYD603372', 'EMP3661', 
+        'EMP3728', 'HYD603563', 'EMP576', 'EMP3767', 'HYD607795', 'EMP3757', 
+        'EMP3763', 'EMP3707', 'EMP3758', 'EMP3744', 'EMP3773', 'RET289', 
+        'EMP3646', 'EMP3793', 'EMP3755', 'RET267', 'EMP3681', 'EMP3667', 
+        'EMP2957', 'EMP3626', 'EMP3668', 'EMP3787',
+        // S Sandeep Kumar's team
+        'EMP3593', 'EMP3777', 'EMP3745', 'RET256', 'EMP3716', 'RET278', 
+        'EMP3789', 'RET243', 'RET227', 'RET291', 'EMP743', 'EMP3770', 
+        'RET228', 'RET277', 'RET268', 'RET288', 'EMP3759', 'EMP3683', 
+        'EMP3788', 'EMP3791', 'EMP734', 'EMP3721',
+        // Include managers
+        'EMP665', 'EMP060', 'HYD603338'
+    ];
+    console.log('🎯 MEENA (Program Manager) hardcoded EMPIDs:', hardcodedEmployees);
+    return hardcodedEmployees;
+}
+else if (name === 'S Sandeep Kumar' || empid === 'EMP060') {
+    // Area Manager: S Sandeep Kumar (EMP060)
+    const hardcodedEmployees = [
+        'EMP3593', 'EMP3777', 'EMP3745', 'RET256', 'EMP3716', 'RET278', 
+        'EMP3789', 'RET243', 'RET227', 'RET291', 'EMP743', 'EMP3770', 
+        'RET228', 'RET277', 'RET268', 'RET288', 'EMP3759', 'EMP3683', 
+        'EMP3788', 'EMP3791', 'EMP734', 'EMP3721'
+    ];
+    console.log('🎯 S Sandeep Kumar (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
+    return hardcodedEmployees;
+}
+else if (name === 'Rishav Kumar' || empid === 'HYD603381') {
+    // Area Manager: Rishav Kumar (HYD603381)
+    const hardcodedEmployees = [
+        'EMP3785', 'EMP3766', 'RET246', 'EMP626', 'EMP3774', 'EMP850', 
+        'EMP3717', 'EMP3743', 'EMP3786', 'RET266', 'EMP3260', 'RET265', 
+        'RET286', 'EMP3740', 'EMP3761', 'HYD603319', 'EMP3747', 'RET287', 
+        'EMP3768', 'RET270', 'EMP3781', 'RET282', 'EMP3764', 'RET251', 
+        'EMP3780', 'RET285', 'EMP3754', 'EMP3689', 'RET283', 'EMP3376', 
+        'EMP3154', 'EMP3703', 'EMP3760', 'EMP3723', 'EMP3783', 'EMP3776', 
+        'EMP3779', 'RET281', 'EMP3630', 'EMP3684', 'EMP3705', 'EMP3665'
+    ];
+    console.log('🎯 Rishav Kumar (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
+    return hardcodedEmployees;
+}
+else if (name === 'PADMAJA' || empid === 'EMP679') {
+    // Program Manager: PADMAJA (EMP679) - can see Rishav's team
+    const hardcodedEmployees = [
+        // Rishav Kumar's team
+        'EMP3785', 'EMP3766', 'RET246', 'EMP626', 'EMP3774', 'EMP850', 
+        'EMP3717', 'EMP3743', 'EMP3786', 'RET266', 'EMP3260', 'RET265', 
+        'RET286', 'EMP3740', 'EMP3761', 'HYD603319', 'EMP3747', 'RET287', 
+        'EMP3768', 'RET270', 'EMP3781', 'RET282', 'EMP3764', 'RET251', 
+        'EMP3780', 'RET285', 'EMP3754', 'EMP3689', 'RET283', 'EMP3376', 
+        'EMP3154', 'EMP3703', 'EMP3760', 'EMP3723', 'EMP3783', 'EMP3776', 
+        'EMP3779', 'RET281', 'EMP3630', 'EMP3684', 'EMP3705', 'EMP3665',
+        // Include managers
+        'HYD603381', 'EMP679'
+    ];
+    console.log('🎯 PADMAJA (Program Manager) hardcoded EMPIDs:', hardcodedEmployees);
+    return hardcodedEmployees;
+}
     // Generic fallbacks for other managers
     if (userType === 'program_manager') {
         // Program Manager fallback - can see all program-related employees
         const fallbackEmployees = ['EMP2470', 'HYD603385', 'EMP665', 'EMP060', 'HYD603381'];
         console.log('🎯 Generic Program Manager fallback EMPIDs:', fallbackEmployees);
         return fallbackEmployees;
-    } else if (userType === 'area_manager') {
+    } else if (userType === 'account_manager') {
         // Area Manager fallback - can see area-specific employees
         const fallbackEmployees = ['RET244', 'EMP3715', 'RET247', 'EMP3722'];
         console.log('🎯 Generic Area Manager fallback EMPIDs:', fallbackEmployees);
@@ -411,11 +415,11 @@ function displayEmployeeInfo(employeeData) {
         case 'program_manager':
             roleDisplay = 'Program Manager';
             break;
-        case 'area_manager':
-            roleDisplay = 'Area Manager';
+        case 'account_manager':
+            roleDisplay = 'Account Manager';
             break;
         case 'assignee':
-            roleDisplay = 'Support Staff';
+            roleDisplay = 'Assignee';
             break;
         case 'admin':
             roleDisplay = 'Administrator';
@@ -432,23 +436,23 @@ function displayEmployeeInfo(employeeData) {
     
     switch(employeeData.userType) {
         case 'employee':
-            titleElement.textContent = 'My Tickets';
+            titleElement.textContent = 'My Tickets 🎫 ';
             subtitleElement.textContent = 'View and track your submitted tickets';
             break;
         case 'program_manager':
-            titleElement.textContent = 'Team Tickets - Program';
+            titleElement.textContent = 'Team Tickets 🎫';
             subtitleElement.textContent = 'View tickets from your program team';
             break;
-        case 'area_manager':
-            titleElement.textContent = 'Team Tickets - Area';
-            subtitleElement.textContent = 'View tickets from your area team';
+        case 'account_manager':
+            titleElement.textContent = 'Team Tickets 🎫 - Arena ';
+            subtitleElement.textContent = 'View tickets from your TN team';
             break;
         case 'assignee':
-            titleElement.textContent = 'Assigned Tickets';
+            titleElement.textContent = 'Assigned Tickets 🎫';
             subtitleElement.textContent = 'View and manage tickets assigned to you';
             break;
         case 'admin':
-            titleElement.textContent = 'All Tickets';
+            titleElement.textContent = 'All Tickets 🎫';
             subtitleElement.textContent = 'View and manage all system tickets';
             break;
     }
@@ -473,7 +477,7 @@ function displayEmployeeInfo(employeeData) {
 // Raise Ticket function
 function raiseTicket() {
     // Redirect to index.html to raise a new ticket
-    window.location.href = 'https://forms.gle/vnMfMMcwVDZJZ7uk9';
+    window.location.href = 'https://docs.google.com/forms/d/e/1FAIpQLSd4uLHDE4qP9BTAorYPVLPMGc-e-hhNeeM35Q4SF0ZzPQkKXg/viewform?usp=header';
 }
 
 // Logout function - Clear all stored data
@@ -556,8 +560,8 @@ function handleData(response) {
             console.log('⚠️ No data returned from sheet');
         }
         
-        // Refresh manager data in background for area_manager and program_manager
-        if (employeeData.userType === 'area_manager' || employeeData.userType === 'program_manager') {
+        // Refresh manager data in background for account_manager and program_manager
+        if (employeeData.userType === 'account_manager' || employeeData.userType === 'program_manager') {
             refreshManagerData(); // Runs async in background
         }
         
@@ -590,8 +594,8 @@ function showError(message) {
 function showError() {
     document.getElementById('data-container').innerHTML = 
         `<div class="error">
-            <h3>Error loading data</h3>
-            <p>Check the console for details and verify your Web App URL is correct.</p>
+            <h3>Have a Great Day 🙌 🤖 </h3>
+            <p>Loading your tickets 🎟️ .</p>
         </div>`;
 }
 
@@ -625,7 +629,7 @@ function applyFilters(data) {
                 }
                 break;
                 
-            case 'area_manager':
+            case 'account_manager':
             case 'program_manager':
                 const managedEmployees = getManagedEmployees(employeeData);
                 console.log(`👨‍💼 ${userType} ${userName} manages:`, managedEmployees);
@@ -699,7 +703,7 @@ function renderTable(data) {
     
     // Define which user types can update status
     const canUpdateStatus = userType === 'assignee' || userType === 'admin' || 
-                           userType === 'area_manager' || userType === 'program_manager';
+                           userType === 'account_manager' || userType === 'program_manager';
     
     if (!data || data.length === 0) {
         let message = '';
@@ -710,7 +714,7 @@ function renderTable(data) {
             case 'program_manager':
                 message = 'No tickets from your program team. Employees can raise tickets that will appear here.';
                 break;
-            case 'area_manager':
+            case 'account_manager':
                 message = 'No tickets from your area team. Employees can raise tickets that will appear here.';
                 break;
             case 'assignee':
@@ -1000,14 +1004,11 @@ function showStatusModal(config, onConfirm) {
     
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     
-    // Store the callback in a global variable for the confirm button
     window.currentStatusUpdateCallback = onConfirm;
     
-    // Add escape key listener
     document.addEventListener('keydown', handleModalKeydown);
 }
 
-// Function to handle modal keyboard events
 function handleModalKeydown(e) {
     if (e.key === 'Escape') {
         closeStatusModal();
@@ -1043,12 +1044,6 @@ function confirmStatusUpdate() {
     }
     closeStatusModal();
 }
-
-
-
-
-
-
 function showNotification(message, type) {
     // Create notification element
     const notification = document.createElement('div');
@@ -1087,5 +1082,4 @@ function setupEventListeners() {
 </script>
 
 </body>
-
 </html>
