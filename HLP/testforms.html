@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wizklub Instructors Helpline</title>
+    <title>Wiz</title>
     <style>
         :root {
             --primary: #3498db;
@@ -228,7 +228,7 @@
         </div>
         
         <div class="form-card">
-            <form id="helplineForm" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSd4uLHDE4qP9BTAorYPVLPMGc-e-hhNeeM35Q4SF0ZzPQkKXg/formResponse" method="POST">
+            <form id="helplineForm" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSd4uLHDE4qP9BTAorYPVLPMGc-e-hhNeeM5Q4SF0ZzPQkKXg/formResponse" method="POST" target="googleFormTarget">
                 
                 <div id="successMessage" class="success-message">
                     ✅ Your issue has been submitted successfully! Our team will contact you soon.
@@ -329,6 +329,8 @@
             </form>
         </div>
     </div>
+    
+    <iframe name="googleFormTarget" id="googleFormTarget" style="display:none;"></iframe>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -337,6 +339,7 @@
             const fileInput = document.querySelector('.file-input');
             const fileLabel = document.querySelector('.file-label span:first-child');
             const successMessage = document.getElementById('successMessage');
+            const iframe = document.getElementById('googleFormTarget');
             
             // Handle file input change
             fileInput.addEventListener('change', function() {
@@ -349,7 +352,6 @@
             
             // Clear form button
             clearBtn.addEventListener('click', function() {
-                // Ensure the form actually clears when reset is clicked
                 form.reset();
                 fileLabel.textContent = 'Choose file';
                 successMessage.style.display = 'none';
@@ -361,32 +363,19 @@
                 });
             });
             
-            // Form submission using fetch (new logic)
+            // 2. Submission Logic (Iframe Hack) - Replaces the problematic fetch
             form.addEventListener('submit', function(e) {
-                e.preventDefault(); // Stop the default form submission
+                // Prevent default submission to handle the process
+                e.preventDefault(); 
                 
-                const formAction = this.action;
-                const formData = new FormData(this);
-
-                // IMPORTANT: Remove the file input field from FormData.
-                // Google Forms does not support file uploads via this method.
-                // The name for the screenshot field should be confirmed against the Google Form.
-                // If you had an entry ID for the screenshot field, you'd use formData.delete('entry.xxxxxxxxx');
-                // Since it was removed in the HTML, this is fine, but good to know for future reference.
-
-                // Use fetch to send the data
-                fetch(formAction, {
-                    method: 'POST',
-                    body: formData,
-                    // 'no-cors' is required for submitting to Google Forms from a different domain
-                    mode: 'no-cors' 
-                })
-                .then(() => {
-                    // Success is assumed because 'no-cors' prevents us from seeing the actual response status.
-                    // If the fetch call succeeds, the data was likely submitted to Google Forms.
-                    successMessage.style.display = 'block';
+                // Manually submit the form to the hidden iframe
+                // This is the key step to avoid the 401 error
+                iframe.onload = function() {
+                    // This function runs when the Google Form response (in the iframe) loads.
+                    // Since the Google Form response is always a success page, 
+                    // we can assume the data was submitted correctly.
                     
-                    // Scroll to top to show the success message
+                    successMessage.style.display = 'block';
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     
                     // Reset form after submission
@@ -394,21 +383,20 @@
                         form.reset();
                         fileLabel.textContent = 'Choose file';
                         successMessage.style.display = 'none';
-                        // Also reset border colors
                         const formControls = document.querySelectorAll('.form-control');
                         formControls.forEach(control => {
                             control.style.borderColor = 'var(--border)';
                         });
+                        // IMPORTANT: Remove the onload handler to prevent immediate re-trigger on subsequent clicks
+                        iframe.onload = null; 
                     }, 3000);
-                })
-                .catch(error => {
-                    // Handle network errors
-                    console.error('Submission failed:', error);
-                    alert('A network error occurred. Please check your network and try again.');
-                });
+                };
+                
+                // Now, trigger the actual submission
+                form.submit();
             });
             
-            // Add visual feedback for required fields (existing logic)
+            // Add visual feedback for required fields
             const requiredFields = document.querySelectorAll('.required');
             requiredFields.forEach(field => {
                 const input = field.closest('.form-group').querySelector('.form-control');
