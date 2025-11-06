@@ -137,8 +137,8 @@ function determineUserType(position, role) {
         return 'admin';
     } else if (roleLower.includes('program_manager') || positionLower.includes('program manager')) {
         return 'program_manager';
-    } else if (roleLower.includes('area_manager') || positionLower.includes('area manager')) {
-        return 'area_manager';
+    } else if (roleLower.includes('account_manager') || positionLower.includes('account manager')) {
+        return 'account_manager';
     } else if (roleLower.includes('assignee') || positionLower.includes('support') || positionLower.includes('technician')) {
         return 'assignee';
     } else {
@@ -147,6 +147,89 @@ function determineUserType(position, role) {
 }
 
 // Show success message and redirect
+// Random welcome messages
+const welcomeMessages = [
+    "Great to see you again! Your workspace is being prepared with the latest updates.",
+    "Welcome back! We've missed your presence. Getting everything ready for you...",
+    "Hello again! Your dashboard is loading with all the tools you need.",
+    "Good to have you back! We're preparing your personalized workspace.",
+    "Welcome back! Loading your recent activities and updates...",
+    "Hello! Your helpdesk portal is being initialized with the latest features.",
+    "Great to see you! We're setting up your workspace with all your preferences.",
+    "Welcome back! Preparing your dashboard with today's priorities.",
+    "Hello! We're loading your workspace with enhanced productivity tools.",
+    "Welcome back! Your helpdesk environment is being optimized for you."
+];
+
+// Random welcome titles
+const welcomeTitles = [
+    "Welcome Back!",
+    "Great to See You!",
+    "Hello Again!",
+    "Welcome Back!",
+    "Ready to Work?",
+    "Hello There!",
+    "Welcome Back!",
+    "Good to Have You!",
+    "Welcome Back!",
+    "Hello Champion!"
+];
+
+// Show welcome modal
+function showWelcomeModal(employeeData) {
+    const modal = document.getElementById('welcomeModal');
+    const welcomeTitle = document.getElementById('welcomeTitle');
+    const welcomeMessage = document.getElementById('welcomeMessage');
+    const userName = document.getElementById('userName');
+    const userPosition = document.getElementById('userPosition');
+    const userType = document.getElementById('userType');
+    const progressFill = document.querySelector('.progress-fill');
+    const progressText = document.querySelector('.progress-text');
+
+    // Select random welcome message and title
+    const randomMessage = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
+    const randomTitle = welcomeTitles[Math.floor(Math.random() * welcomeTitles.length)];
+
+    // Update modal content
+    welcomeTitle.textContent = randomTitle;
+    welcomeMessage.textContent = randomMessage;
+    userName.textContent = employeeData.name;
+    userPosition.textContent = employeeData.position;
+    userType.textContent = `${employeeData.userType.replace('_', ' ').toUpperCase()}`;
+
+    // Show modal
+    modal.classList.add('active');
+
+    // Simulate loading progress
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 100) progress = 100;
+        
+        progressFill.style.width = `${progress}%`;
+        
+        // Update progress text
+        if (progress < 30) {
+            progressText.textContent = 'Initializing workspace...';
+        } else if (progress < 60) {
+            progressText.textContent = 'Loading modules...';
+        } else if (progress < 90) {
+            progressText.textContent = 'Finalizing setup...';
+        } else {
+            progressText.textContent = 'Ready!';
+        }
+
+        if (progress >= 100) {
+            clearInterval(progressInterval);
+            // Redirect after a short delay
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 800);
+        }
+    }, 200);
+}
+
+// Update the showSuccess function to use the modal
 function showSuccess(message, redirect = false) {
     statusMessage.style.display = 'block';
     statusMessage.style.background = 'rgba(16, 185, 129, 0.1)';
@@ -161,10 +244,36 @@ function showSuccess(message, redirect = false) {
     hideLoadingState();
     
     if (redirect) {
-        startRedirectCountdown();
+        // Get employee data from storage
+        const employeeData = JSON.parse(sessionStorage.getItem('currentEmployee') || localStorage.getItem('employeeData'));
+        if (employeeData) {
+            // Show welcome modal instead of immediate redirect
+            setTimeout(() => {
+                showWelcomeModal(employeeData);
+            }, 1000);
+        } else {
+            // Fallback to old redirect method
+            startRedirectCountdown();
+        }
     }
 }
 
+// Remove or comment out the old countdown function since we're using the modal now
+/*
+function startRedirectCountdown() {
+    let countdown = 3;
+    
+    const countdownInterval = setInterval(() => {
+        countdownElement.textContent = `Redirecting in ${countdown} seconds...`;
+        countdown--;
+        
+        if (countdown < 0) {
+            clearInterval(countdownInterval);
+            window.location.href = 'dashboard.html';
+        }
+    }, 1000);
+}
+*/
 // Show error message
 function showMessage(message, type = 'error') {
     statusMessage.style.display = 'block';
