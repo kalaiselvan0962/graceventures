@@ -98,10 +98,7 @@
         </div>
     </div>
 
-  
-
-
-    <script>
+<script>
 // === UPDATE DOMContentLoaded ===
 document.addEventListener('DOMContentLoaded', async function() {
     const employeeData = getEmployeeData();
@@ -477,7 +474,7 @@ function displayEmployeeInfo(employeeData) {
 // Raise Ticket function
 function raiseTicket() {
     // Redirect to index.html to raise a new ticket
-    window.location.href = 'https://docs.google.com/forms/d/e/1FAIpQLSd4uLHDE4qP9BTAorYPVLPMGc-e-hhNeeM35Q4SF0ZzPQkKXg/viewform?usp=header';
+    window.location.href = 'tickets.html';
 }
 
 // Logout function - Clear all stored data
@@ -591,13 +588,6 @@ function showError(message) {
             </button>
         </div>`;
 }
-function showError() {
-    document.getElementById('data-container').innerHTML = 
-        `<div class="error">
-            <h3>Have a Great Day 🙌 🤖 </h3>
-            <p>Loading your tickets 🎟️ .</p>
-        </div>`;
-}
 
 // UPDATED applyFilters FUNCTION FOR NEW COLUMN NAMES
 function applyFilters(data) {
@@ -675,13 +665,14 @@ function applyFilters(data) {
             return false;
         }
         
-        // UPDATED: Search across new column names
+        // UPDATED: Search across new column names including screenshot
         if (searchTerm && !(
             (issue.Category || '').toLowerCase().includes(searchTerm) ||
             (issue.Issue || '').toLowerCase().includes(searchTerm) ||
             (issueEmpID || '').toString().includes(searchTerm) ||
             (issueName || '').toLowerCase().includes(searchTerm) ||
-            ((issue.Assignee || issue['Assigned To'] || issue.Assigned_empid || '') || '').toLowerCase().includes(searchTerm)
+            ((issue.Assignee || issue['Assigned To'] || issue.Assigned_empid || '') || '').toLowerCase().includes(searchTerm) ||
+            ((issue.Screenshot || issue['Screenshot URL'] || '') || '').toLowerCase().includes(searchTerm)
         )) {
             return false;
         }
@@ -693,9 +684,7 @@ function applyFilters(data) {
     return filteredData;
 }
 
-
-
-// COMPLETE UPDATED renderTable FUNCTION WITH MANAGER ACCESS
+// COMPLETE UPDATED renderTable FUNCTION WITH SCREENSHOT SUPPORT
 function renderTable(data) {
     const container = document.getElementById('data-container');
     const employeeData = getEmployeeData();
@@ -742,6 +731,7 @@ function renderTable(data) {
                     <th>Name</th>
                     <th>Category</th>
                     <th>Issue</th>
+                    <th>Screenshot</th>
                     <th>Priority</th>
                     <th>Assignee</th>
                     <th>Status</th>
@@ -772,12 +762,25 @@ function renderTable(data) {
         const assignee = issue.Assignee || issue['Assigned To'] || issue.Assigned_empid || issue['Assigned EmpID'] || 'Unassigned';
         const rowId = issue.rowId || '';
         
+        // Get screenshot URL
+        const screenshotUrl = issue.Screenshot || issue['Screenshot URL'] || issue['Attachment'] || '';
+        
         // Get resolved timestamp
         const resolvedAt = issue['Resolved At'] || issue['Resolved_At'] || issue.resolvedAt || '';
         const lastUpdated = issue['Last Updated'] || issue['Last_Updated'] || issue.lastUpdated || '';
         
         const assigneeInitials = assignee !== 'Unassigned' ? 
             assignee.split(' ').map(n => n[0]).join('').toUpperCase() : '?';
+        
+        // Screenshot cell
+        const screenshotCell = screenshotUrl ? 
+            `<td class="screenshot-cell">
+                <a href="#" class="screenshot-link" onclick="showScreenshotPreview('${screenshotUrl}', '${name} - ${category}')">
+                    <i class="fas fa-image"></i>
+                    View Screenshot
+                </a>
+            </td>` :
+            `<td><span class="no-screenshot">-</span></td>`;
         
         // Determine which action buttons to show
         let actionButtons = '';
@@ -841,6 +844,7 @@ function renderTable(data) {
                 <td>${name}</td>
                 <td>${category}</td>
                 <td><div class="issue-description" title="${issueDescription}">${issueDescription || '-'}</div></td>
+                ${screenshotCell}
                 <td><span class="priority-badge ${priorityClass}">${priority}</span></td>
                 <td>
                     <div class="assignee">
@@ -860,8 +864,6 @@ function renderTable(data) {
     // Log access permissions for debugging
     console.log(`🔧 User ${employeeData.name} (${userType}) can update status: ${canUpdateStatus}`);
 }
-
-
 
 function formatTimestamp(timestamp) {
     if (!timestamp) return '';
@@ -891,6 +893,62 @@ function formatTimestamp(timestamp) {
     }
     
     return timestamp;
+}
+
+// Screenshot preview functionality
+function showScreenshotPreview(imageUrl, title) {
+    // Remove any existing modal first
+    const existingModal = document.getElementById('screenshot-preview-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    const modalHTML = `
+        <div class="screenshot-preview-modal" id="screenshot-preview-modal">
+            <div class="screenshot-preview-content">
+                <div class="screenshot-preview-header">
+                    <div class="screenshot-preview-title">${title}</div>
+                    <button class="screenshot-preview-close" onclick="closeScreenshotPreview()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <img src="${imageUrl}" alt="Issue Screenshot" class="screenshot-preview-img" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDIwMCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik04MCA2MEgxMjBWODBIMzBWNjBaIiBmaWxsPSIjOTRBMUFFIi8+CjxjaXJjbGUgY3g9IjEwMCIgY3k9IjQ1IiByPSIxNSIgZmlsbD0iIzk0QTFBRSIvPgo8L3N2Zz4K'; this.alt='Image failed to load'">
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Add click outside to close
+    document.getElementById('screenshot-preview-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeScreenshotPreview();
+        }
+    });
+    
+    // Add escape key to close
+    document.addEventListener('keydown', handleScreenshotKeydown);
+}
+
+function closeScreenshotPreview() {
+    const modal = document.getElementById('screenshot-preview-modal');
+    if (modal) {
+        modal.style.animation = 'fadeOut 0.3s ease forwards';
+        modal.querySelector('.screenshot-preview-content').style.animation = 'scaleOut 0.3s ease forwards';
+        
+        setTimeout(() => {
+            modal.remove();
+        }, 300);
+    }
+    
+    document.removeEventListener('keydown', handleScreenshotKeydown);
+}
+
+function handleScreenshotKeydown(e) {
+    if (e.key === 'Escape') {
+        closeScreenshotPreview();
+    }
 }
 
 // MODAL VERSION - updateTicketStatus function
@@ -1044,6 +1102,7 @@ function confirmStatusUpdate() {
     }
     closeStatusModal();
 }
+
 function showNotification(message, type) {
     // Create notification element
     const notification = document.createElement('div');
@@ -1080,6 +1139,7 @@ function setupEventListeners() {
     });
 }
 </script>
+
 
 </body>
 </html>
