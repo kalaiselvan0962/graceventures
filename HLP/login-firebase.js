@@ -22,6 +22,8 @@ const db = getFirestore(app);
 // DOM Elements
 const loginForm = document.getElementById('loginForm');
 const employeeIdInput = document.getElementById('employeeId');
+const passwordInput = document.getElementById('password');
+const passwordGroup = document.getElementById('passwordGroup');
 const loginBtn = document.querySelector('.login-btn');
 const btnText = document.querySelector('.btn-text');
 const btnLoader = document.querySelector('.btn-loader');
@@ -37,6 +39,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     const sampleIds = ['EMP001', 'EMP002', 'EMP003', 'EMP004', 'EMP005', 'ASSIGNEE001', 'ADMIN001'];
     employeeIdInput.placeholder = `e.g., ${sampleIds[Math.floor(Math.random() * sampleIds.length)]}`;
     employeeIdInput.focus();
+    
+    // Hide password field initially
+    passwordGroup.style.display = 'none';
 });
 
 // Test Firestore connection
@@ -55,14 +60,65 @@ async function testFirestoreConnection() {
 loginForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     const employeeId = employeeIdInput.value.trim().toUpperCase();
+    const password = passwordInput.value.trim();
     
     if (employeeId) {
         showLoadingState();
-        await authenticateEmployee(employeeId);
+        await authenticateEmployee(employeeId, password);
     } else {
         showMessage('Please enter your Employee ID', 'error');
     }
 });
+
+// Check user role when employee ID is entered
+employeeIdInput.addEventListener('blur', async function() {
+    const employeeId = this.value.trim().toUpperCase();
+    
+    if (employeeId) {
+        await checkUserRole(employeeId);
+    }
+});
+
+// Reset password field when employee ID changes
+employeeIdInput.addEventListener('input', function() {
+    passwordInput.value = '';
+    // Hide password field until we check the role again
+    passwordGroup.style.display = 'none';
+    passwordInput.required = false;
+});
+
+// Function to check user role and show/hide password field
+async function checkUserRole(employeeId) {
+    try {
+        const docRef = doc(db, "employees", employeeId);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+            const employeeData = docSnap.data();
+            const userType = determineUserType(employeeData.position, employeeData.role);
+            
+            // Show password field for specific roles
+            const passwordRequiredRoles = ['admin', 'assignee', 'account_manager', 'program_manager'];
+            
+            if (passwordRequiredRoles.includes(userType)) {
+                passwordGroup.style.display = 'block';
+                passwordInput.required = true;
+                passwordInput.focus();
+            } else {
+                passwordGroup.style.display = 'none';
+                passwordInput.required = false;
+            }
+        } else {
+            // Hide password field if employee not found
+            passwordGroup.style.display = 'none';
+            passwordInput.required = false;
+        }
+    } catch (error) {
+        console.error('Role check error:', error);
+        passwordGroup.style.display = 'none';
+        passwordInput.required = false;
+    }
+}
 
 // Show loading state
 function showLoadingState() {
@@ -79,8 +135,8 @@ function hideLoadingState() {
     loginBtn.disabled = false;
 }
 
-// Authenticate employee with Firebase - REAL DATA ONLY
-async function authenticateEmployee(employeeId) {
+// Authenticate employee with Firebase
+async function authenticateEmployee(employeeId, password) {
     try {
         const docRef = doc(db, "employees", employeeId);
         const docSnap = await getDoc(docRef);
@@ -95,10 +151,39 @@ async function authenticateEmployee(employeeId) {
                 return;
             }
             
-            // Determine user type based on position or role
+            // Determine user type
             const userType = determineUserType(employeeData.position, employeeData.role);
             
-            // Store employee data in both sessionStorage and localStorage for dashboard
+            // Check if password is required for this role
+            const passwordRequiredRoles = ['admin', 'assignee', 'account_manager', 'program_manager'];
+            
+            if (passwordRequiredRoles.includes(userType)) {
+                // Verify password for privileged roles
+                if (!password) {
+                    showMessage('Password is required for this role', 'error');
+                    hideLoadingState();
+                    return;
+                }
+                
+                // Check if password field exists in employee data
+                if (!employeeData.password) {
+                    showMessage('Password not configured for this user. Please contact administrator.', 'error');
+                    hideLoadingState();
+                    return;
+                }
+                
+                // Verify password
+                if (password !== employeeData.password) {
+                    showMessage('Invalid password. Please try again.', 'error');
+                    hideLoadingState();
+                    return;
+                }
+            } else {
+                // For regular employees, clear any password that might have been entered
+                passwordInput.value = '';
+            }
+            
+            // Store employee data
             const employeeInfo = {
                 id: employeeId,
                 name: employeeData.name,
@@ -128,7 +213,6 @@ async function authenticateEmployee(employeeId) {
 }
 
 // Determine user type based on position or role
-// Determine user type based on position or role
 function determineUserType(position, role) {
     const positionLower = (position || '').toLowerCase();
     const roleLower = (role || '').toLowerCase();
@@ -146,7 +230,6 @@ function determineUserType(position, role) {
     }
 }
 
-// Show success message and redirect
 // Random welcome messages
 const welcomeMessages = [
     "Great to see you again! Your workspace is being prepared with the latest updates.",
@@ -229,7 +312,7 @@ function showWelcomeModal(employeeData) {
     }, 200);
 }
 
-// Update the showSuccess function to use the modal
+// Show success message
 function showSuccess(message, redirect = false) {
     statusMessage.style.display = 'block';
     statusMessage.style.background = 'rgba(16, 185, 129, 0.1)';
@@ -252,28 +335,14 @@ function showSuccess(message, redirect = false) {
                 showWelcomeModal(employeeData);
             }, 1000);
         } else {
-            // Fallback to old redirect method
-            startRedirectCountdown();
+            // Fallback redirect
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 2000);
         }
     }
 }
 
-// Remove or comment out the old countdown function since we're using the modal now
-/*
-function startRedirectCountdown() {
-    let countdown = 3;
-    
-    const countdownInterval = setInterval(() => {
-        countdownElement.textContent = `Redirecting in ${countdown} seconds...`;
-        countdown--;
-        
-        if (countdown < 0) {
-            clearInterval(countdownInterval);
-            window.location.href = 'dashboard.html';
-        }
-    }, 1000);
-}
-*/
 // Show error message
 function showMessage(message, type = 'error') {
     statusMessage.style.display = 'block';
@@ -290,19 +359,4 @@ function showMessage(message, type = 'error') {
     }
     
     hideLoadingState();
-}
-
-// Countdown and redirect
-function startRedirectCountdown() {
-    let countdown = 3;
-    
-    const countdownInterval = setInterval(() => {
-        countdownElement.textContent = `Redirecting in ${countdown} seconds...`;
-        countdown--;
-        
-        if (countdown < 0) {
-            clearInterval(countdownInterval);
-            window.location.href = 'dashboard.html';
-        }
-    }, 1000);
 }
