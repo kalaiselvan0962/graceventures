@@ -313,6 +313,178 @@ body {
     }
 }
 
+
+
+/**/
+
+/* Screenshot thumbnail styles */
+.screenshot-cell {
+    max-width: 150px;
+    cursor: pointer;
+}
+
+.screenshot-link {
+    color: #4361ee;
+    text-decoration: none;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: rgba(67, 97, 238, 0.1);
+    transition: all 0.2s ease;
+}
+
+.screenshot-link:hover {
+    background-color: rgba(67, 97, 238, 0.2);
+    transform: translateY(-1px);
+}
+
+.screenshot-preview-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    animation: fadeIn 0.3s ease forwards;
+}
+
+.screenshot-preview-content {
+    max-width: 90%;
+    max-height: 90%;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    transform: scale(0.8);
+    animation: scaleIn 0.3s ease forwards;
+}
+
+.screenshot-preview-img {
+    max-width: 100%;
+    max-height: 80vh;
+    display: block;
+}
+
+.screenshot-preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.screenshot-preview-title {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.screenshot-preview-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #64748b;
+    padding: 5px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.screenshot-preview-close:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+/* Add to your existing CSS */
+.dashboard-loading {
+    text-align: center;
+    padding: 50px 20px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
+    margin: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.dashboard-loading .spinner {
+    border: 4px solid rgba(102, 126, 234, 0.2);
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+.loading-dots {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.loading-dots div {
+    position: absolute;
+    top: 33px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #667eea;
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+
+.loading-dots div:nth-child(1) {
+    left: 8px;
+    animation: loading-dots1 0.6s infinite;
+}
+
+.loading-dots div:nth-child(2) {
+    left: 8px;
+    animation: loading-dots2 0.6s infinite;
+}
+
+.loading-dots div:nth-child(3) {
+    left: 32px;
+    animation: loading-dots2 0.6s infinite;
+}
+
+.loading-dots div:nth-child(4) {
+    left: 56px;
+    animation: loading-dots3 0.6s infinite;
+}
+
+@keyframes loading-dots1 {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}
+
+@keyframes loading-dots3 {
+    0% { transform: scale(1); }
+    100% { transform: scale(0); }
+}
+
+@keyframes loading-dots2 {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(24px, 0); }
+}
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    to { transform: scale(1); }
+}
+
+
+
+
+
 /* Jira Tracker Styles */
 .tracker-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
