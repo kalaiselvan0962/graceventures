@@ -1,241 +1,165 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Falling Blocks — Browser Version</title>
-  <style>
-    /* Simple centered layout */
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falling Blocks - Python Code</title>
+<style>
     body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      background: #111;
-      color: #eee;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        background: #0f0f0f;
+        color: #ddd;
+        font-family: Consolas, "Courier New", monospace;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        flex-direction: column;
     }
-    #game {
-      background: #000;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
-      border-radius: 8px;
-      overflow: hidden;
+    h1 {
+        color: #00ff9d;
+        font-weight: 500;
     }
-    .topbar {
-      height: 40px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:0 12px;
-      background:#0b0b0b;
-      color:#ddd;
-      font-size:14px;
-      box-sizing:border-box;
+    pre {
+        background: #1a1a1a;
+        color: #00ff9d;
+        padding: 20px;
+        border-radius: 8px;
+        overflow-x: auto;
+        max-width: 90%;
+        box-shadow: 0 0 20px rgba(0, 255, 150, 0.2);
     }
-    .hint { opacity: 0.8; font-size:13px; }
-    canvas { display:block; background:#000; }
-    .credits { padding:8px; text-align:center; font-size:12px; color:#aaa; }
-  </style>
+    button {
+        margin-top: 15px;
+        padding: 10px 20px;
+        background: #00ff9d;
+        color: #000;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    button:hover {
+        background: #00cc80;
+    }
+</style>
 </head>
 <body>
-  <div id="game" role="application">
-    <div class="topbar">
-      <div>Falling Blocks</div>
-      <div class="hint">← → move · ↓ faster · Space to hard-drop</div>
-    </div>
-    <canvas id="canvas"></canvas>
-    <div class="credits">Copy-paste this file and open in a browser</div>
-  </div>
 
-  <script>
-  // ----- Config -----
-  const ROWS = 10;
-  const COLS = 10;
-  const BLOCK_SIZE = 40; // px
-  const TOP_MARGIN = 40; // matches topbar height
-  const WIDTH = COLS * BLOCK_SIZE;
-  const HEIGHT = ROWS * BLOCK_SIZE;
+<h1>🎮 Falling Blocks (Python + Pygame)</h1>
 
-  // Gravity timings (ms)
-  const FALL_INTERVAL = 600;    // base fall every 600ms
-  const FAST_FALL_INTERVAL = 60; // when pressing down
-  const MOVE_COOLDOWN = 100;     // ms between lateral moves while holding key
+<pre id="code">
+import pygame
+import sys
+import random
 
-  // Colors
-  const GRID_LINE_COLOR = '#282828';
-  const BLOCK_COLOR = '#c0392b';
-  const OCCUPIED_COLOR = '#2ecc71';
+# 1. Initialize Pygame
+pygame.init()
 
-  // ----- Setup canvas -----
-  const canvas = document.getElementById('canvas');
-  canvas.width = WIDTH;
-  canvas.height = HEIGHT;
-  canvas.style.width = WIDTH + 'px';
-  canvas.style.height = HEIGHT + 'px';
-  const ctx = canvas.getContext('2d');
+# 2. Game grid setup
+ROWS, COLS = 10, 10
+BLOCK_SIZE = 40
+WIDTH, HEIGHT = COLS * BLOCK_SIZE, ROWS * BLOCK_SIZE
+TOP_MARGIN = 40
 
-  // ----- Game state -----
-  // grid[r][c] = false or color string for occupied cells
-  const grid = Array.from({length: ROWS}, () => Array.from({length: COLS}, () => null));
+# 3. Create window
+screen = pygame.display.set_mode((WIDTH, HEIGHT + TOP_MARGIN))
+pygame.display.set_caption("Falling Blocks")
 
-  class Block {
-    constructor(col= Math.floor(Math.random() * COLS), row=0, color=BLOCK_COLOR) {
-      this.col = col;
-      this.row = row;
-      this.color = color;
-    }
+# 4. Clock for FPS control
+clock = pygame.time.Clock()
 
-    draw() {
-      const x = this.col * BLOCK_SIZE;
-      const y = this.row * BLOCK_SIZE;
-      ctx.fillStyle = this.color;
-      ctx.fillRect(x, y, BLOCK_SIZE, BLOCK_SIZE);
-      // inner highlight
-      ctx.fillStyle = 'rgba(255,255,255,0.06)';
-      ctx.fillRect(x+4, y+4, BLOCK_SIZE-8, BLOCK_SIZE-8);
-    }
+# 5. Colors
+BLACK = (0, 0, 0)
+GRAY = (40, 40, 40)
+RED = (200, 50, 50)
 
-    canMove(dx, dy) {
-      const nc = this.col + dx;
-      const nr = this.row + dy;
-      if (nc < 0 || nc >= COLS) return false;
-      if (nr < 0 || nr >= ROWS) return false;
-      return !grid[nr][nc];
-    }
+# 6. Draw grid
+def draw_grid():
+    for row in range(ROWS):
+        for col in range(COLS):
+            pygame.draw.rect(
+                screen,
+                GRAY,
+                (col * BLOCK_SIZE, row * BLOCK_SIZE + TOP_MARGIN, BLOCK_SIZE, BLOCK_SIZE),
+                1
+            )
 
-    move(dx, dy) {
-      if (this.canMove(dx, dy)) {
-        this.col += dx;
-        this.row += dy;
-        return true;
-      }
-      return false;
-    }
+# 7. Block class
+class Block:
+    def __init__(self):
+        self.col = random.randint(0, COLS - 1)
+        self.row = 0
+        self.color = RED
+        self.speed = 0.3  # Falling speed (lower = slower)
+        self.fall_timer = 0
 
-    hardDrop() {
-      while (this.move(0,1)) {}
-      // now landed
-    }
+    def move(self, dx, dy):
+        new_col = self.col + dx
+        new_row = self.row + dy
+        if 0 <= new_col < COLS and 0 <= new_row < ROWS:
+            self.col = new_col
+            self.row = new_row
 
-    land() {
-      grid[this.row][this.col] = OCCUPIED_COLOR;
-    }
-  }
+    def update(self, dt):
+        self.fall_timer += dt
+        if self.fall_timer >= self.speed:
+            self.fall_timer = 0
+            if self.row < ROWS - 1:
+                self.row += 1  # Move down
 
-  // current falling block
-  let current = spawnBlock();
-  function spawnBlock() {
-    // If spawn position is blocked -> game over (clear grid)
-    const c = Math.floor(Math.random() * COLS);
-    if (grid[0][c]) {
-      // Simple reset behavior
-      for (let r=0;r<ROWS;r++) for (let c2=0;c2<COLS;c2++) grid[r][c2] = null;
-    }
-    return new Block(c, 0, BLOCK_COLOR);
-  }
+    def draw(self):
+        pygame.draw.rect(
+            screen,
+            self.color,
+            (self.col * BLOCK_SIZE, self.row * BLOCK_SIZE + TOP_MARGIN, BLOCK_SIZE, BLOCK_SIZE)
+        )
 
-  // ----- Input handling -----
-  const keys = { left:false, right:false, down:false };
-  let lastMoveTime = 0;
+# 8. Create a block
+block = Block()
 
-  window.addEventListener('keydown', (e) => {
-    if (e.code === 'ArrowLeft') keys.left = true;
-    if (e.code === 'ArrowRight') keys.right = true;
-    if (e.code === 'ArrowDown') keys.down = true;
-    if (e.code === 'Space') {
-      // hard drop
-      current.hardDrop();
-      current.land();
-      clearFullRows();
-      current = spawnBlock();
-    }
-  });
-  window.addEventListener('keyup', (e) => {
-    if (e.code === 'ArrowLeft') keys.left = false;
-    if (e.code === 'ArrowRight') keys.right = false;
-    if (e.code === 'ArrowDown') keys.down = false;
-  });
+# 9. Game loop
+running = True
+while running:
+    dt = clock.tick(60) / 1000  # Delta time in seconds
 
-  // ----- Row clearing (optional) -----
-  function clearFullRows() {
-    for (let r = ROWS-1; r >= 0; r--) {
-      if (grid[r].every(cell => cell)) {
-        // remove row r
-        grid.splice(r, 1);
-        // add empty row at top
-        grid.unshift(Array.from({length:COLS}, ()=>null));
-        // after clearing, stay at same r to check new row
-        r++;
-      }
-    }
-  }
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
 
-  // ----- Drawing helpers -----
-  function drawGridLines() {
-    ctx.strokeStyle = GRID_LINE_COLOR;
-    ctx.lineWidth = 1;
-    for (let r=0; r<ROWS; r++) {
-      for (let c=0; c<COLS; c++) {
-        ctx.strokeRect(c*BLOCK_SIZE, r*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-      }
-    }
-  }
+    # Get pressed keys
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        block.move(-1, 0)
+    if keys[pygame.K_RIGHT]:
+        block.move(1, 0)
+    if keys[pygame.K_DOWN]:
+        block.move(0, 1)
 
-  function drawOccupied() {
-    for (let r=0; r<ROWS; r++) {
-      for (let c=0; c<COLS; c++) {
-        if (grid[r][c]) {
-          ctx.fillStyle = grid[r][c];
-          ctx.fillRect(c*BLOCK_SIZE, r*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-        }
-      }
-    }
-  }
+    # Update block (falling)
+    block.update(dt)
 
-  // ----- Game loop / timing -----
-  let lastFall = performance.now();
-  function gameLoop(now) {
-    const delta = now - lastFall;
-    const interval = keys.down ? FAST_FALL_INTERVAL : FALL_INTERVAL;
+    # Draw everything
+    screen.fill(BLACK)
+    draw_grid()
+    block.draw()
+    pygame.display.update()
 
-    // handle lateral moves with cooldown
-    if (now - lastMoveTime > MOVE_COOLDOWN) {
-      if (keys.left) {
-        current.move(-1,0);
-        lastMoveTime = now;
-      } else if (keys.right) {
-        current.move(1,0);
-        lastMoveTime = now;
-      }
-    }
+# Quit safely
+pygame.quit()
+sys.exit()
+</pre>
 
-    if (delta >= interval) {
-      lastFall = now;
-      // try to move down
-      const moved = current.move(0,1);
-      if (!moved) {
-        // landed
-        current.land();
-        clearFullRows();
-        current = spawnBlock();
-      }
-    }
+<button onclick="copyCode()">📋 Copy Code</button>
 
-    // render
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    drawGridLines();
-    drawOccupied();
-    current.draw();
+<script>
+function copyCode() {
+    const codeElement = document.getElementById('code');
+    navigator.clipboard.writeText(codeElement.innerText).then(() => {
+        alert('✅ Python code copied to clipboard!');
+    });
+}
+</script>
 
-    requestAnimationFrame(gameLoop);
-  }
-
-  // start
-  requestAnimationFrame(gameLoop);
-
-  // ----- Optional: simple keyboard instructions in console -----
-  console.log("Falling Blocks ready. Use Arrow keys and Space.");
-  </script>
 </body>
 </html>
