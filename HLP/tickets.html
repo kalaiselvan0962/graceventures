@@ -1180,7 +1180,32 @@ select.form-control::-webkit-scrollbar-thumb:hover {
     </div>
 </div>
 
+
+
 <script>
+// Employee data retrieval function
+function getEmployeeData() {
+    try {
+        const localStorageData = localStorage.getItem('employeeData');
+        const sessionStorageData = sessionStorage.getItem('currentEmployee');
+        
+        let employeeData = null;
+        
+        if (localStorageData) {
+            employeeData = JSON.parse(localStorageData);
+        } else if (sessionStorageData) {
+            employeeData = JSON.parse(sessionStorageData);
+        }
+        
+        if (employeeData && employeeData.id && employeeData.name) {
+            return employeeData;
+        }
+    } catch (error) {
+        console.error('Error parsing employee data:', error);
+    }
+    return null;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('helplineForm');
     const uploadArea = document.getElementById('uploadArea');
@@ -1197,6 +1222,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const successMessage = document.getElementById('successMessage');
     const errorMessage = document.getElementById('errorMessage');
     const clearBtn = document.getElementById('clearForm');
+    
+    // Auto-fill EMPID and Name
+    const empidInput = document.getElementById('empid');
+    const nameInput = document.getElementById('name');
+    
+    // Get employee data and auto-fill fields
+    const employeeData = getEmployeeData();
+    if (employeeData) {
+        // Fill EMPID (try different possible fields)
+        const empid = employeeData.empid || employeeData.id || employeeData.EMPID;
+        if (empid) {
+            empidInput.value = empid;
+            empidInput.readOnly = true;
+        }
+        
+        // Fill Name
+        if (employeeData.name) {
+            nameInput.value = employeeData.name;
+            nameInput.readOnly = true;
+        }
+    }
 
     // ImgBB API Key
     const IMGBB_API_KEY = '29a736ebd8c9d8ef3f662c8dbef54025';
@@ -1283,16 +1329,31 @@ document.addEventListener('DOMContentLoaded', function() {
         urlInput.select();
         document.execCommand('copy');
 
-        const originalText = copyBtn.textContent;
-        copyBtn.textContent = 'Copied!';
+        const originalText = copyBtn.querySelector('span').textContent;
+        copyBtn.querySelector('span').textContent = 'Copied!';
         setTimeout(() => {
-            copyBtn.textContent = originalText;
+            copyBtn.querySelector('span').textContent = originalText;
         }, 2000);
     });
 
-    // Clear form
+    // Clear form - preserve auto-filled data
     clearBtn.addEventListener('click', function() {
+        // Store current auto-filled values
+        const currentEmpid = empidInput.value;
+        const currentName = nameInput.value;
+        
         form.reset();
+        
+        // Restore auto-filled values
+        if (currentEmpid) {
+            empidInput.value = currentEmpid;
+            empidInput.readOnly = true;
+        }
+        if (currentName) {
+            nameInput.value = currentName;
+            nameInput.readOnly = true;
+        }
+        
         previewContainer.style.display = 'none';
         urlContainer.style.display = 'none';
         successMessage.style.display = 'none';
@@ -1343,24 +1404,38 @@ document.addEventListener('DOMContentLoaded', function() {
             mode: 'no-cors'
         })
         .then(() => {
-    // Since we're using no-cors, we can't read the response
-    // But we assume success if the request was sent
-    loading.style.display = 'none';
-    successMessage.style.display = 'block';
-    form.reset();
-    previewContainer.style.display = 'none';
-    urlContainer.style.display = 'none';
+            // Since we're using no-cors, we can't read the response
+            // But we assume success if the request was sent
+            loading.style.display = 'none';
+            successMessage.style.display = 'block';
+            
+            // Store current auto-filled values before reset
+            const currentEmpid = empidInput.value;
+            const currentName = nameInput.value;
+            
+            form.reset();
+            
+            // Restore auto-filled values after reset
+            if (currentEmpid) {
+                empidInput.value = currentEmpid;
+                empidInput.readOnly = true;
+            }
+            if (currentName) {
+                nameInput.value = currentName;
+                nameInput.readOnly = true;
+            }
+            
+            previewContainer.style.display = 'none';
+            urlContainer.style.display = 'none';
 
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Redirect to dashboard after 2 seconds
-    setTimeout(() => {
-        window.location.href = 'dashboard.html';
-    }, 2000);
-})
-
-
+            // Redirect to dashboard after 2 seconds
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 2000);
+        })
         .catch(error => {
             loading.style.display = 'none';
             errorMessage.textContent = 'Submission failed. Please try again.';
@@ -1370,5 +1445,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+
+
 </body>
 </html>
