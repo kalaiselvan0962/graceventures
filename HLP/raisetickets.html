@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wizklub Instructors Helpline</title>
+    <link rel="stylesheet" href="ticket.css">
+</head>
+<body>
+    <div class="background">
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+            <div class="shape shape-5"></div>
+        </div>
+        <div class="light-beam"></div>
+    </div>
+
+    <div class="dashboard-header">
+        <div class="logo-section">
+            <div class="logo-icon">W</div>
+            <div class="logo-text">
+                <h1>WIZKLUB</h1>
+                <p>Instructors Portal</p>
+            </div>
+        </div>
+        <div class="user-section">
+            <div class="user-info">
+                <div class="user-name">Instructor Portal</div>
+                <div class="user-position">Support</div>
+            </div>
+            <div class="user-avatar">IP</div>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="dashboard-card">
+            <div class="form-header">
+                <div class="header-left">
+                    <h1>INSTRUCTORS HELPLINE</h1>
+                    <p>Submit your technical issues and get assistance quickly</p>
+                </div>
+                <div class="header-right">
+                    <div class="update-indicator">
+                        <div class="status-dot"></div>
+                        <span>Live Support</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-content">
+                <div id="successMessage" class="success-message">
+                    ✅ Your issue has been submitted successfully! Our team will contact you soon.
+                </div>
+
+                <div id="errorMessage" class="error-message">
+                    ❌ There was an error submitting your form. Please try again.
+                </div>
+
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Submitting your issue...</p>
+                </div>
+
+                <form id="helplineForm">
+                    <div class="form-section">
+                        <h3 class="section-title">Upload Screenshot</h3>
+                        <div class="upload-section">
+                            <div class="upload-area" id="uploadArea">
+                                <div class="upload-icon">📁</div>
+                                <p>Drag & drop your screenshot here or click to browse</p>
+                                <button type="button" class="browse-btn">
+                                    <span>Browse Files</span>
+                                </button>
+                                <input type="file" id="fileInput" class="file-input" accept="image/*">
+                            </div>
+
+                            <div class="loading" id="uploadLoading">
+                                <div class="spinner"></div>
+                                <p>Uploading image to ImgBB...</p>
+                            </div>
+
+                            <div class="preview-container" id="previewContainer">
+                                <h4>Image Preview</h4>
+                                <img id="imagePreview" class="image-preview" src="" alt="Preview">
+                            </div>
+
+                            <div class="url-container" id="urlContainer">
+                                <h4>Screenshot URL (Auto-filled)</h4>
+                                <div class="url-box">
+                                    <input type="text" id="urlInput" class="url-input" readonly>
+                                    <button type="button" class="copy-btn" id="copyBtn">
+                                        <span>Copy</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title">Issue Details</h3>
+                        
+                        <div class="form-group">
+                            <label for="empid" class="form-label required">EMPID (Ex: EMP737)</label>
+                            <input type="text" id="empid" name="entry.539082508" class="form-control" placeholder="Enter your Employee ID" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="name" class="form-label required">Name</label>
+                            <input type="text" id="name" name="entry.415672604" class="form-control" placeholder="Enter your full name" required>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="section-title">Category Selection</h3>
+                            
+                            <div class="category-grid">
+                                <div class="category-card" data-category="Platform">
+                                    <span class="category-icon">🖥️</span>
+                                    <div class="category-name">Platform</div>
+                                    <div class="category-desc">Technical issues with the Wizklub platform</div>
+                                </div>
+                                
+                                <div class="category-card" data-category="Infrastructure">
+                                    <span class="category-icon">🏢</span>
+                                    <div class="category-name">Infrastructure</div>
+                                    <div class="category-desc">Hardware, network, and facility issues</div>
+                                </div>
+                                
+                                <div class="category-card" data-category="Hardware">
+                                    <span class="category-icon">💻</span>
+                                    <div class="category-name">Hardware</div>
+                                    <div class="category-desc">Computer and equipment problems</div>
+                                </div>
+                                
+                                <div class="category-card" data-category="Curriculum">
+                                    <span class="category-icon">📚</span>
+                                    <div class="category-name">Curriculum</div>
+                                    <div class="category-desc">Course content and materials</div>
+                                </div>
+                                
+                                <div class="category-card" data-category="Content Delivery">
+                                    <span class="category-icon">🎯</span>
+                                    <div class="category-name">Content Delivery</div>
+                                    <div class="category-desc">Teaching and session delivery</div>
+                                </div>
+                            </div>
+                            
+                            <input type="hidden" id="category" name="entry.1650628212" required>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="section-title">Issue Selection</h3>
+                            
+                            <div class="issues-container" id="issuesContainer">
+                                <div class="issues-grid" id="issuesGrid">
+                                    <!-- Issues will be populated dynamically based on category selection -->
+                                </div>
+                                
+                                <div class="selected-issue-display" id="selectedIssueDisplay">
+                                    <div class="selected-issue-header">
+                                        <div class="selected-issue-label">Selected Issue:</div>
+                                        <button type="button" class="change-selection-btn" id="changeIssueBtn">
+                                            Change Selection
+                                        </button>
+                                    </div>
+                                    <div class="selected-issue-value" id="selectedIssueValue"></div>
+                                </div>
+                                
+                                <input type="hidden" id="issue" name="entry.1964477240" required>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="section-title">Priority Level</h3>
+                            
+                            <div class="priority-options">
+                                <div class="priority-card high" data-priority="High">
+                                    <span class="priority-icon">🔴</span>
+                                    <div class="priority-name">High Priority</div>
+                                    <div class="priority-desc">Critical issue affecting classes</div>
+                                </div>
+                                
+                                <div class="priority-card medium" data-priority="Medium">
+                                    <span class="priority-icon">🟡</span>
+                                    <div class="priority-name">Medium Priority</div>
+                                    <div class="priority-desc">Important but not critical</div>
+                                </div>
+                                
+                                <div class="priority-card low" data-priority="Low">
+                                    <span class="priority-icon">🟢</span>
+                                    <div class="priority-name">Low Priority</div>
+                                    <div class="priority-desc">Minor issue or enhancement</div>
+                                </div>
+                            </div>
+                            
+                            <input type="hidden" id="priority" name="entry.2110805653" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="screenshotUrl" class="form-label required">Screenshot URL</label>
+                            <input type="text" id="screenshotUrl" name="entry.1745564748" class="form-control" placeholder="Screenshot URL will appear here after upload" required readonly>
+                            <small style="color: #64748b; margin-top: 5px; display: block;">
+                                Upload an image above to automatically fill this field
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-footer">
+                        <button type="reset" class="btn btn-secondary" id="clearForm">Clear Form</button>
+                        <button type="submit" class="btn btn-primary">Submit Issue</button>
+                    </div>
+
+                    <p class="form-note">Your issue will be addressed by our technical team as soon as possible.</p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="ticket.js"></script>
+</body>
+</html>
