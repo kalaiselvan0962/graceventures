@@ -29,7 +29,9 @@ const btnText = document.querySelector('.btn-text');
 const btnLoader = document.querySelector('.btn-loader');
 const statusMessage = document.getElementById('statusMessage');
 const messageText = document.getElementById('messageText');
-const countdownElement = document.getElementById('countdown');
+
+// Password required roles
+const PASSWORD_REQUIRED_ROLES = ['admin', 'assignee', 'account_manager', 'program_manager'];
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', async function() {
@@ -40,8 +42,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     employeeIdInput.placeholder = `e.g., ${sampleIds[Math.floor(Math.random() * sampleIds.length)]}`;
     employeeIdInput.focus();
     
-    // Hide password field initially
+    // Hide password field by default
     passwordGroup.style.display = 'none';
+    passwordInput.required = false;
 });
 
 // Test Firestore connection
@@ -56,39 +59,53 @@ async function testFirestoreConnection() {
     }
 }
 
-// Login form submission
+// Login form submission - MAIN LOGIN LOGIC
 loginForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     const employeeId = employeeIdInput.value.trim().toUpperCase();
     const password = passwordInput.value.trim();
     
-    if (employeeId) {
-        showLoadingState();
-        await authenticateEmployee(employeeId, password);
-    } else {
+    if (!employeeId) {
         showMessage('Please enter your Employee ID', 'error');
+        employeeIdInput.focus();
+        return;
     }
+    
+    showLoadingState();
+    await authenticateEmployee(employeeId, password);
 });
 
-// Check user role when employee ID is entered
-employeeIdInput.addEventListener('blur', async function() {
+// Real-time role detection as user types - ONLY for showing password field
+let roleCheckTimeout;
+employeeIdInput.addEventListener('input', function() {
     const employeeId = this.value.trim().toUpperCase();
     
-    if (employeeId) {
-        await checkUserRole(employeeId);
+    // Clear previous timeout
+    clearTimeout(roleCheckTimeout);
+    
+    // Hide password field while typing (will show again if privileged role)
+    passwordGroup.style.display = 'none';
+    passwordInput.required = false;
+    passwordInput.value = '';
+    
+    // Check role after user stops typing (700ms delay) - ONLY for password field
+    if (employeeId.length >= 3) {
+        roleCheckTimeout = setTimeout(async () => {
+            await checkUserRoleForPasswordField(employeeId);
+        }, 700);
     }
 });
 
-// Reset password field when employee ID changes
-employeeIdInput.addEventListener('input', function() {
-    passwordInput.value = '';
-    // Hide password field until we check the role again
-    passwordGroup.style.display = 'none';
-    passwordInput.required = false;
+// Also check on blur for password field
+employeeIdInput.addEventListener('blur', async function() {
+    const employeeId = this.value.trim().toUpperCase();
+    if (employeeId) {
+        await checkUserRoleForPasswordField(employeeId);
+    }
 });
 
-// Function to check user role and show/hide password field
-async function checkUserRole(employeeId) {
+// Check user role ONLY for password field display
+async function checkUserRoleForPasswordField(employeeId) {
     try {
         const docRef = doc(db, "employees", employeeId);
         const docSnap = await getDoc(docRef);
@@ -97,19 +114,21 @@ async function checkUserRole(employeeId) {
             const employeeData = docSnap.data();
             const userType = determineUserType(employeeData.position, employeeData.role);
             
-            // Show password field for specific roles
-            const passwordRequiredRoles = ['admin', 'assignee', 'account_manager', 'program_manager'];
+            // Show password field only for privileged roles
+            const isPasswordRequired = PASSWORD_REQUIRED_ROLES.includes(userType);
             
-            if (passwordRequiredRoles.includes(userType)) {
+            if (isPasswordRequired) {
                 passwordGroup.style.display = 'block';
                 passwordInput.required = true;
+                passwordInput.placeholder = `Enter password for ${userType.replace('_', ' ')} access`;
                 passwordInput.focus();
             } else {
                 passwordGroup.style.display = 'none';
                 passwordInput.required = false;
+                passwordInput.value = '';
             }
         } else {
-            // Hide password field if employee not found
+            // Employee not found - keep password hidden
             passwordGroup.style.display = 'none';
             passwordInput.required = false;
         }
@@ -135,7 +154,7 @@ function hideLoadingState() {
     loginBtn.disabled = false;
 }
 
-// Authenticate employee with Firebase
+// MAIN AUTHENTICATION FUNCTION - Called only on "Access Portal" click
 async function authenticateEmployee(employeeId, password) {
     try {
         const docRef = doc(db, "employees", employeeId);
@@ -153,21 +172,21 @@ async function authenticateEmployee(employeeId, password) {
             
             // Determine user type
             const userType = determineUserType(employeeData.position, employeeData.role);
+            const isPasswordRequired = PASSWORD_REQUIRED_ROLES.includes(userType);
             
-            // Check if password is required for this role
-            const passwordRequiredRoles = ['admin', 'assignee', 'account_manager', 'program_manager'];
-            
-            if (passwordRequiredRoles.includes(userType)) {
-                // Verify password for privileged roles
+            // Password validation logic - ONLY CHECKED ON SUBMIT
+            if (isPasswordRequired) {
+                // Privileged roles require password
                 if (!password) {
-                    showMessage('Password is required for this role', 'error');
+                    showMessage(`Password is required for ${userType.replace('_', ' ')} role`, 'error');
+                    passwordInput.focus();
                     hideLoadingState();
                     return;
                 }
                 
-                // Check if password field exists in employee data
+                // Check if password is configured
                 if (!employeeData.password) {
-                    showMessage('Password not configured for this user. Please contact administrator.', 'error');
+                    showMessage('Password not configured. Please contact administrator.', 'error');
                     hideLoadingState();
                     return;
                 }
@@ -175,32 +194,16 @@ async function authenticateEmployee(employeeId, password) {
                 // Verify password
                 if (password !== employeeData.password) {
                     showMessage('Invalid password. Please try again.', 'error');
+                    passwordInput.focus();
+                    passwordInput.select();
                     hideLoadingState();
                     return;
                 }
-            } else {
-                // For regular employees, clear any password that might have been entered
-                passwordInput.value = '';
             }
+            // For regular employees, no password needed - proceed directly to welcome message
             
-            // Store employee data
-            const employeeInfo = {
-                id: employeeId,
-                name: employeeData.name,
-                department: employeeData.department || 'Not specified',
-                position: employeeData.position,
-                role: employeeData.role || 'employee',
-                userType: userType,
-                email: employeeData.email || '',
-                phone: employeeData.phone || '',
-                empid: employeeData.empid || employeeId,
-                lastLogin: new Date().toISOString()
-            };
-            
-            sessionStorage.setItem('currentEmployee', JSON.stringify(employeeInfo));
-            localStorage.setItem('employeeData', JSON.stringify(employeeInfo));
-            
-            showSuccess(`Welcome back, ${employeeData.name}! (${userType})`, true);
+            // Store employee data and proceed to success
+            await handleSuccessfulLogin(employeeId, employeeData, userType);
         } else {
             showMessage('Employee ID not found. Please check your credentials.', 'error');
             hideLoadingState();
@@ -210,6 +213,28 @@ async function authenticateEmployee(employeeId, password) {
         showMessage('Authentication failed. Please check your connection and try again.', 'error');
         hideLoadingState();
     }
+}
+
+// Handle successful login - SHOW WELCOME MESSAGE FOR ALL USERS
+async function handleSuccessfulLogin(employeeId, employeeData, userType) {
+    const employeeInfo = {
+        id: employeeId,
+        name: employeeData.name,
+        department: employeeData.department || 'Not specified',
+        position: employeeData.position,
+        role: employeeData.role || 'employee',
+        userType: userType,
+        email: employeeData.email || '',
+        phone: employeeData.phone || '',
+        empid: employeeData.empid || employeeId,
+        lastLogin: new Date().toISOString()
+    };
+    
+    sessionStorage.setItem('currentEmployee', JSON.stringify(employeeInfo));
+    localStorage.setItem('employeeData', JSON.stringify(employeeInfo));
+    
+    // Show welcome modal for ALL users after successful authentication
+    showWelcomeModal(employeeInfo);
 }
 
 // Determine user type based on position or role
@@ -230,35 +255,24 @@ function determineUserType(position, role) {
     }
 }
 
-// Random welcome messages
+// Random welcome messages and titles
 const welcomeMessages = [
     "Great to see you again! Your workspace is being prepared with the latest updates.",
     "Welcome back! We've missed your presence. Getting everything ready for you...",
     "Hello again! Your dashboard is loading with all the tools you need.",
     "Good to have you back! We're preparing your personalized workspace.",
-    "Welcome back! Loading your recent activities and updates...",
-    "Hello! Your helpdesk portal is being initialized with the latest features.",
-    "Great to see you! We're setting up your workspace with all your preferences.",
-    "Welcome back! Preparing your dashboard with today's priorities.",
-    "Hello! We're loading your workspace with enhanced productivity tools.",
-    "Welcome back! Your helpdesk environment is being optimized for you."
+    "Welcome back! Loading your recent activities and updates..."
 ];
 
-// Random welcome titles
 const welcomeTitles = [
     "Welcome Back!",
     "Great to See You!",
     "Hello Again!",
-    "Welcome Back!",
     "Ready to Work?",
-    "Hello There!",
-    "Welcome Back!",
-    "Good to Have You!",
-    "Welcome Back!",
     "Hello Champion!"
 ];
 
-// Show welcome modal
+// Show welcome modal - FOR ALL USERS AFTER CLICKING "ACCESS PORTAL"
 function showWelcomeModal(employeeData) {
     const modal = document.getElementById('welcomeModal');
     const welcomeTitle = document.getElementById('welcomeTitle');
@@ -310,37 +324,9 @@ function showWelcomeModal(employeeData) {
             }, 800);
         }
     }, 200);
-}
-
-// Show success message
-function showSuccess(message, redirect = false) {
-    statusMessage.style.display = 'block';
-    statusMessage.style.background = 'rgba(16, 185, 129, 0.1)';
-    statusMessage.style.borderColor = 'rgba(16, 185, 129, 0.2)';
-    messageText.textContent = message;
-    messageText.style.color = '#059669';
     
-    const messageIcon = statusMessage.querySelector('.message-icon');
-    messageIcon.style.background = 'linear-gradient(135deg, #10b981, #34d399)';
-    messageIcon.innerHTML = '<i class="fas fa-check"></i>';
-    
+    // Hide loading state since we're showing the modal
     hideLoadingState();
-    
-    if (redirect) {
-        // Get employee data from storage
-        const employeeData = JSON.parse(sessionStorage.getItem('currentEmployee') || localStorage.getItem('employeeData'));
-        if (employeeData) {
-            // Show welcome modal instead of immediate redirect
-            setTimeout(() => {
-                showWelcomeModal(employeeData);
-            }, 1000);
-        } else {
-            // Fallback redirect
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 2000);
-        }
-    }
 }
 
 // Show error message
