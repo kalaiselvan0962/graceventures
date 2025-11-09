@@ -244,33 +244,72 @@ body {
     gap: 15px;
 }
 
+.user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+.school-info, .location-info {
+    font-size: 15px;
+    color: #333435;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 4px 8px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    margin-left: auto;
+    justify-self: flex-end;
+}
+
+
+@media (max-width: 768px) {
+    .user-details {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    
+    .school-info, .location-info {
+        font-size: 11px;
+        padding: 3px 6px;
+    }
+}
+
 .user-avatar {
+    position: relative;
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #4361ee, #3a0ca3);
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-weight: bold;
+    font-weight: 600;
     font-size: 14px;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .user-info {
     text-align: right;
+     min-width: 200px;
 }
 
 .user-name {
-    font-weight: 600;
-    color: #2d3748;
-    font-size: 14px;
+     font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 4px;
+    font-size: 16px;
 }
 
 .user-position {
+    font-size: 13px;
     color: #64748b;
-    font-size: 12px;
+    line-height: 1.4;
+    max-width: 300px;
 }
 
 .raise-ticket-btn {
@@ -709,6 +748,24 @@ tr:hover {
     background-color: rgba(102, 126, 234, 0.1);
 }
 
+.location-badge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    background: #f72585;
+    color: white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+
 .issue-summary {
     font-weight: 600;
     color: #2d3748;
@@ -788,6 +845,56 @@ tr:hover {
     font-weight: bold;
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
+
+
+
+/* Tooltip Styles */
+.tooltip {
+    position: relative;
+    cursor: pointer;
+    display: inline-block;
+    max-width: 200px;
+}
+
+.tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: pre-wrap;
+    max-width: 300px;
+    width: max-content;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.tooltip:hover::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% - 5px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.9);
+}
+
+.no-remarks {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+
+
+
+
 
 /* Status Update Buttons */
 .status-update-btn {
@@ -879,6 +986,10 @@ tr:hover {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+
+
+
 
 @keyframes spin {
     0% { transform: translate(-50%, -50%) rotate(0deg); }
@@ -1148,10 +1259,6 @@ footer {
         align-items: flex-end;
     }
     
-    .user-info {
-        text-align: right;
-    }
-    
     .logo-section {
         flex-direction: column;
         gap: 10px;
@@ -1171,6 +1278,10 @@ footer {
         padding: 10px 12px;
     }
 }
+
+
+
+
 
 @media (max-width: 480px) {
     .dashboard-container {

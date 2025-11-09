@@ -1,6 +1,58 @@
-// Employee data retrieval function
-function getEmployeeData() {
+// Firebase configuration and employee data retrieval
+async function getEmployeeDataFromFirebase(employeeId) {
     try {
+        if (!employeeId) {
+            console.log('No employee ID provided for Firebase lookup');
+            return null;
+        }
+
+        console.log('Fetching employee data from Firebase for:', employeeId);
+
+        // Initialize Firebase if not already initialized
+        if (typeof firebase === 'undefined') {
+            console.error('Firebase SDK not loaded. Make sure to include Firebase scripts in your HTML.');
+            return null;
+        }
+
+        if (!firebase.apps.length) {
+            // Firebase config - replace with your actual config
+            const firebaseConfig = {
+                apiKey: "your-api-key",
+                authDomain: "your-project.firebaseapp.com",
+                projectId: "your-project-id",
+                storageBucket: "your-project.appspot.com",
+                messagingSenderId: "your-sender-id",
+                appId: "your-app-id"
+            };
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        // Get employee data from Firestore
+        const db = firebase.firestore();
+        const employeeDoc = await db.collection('employees').doc(employeeId).get();
+        
+        if (employeeDoc.exists) {
+            const employeeData = employeeDoc.data();
+            console.log('Employee data fetched from Firebase:', employeeData);
+            return employeeData;
+        } else {
+            console.log('No employee found with ID:', employeeId);
+            return null;
+        }
+        
+    } catch (error) {
+        console.error('Error fetching employee data from Firebase:', error);
+        return null;
+    }
+}
+
+// Enhanced employee data retrieval function
+async function getEmployeeData() {
+    try {
+        // First try to get data from dashboard storage
+        console.log('Attempting to fetch employee data from dashboard...');
+        
+        // Get employee data from localStorage (set by dashboard)
         const localStorageData = localStorage.getItem('employeeData');
         const sessionStorageData = sessionStorage.getItem('currentEmployee');
         
@@ -8,11 +60,31 @@ function getEmployeeData() {
         
         if (localStorageData) {
             employeeData = JSON.parse(localStorageData);
+            console.log('Found employee data in localStorage:', employeeData);
         } else if (sessionStorageData) {
             employeeData = JSON.parse(sessionStorageData);
+            console.log('Found employee data in sessionStorage:', employeeData);
         }
         
-        if (employeeData && employeeData.id && employeeData.name) {
+        // If we have employee data but no school/location, try to fetch from Firebase
+        if (employeeData && (employeeData.id || employeeData.empid) && employeeData.name) {
+            // Check if we need to fetch school/location from Firebase
+            if (!employeeData.school || !employeeData.location) {
+                console.log('School or location missing, fetching from Firebase...');
+                const firebaseData = await getEmployeeDataFromFirebase(employeeData.empid || employeeData.id);
+                if (firebaseData) {
+                    // Merge Firebase data with existing employee data
+                    employeeData = {
+                        ...employeeData,
+                        school: firebaseData.school || employeeData.school,
+                        location: firebaseData.location || employeeData.location,
+                        // Preserve other Firebase data if available
+                        ...firebaseData
+                    };
+                    // Update localStorage with complete data
+                    localStorage.setItem('employeeData', JSON.stringify(employeeData));
+                }
+            }
             return employeeData;
         }
     } catch (error) {
@@ -61,79 +133,265 @@ const issueData = {
     ]
 };
 
-// Main application logic
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('helplineForm');
-    const uploadArea = document.getElementById('uploadArea');
-    const fileInput = document.getElementById('fileInput');
-    const browseBtn = uploadArea.querySelector('.browse-btn');
-    const previewContainer = document.getElementById('previewContainer');
-    const imagePreview = document.getElementById('imagePreview');
-    const urlContainer = document.getElementById('urlContainer');
-    const urlInput = document.getElementById('urlInput');
-    const screenshotUrlInput = document.getElementById('screenshotUrl');
-    const copyBtn = document.getElementById('copyBtn');
-    const uploadLoading = document.getElementById('uploadLoading');
-    const loading = document.getElementById('loading');
-    const successMessage = document.getElementById('successMessage');
-    const errorMessage = document.getElementById('errorMessage');
-    const clearBtn = document.getElementById('clearForm');
+// Helper functions for location handling
+function handleSingleLocation(locationValue, singleLocationContainer, multipleLocationContainer, locationInput, selectedLocationInput) {
+    if (singleLocationContainer) singleLocationContainer.style.display = 'block';
+    if (multipleLocationContainer) multipleLocationContainer.style.display = 'none';
     
-    // Auto-fill EMPID and Name
-    const empidInput = document.getElementById('empid');
-    const nameInput = document.getElementById('name');
+    const finalValue = typeof locationValue === 'string' ? locationValue : (locationValue.name || locationValue.value || locationValue.location || JSON.stringify(locationValue));
+    locationInput.value = finalValue;
+    locationInput.readOnly = false; // Changed to false for manual entry
+    if (selectedLocationInput) selectedLocationInput.value = finalValue;
     
-    // Get employee data and auto-fill fields
-    const employeeData = getEmployeeData();
-    if (employeeData) {
-        // Fill EMPID (try different possible fields)
-        const empid = employeeData.empid || employeeData.id || employeeData.EMPID;
-        if (empid) {
-            empidInput.value = empid;
-            empidInput.readOnly = true;
+    console.log('Single location detected, set as editable:', finalValue);
+}
+
+function handleNoLocation(singleLocationContainer, multipleLocationContainer, locationInput, selectedLocationInput) {
+    if (singleLocationContainer) singleLocationContainer.style.display = 'block';
+    if (multipleLocationContainer) multipleLocationContainer.style.display = 'none';
+    locationInput.value = '';
+    locationInput.placeholder = 'Please enter your location manually';
+    locationInput.readOnly = false;
+    if (selectedLocationInput) selectedLocationInput.value = '';
+    console.log('No valid location data found - manual entry required');
+}
+
+// Enhanced location handling function
+function handleLocationData(locationData, singleLocationContainer, multipleLocationContainer, locationInput, locationSelect, selectedLocationInput) {
+    console.log('Handling location data:', locationData);
+    
+    if (!locationInput) {
+        console.log('Location input not found, skipping location auto-fill');
+        return;
+    }
+    
+    // Check if locationData exists and is not empty
+    if (!locationData) {
+        console.log('No location data provided');
+        handleNoLocation(singleLocationContainer, multipleLocationContainer, locationInput, selectedLocationInput);
+        return;
+    }
+    
+    // Handle array of locations
+    if (Array.isArray(locationData)) {
+        if (locationData.length > 1) {
+            // Multiple locations - show dropdown
+            if (singleLocationContainer) singleLocationContainer.style.display = 'none';
+            if (multipleLocationContainer) multipleLocationContainer.style.display = 'block';
+            
+            // Populate dropdown options
+            if (locationSelect) {
+                locationSelect.innerHTML = '<option value="">Select your location</option>';
+                locationData.forEach(loc => {
+                    const locationValue = typeof loc === 'string' ? loc : (loc.name || loc.value || loc.location || JSON.stringify(loc));
+                    const option = document.createElement('option');
+                    option.value = locationValue;
+                    option.textContent = locationValue;
+                    locationSelect.appendChild(option);
+                });
+                
+                // Add change event listener
+                locationSelect.addEventListener('change', function() {
+                    if (selectedLocationInput) {
+                        selectedLocationInput.value = this.value;
+                        locationInput.value = this.value;
+                    }
+                    console.log('Selected location:', this.value);
+                });
+            }
+        } else if (locationData.length === 1) {
+            // Single location in array
+            handleSingleLocation(locationData[0], singleLocationContainer, multipleLocationContainer, locationInput, selectedLocationInput);
+        } else {
+            handleNoLocation(singleLocationContainer, multipleLocationContainer, locationInput, selectedLocationInput);
         }
+    } 
+    // Handle string location
+    else if (typeof locationData === 'string' && locationData.trim() !== '') {
+        handleSingleLocation(locationData, singleLocationContainer, multipleLocationContainer, locationInput, selectedLocationInput);
+    }
+    // Handle object location
+    else if (typeof locationData === 'object' && locationData !== null) {
+        const locationValue = locationData.name || locationData.value || locationData.location || JSON.stringify(locationData);
+        handleSingleLocation(locationValue, singleLocationContainer, multipleLocationContainer, locationInput, selectedLocationInput);
+    }
+    // Handle all other cases
+    else {
+        handleNoLocation(singleLocationContainer, multipleLocationContainer, locationInput, selectedLocationInput);
+    }
+}
+
+// Safe element getter with null check
+function getElement(id) {
+    const element = document.getElementById(id);
+    if (!element) {
+        console.warn(`Element with id '${id}' not found`);
+    }
+    return element;
+}
+
+// Main application logic
+document.addEventListener('DOMContentLoaded', async function() {
+    // Get all elements with null checks
+    const form = getElement('helplineForm');
+    
+    // Check if required form exists
+    if (!form) {
+        console.error('Main form element not found! Check if HTML has element with id="helplineForm"');
+        return;
+    }
+
+    // Get form elements
+    const empidInput = getElement('empid');
+    const nameInput = getElement('name');
+    const schoolInput = getElement('school');
+    const locationInput = getElement('location');
+    const locationSelect = getElement('locationSelect');
+    const selectedLocationInput = getElement('selectedLocation');
+    const singleLocationContainer = getElement('singleLocationContainer');
+    const multipleLocationContainer = getElement('multipleLocationContainer');
+
+    // Get other UI elements
+    const uploadArea = getElement('uploadArea');
+    const fileInput = getElement('fileInput');
+    const browseBtn = uploadArea ? uploadArea.querySelector('.browse-btn') : null;
+    const previewContainer = getElement('previewContainer');
+    const imagePreview = getElement('imagePreview');
+    const urlContainer = getElement('urlContainer');
+    const urlInput = getElement('urlInput');
+    const screenshotUrlInput = getElement('screenshotUrl');
+    const copyBtn = getElement('copyBtn');
+    const uploadLoading = getElement('uploadLoading');
+    const loading = getElement('loading');
+    const successMessage = getElement('successMessage');
+    const errorMessage = getElement('errorMessage');
+    const clearBtn = getElement('clearForm');
+
+    // Show loading state while fetching data
+    if (loading) {
+        loading.style.display = 'block';
+        loading.querySelector('p').textContent = 'Loading employee data...';
+    }
+
+    // Get employee data and auto-fill fields
+    try {
+        const employeeData = await getEmployeeData();
         
-        // Fill Name
-        if (employeeData.name) {
-            nameInput.value = employeeData.name;
-            nameInput.readOnly = true;
+        if (loading) {
+            loading.style.display = 'none';
+        }
+
+        if (employeeData) {
+            console.log('Employee data found, auto-filling form...');
+            console.log('Available employee data fields:', Object.keys(employeeData));
+            
+            // Fill EMPID
+            const empid = employeeData.empid || employeeData.id || employeeData.EMPID || employeeData.employeeId;
+            if (empid && empidInput) {
+                empidInput.value = empid;
+                empidInput.readOnly = true;
+                console.log('EMPID filled:', empid);
+            }
+            
+            // Fill Name
+            const name = employeeData.name || employeeData.fullName || employeeData.employeeName;
+            if (name && nameInput) {
+                nameInput.value = name;
+                nameInput.readOnly = true;
+                console.log('Name filled:', name);
+            }
+            
+            // School - Always manual entry
+            if (schoolInput) {
+                schoolInput.value = '';
+                schoolInput.placeholder = 'Please enter your school name';
+                schoolInput.readOnly = false;
+                console.log('School set for manual entry');
+            }
+
+            // Location - Always manual entry
+            if (locationInput) {
+                locationInput.value = '';
+                locationInput.placeholder = 'Please enter your location manually';
+                locationInput.readOnly = false;
+                console.log('Location set for manual entry');
+            }
+            
+            // Hide multiple location container if it exists
+            if (multipleLocationContainer) {
+                multipleLocationContainer.style.display = 'none';
+            }
+            if (singleLocationContainer) {
+                singleLocationContainer.style.display = 'block';
+            }
+        } else {
+            console.log('No employee data found from dashboard');
+            if (loading) loading.style.display = 'none';
+            
+            // Set manual entry for all fields
+            if (locationInput) {
+                locationInput.placeholder = 'Please enter your location manually';
+                locationInput.readOnly = false;
+            }
+            if (schoolInput) {
+                schoolInput.placeholder = 'Please enter your school manually';
+                schoolInput.readOnly = false;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading employee data:', error);
+        if (loading) loading.style.display = 'none';
+        
+        // Set manual entry on error
+        if (locationInput) {
+            locationInput.placeholder = 'Please enter your location manually';
+            locationInput.readOnly = false;
+        }
+        if (schoolInput) {
+            schoolInput.placeholder = 'Please enter your school manually';
+            schoolInput.readOnly = false;
         }
     }
 
     // ImgBB API Key
     const IMGBB_API_KEY = '29a736ebd8c9d8ef3f662c8dbef54025';
 
-    // Upload area click handlers
-    uploadArea.addEventListener('click', () => fileInput.click());
-    browseBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        fileInput.click();
-    });
-
-    // File input change
-    fileInput.addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            handleFileUpload(this.files[0]);
+    // Upload area functionality (only if elements exist)
+    if (uploadArea && fileInput) {
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        if (browseBtn) {
+            browseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                fileInput.click();
+            });
         }
-    });
 
-    // Drag and drop
-    uploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadArea.style.background = 'rgba(102, 126, 234, 0.1)';
-    });
+        // File input change
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                handleFileUpload(this.files[0]);
+            }
+        });
 
-    uploadArea.addEventListener('dragleave', () => {
-        uploadArea.style.background = '';
-    });
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = 'rgba(102, 126, 234, 0.1)';
+        });
 
-    uploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadArea.style.background = '';
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            handleFileUpload(e.dataTransfer.files[0]);
-        }
-    });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.background = '';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '';
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                handleFileUpload(e.dataTransfer.files[0]);
+            }
+        });
+    }
 
     // Handle file upload to ImgBB
     function handleFileUpload(file) {
@@ -143,15 +401,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Show preview
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            imagePreview.src = e.target.result;
-            previewContainer.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
+        if (imagePreview && previewContainer) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                previewContainer.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
 
         // Upload to ImgBB
-        uploadLoading.style.display = 'block';
+        if (uploadLoading) uploadLoading.style.display = 'block';
 
         const formData = new FormData();
         formData.append('image', file);
@@ -162,269 +422,318 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            uploadLoading.style.display = 'none';
+            if (uploadLoading) uploadLoading.style.display = 'none';
 
             if (data.success) {
                 const imageUrl = data.data.url;
-                urlInput.value = imageUrl;
-                screenshotUrlInput.value = imageUrl;
-                urlContainer.style.display = 'block';
+                if (urlInput) urlInput.value = imageUrl;
+                if (screenshotUrlInput) screenshotUrlInput.value = imageUrl;
+                if (urlContainer) urlContainer.style.display = 'block';
             } else {
                 alert('Upload failed: ' + (data.error?.message || 'Unknown error'));
             }
         })
         .catch(error => {
-            uploadLoading.style.display = 'none';
+            if (uploadLoading) uploadLoading.style.display = 'none';
             alert('Upload failed. Please try again.');
             console.error('Upload error:', error);
         });
     }
 
     // Copy URL to clipboard
-    copyBtn.addEventListener('click', function() {
-        urlInput.select();
-        document.execCommand('copy');
+    if (copyBtn && urlInput) {
+        copyBtn.addEventListener('click', function() {
+            urlInput.select();
+            document.execCommand('copy');
 
-        const originalText = copyBtn.querySelector('span').textContent;
-        copyBtn.querySelector('span').textContent = 'Copied!';
-        setTimeout(() => {
-            copyBtn.querySelector('span').textContent = originalText;
-        }, 2000);
-    });
+            const originalText = copyBtn.querySelector('span').textContent;
+            copyBtn.querySelector('span').textContent = 'Copied!';
+            setTimeout(() => {
+                copyBtn.querySelector('span').textContent = originalText;
+            }, 2000);
+        });
+    }
 
     // Category selection
     const categoryCards = document.querySelectorAll('.category-card');
-    const categoryInput = document.getElementById('category');
-    const issuesContainer = document.getElementById('issuesContainer');
-    const issuesGrid = document.getElementById('issuesGrid');
+    const categoryInput = getElement('category');
+    const issuesContainer = getElement('issuesContainer');
+    const issuesGrid = getElement('issuesGrid');
     
-    categoryCards.forEach(card => {
-        card.addEventListener('click', function() {
-            // Remove active class from all cards
-            categoryCards.forEach(c => c.classList.remove('active'));
-            // Add active class to clicked card
-            this.classList.add('active');
-            
-            const selectedCategory = this.getAttribute('data-category');
-            categoryInput.value = selectedCategory;
-            
-            // Show issues for selected category
-            showIssuesForCategory(selectedCategory);
+    if (categoryCards.length > 0 && categoryInput) {
+        categoryCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove active class from all cards
+                categoryCards.forEach(c => c.classList.remove('active'));
+                // Add active class to clicked card
+                this.classList.add('active');
+                
+                const selectedCategory = this.getAttribute('data-category');
+                categoryInput.value = selectedCategory;
+                
+                // Show issues for selected category
+                showIssuesForCategory(selectedCategory);
+            });
         });
-    });
+    }
     
     // Issue selection
     function showIssuesForCategory(category) {
         const issues = issueData[category] || [];
         
         // Clear previous issues
-        issuesGrid.innerHTML = '';
-        
-        if (issues.length === 0) {
-            issuesGrid.innerHTML = '<div class="no-issues">No issues found for this category.</div>';
-            return;
-        }
-        
-        // Add issues to grid
-        issues.forEach(issue => {
-            const issueCard = document.createElement('div');
-            issueCard.className = 'issue-card';
-            issueCard.setAttribute('data-issue', issue.text);
-            issueCard.innerHTML = `
-                <div class="issue-number">${issue.number}</div>
-                <div class="issue-text">${issue.text}</div>
-            `;
+        if (issuesGrid) {
+            issuesGrid.innerHTML = '';
             
-            issueCard.addEventListener('click', function() {
-                // Remove active class from all issue cards
-                document.querySelectorAll('.issue-card').forEach(card => {
-                    card.classList.remove('active');
+            if (issues.length === 0) {
+                issuesGrid.innerHTML = '<div class="no-issues">No issues found for this category.</div>';
+                return;
+            }
+            
+            // Add issues to grid
+            issues.forEach(issue => {
+                const issueCard = document.createElement('div');
+                issueCard.className = 'issue-card';
+                issueCard.setAttribute('data-issue', issue.text);
+                issueCard.innerHTML = `
+                    <div class="issue-number">${issue.number}</div>
+                    <div class="issue-text">${issue.text}</div>
+                `;
+                
+                issueCard.addEventListener('click', function() {
+                    // Remove active class from all issue cards
+                    document.querySelectorAll('.issue-card').forEach(card => {
+                        card.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked card
+                    this.classList.add('active');
+                    
+                    // Update hidden input and show selected issue
+                    const issueInput = getElement('issue');
+                    if (issueInput) issueInput.value = this.getAttribute('data-issue');
+                    
+                    showSelectedIssue(issue.text);
                 });
                 
-                // Add active class to clicked card
-                this.classList.add('active');
-                
-                // Update hidden input and show selected issue
-                const issueInput = document.getElementById('issue');
-                issueInput.value = this.getAttribute('data-issue');
-                
-                showSelectedIssue(issue.text);
+                issuesGrid.appendChild(issueCard);
             });
-            
-            issuesGrid.appendChild(issueCard);
-        });
+        }
         
         // Show issues container with animation
-        issuesContainer.style.display = 'block';
-        issuesContainer.classList.add('section-transition');
+        if (issuesContainer) {
+            issuesContainer.style.display = 'block';
+            issuesContainer.classList.add('section-transition');
+        }
         
         // Hide selected issue display initially
-        document.getElementById('selectedIssueDisplay').style.display = 'none';
+        const selectedIssueDisplay = getElement('selectedIssueDisplay');
+        if (selectedIssueDisplay) selectedIssueDisplay.style.display = 'none';
     }
     
     // Show selected issue
     function showSelectedIssue(issueText) {
-        const selectedIssueDisplay = document.getElementById('selectedIssueDisplay');
-        const selectedIssueValue = document.getElementById('selectedIssueValue');
+        const selectedIssueDisplay = getElement('selectedIssueDisplay');
+        const selectedIssueValue = getElement('selectedIssueValue');
         
-        selectedIssueValue.textContent = issueText;
-        selectedIssueDisplay.style.display = 'block';
-        selectedIssueDisplay.classList.add('section-transition');
+        if (selectedIssueValue) selectedIssueValue.textContent = issueText;
+        if (selectedIssueDisplay) {
+            selectedIssueDisplay.style.display = 'block';
+            selectedIssueDisplay.classList.add('section-transition');
+        }
     }
     
     // Change issue selection
-    document.getElementById('changeIssueBtn').addEventListener('click', function() {
-        document.getElementById('selectedIssueDisplay').style.display = 'none';
-        document.querySelectorAll('.issue-card').forEach(card => {
-            card.classList.remove('active');
+    const changeIssueBtn = getElement('changeIssueBtn');
+    if (changeIssueBtn) {
+        changeIssueBtn.addEventListener('click', function() {
+            const selectedIssueDisplay = getElement('selectedIssueDisplay');
+            if (selectedIssueDisplay) selectedIssueDisplay.style.display = 'none';
+            document.querySelectorAll('.issue-card').forEach(card => {
+                card.classList.remove('active');
+            });
         });
-    });
+    }
     
     // Priority selection
     const priorityCards = document.querySelectorAll('.priority-card');
-    const priorityInput = document.getElementById('priority');
+    const priorityInput = getElement('priority');
     
-    priorityCards.forEach(card => {
-        card.addEventListener('click', function() {
-            // Remove active class from all priority cards
-            priorityCards.forEach(c => c.classList.remove('active'));
-            // Add active class to clicked card
-            this.classList.add('active');
-            
-            const selectedPriority = this.getAttribute('data-priority');
-            priorityInput.value = selectedPriority;
+    if (priorityCards.length > 0 && priorityInput) {
+        priorityCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove active class from all priority cards
+                priorityCards.forEach(c => c.classList.remove('active'));
+                // Add active class to clicked card
+                this.classList.add('active');
+                
+                const selectedPriority = this.getAttribute('data-priority');
+                priorityInput.value = selectedPriority;
+            });
         });
-    });
+    }
 
     // Clear form - preserve auto-filled data
-    clearBtn.addEventListener('click', function() {
-        // Store current auto-filled values
-        const currentEmpid = empidInput.value;
-        const currentName = nameInput.value;
-        
-        form.reset();
-        
-        // Restore auto-filled values
-        if (currentEmpid) {
-            empidInput.value = currentEmpid;
-            empidInput.readOnly = true;
-        }
-        if (currentName) {
-            nameInput.value = currentName;
-            nameInput.readOnly = true;
-        }
-        
-        // Clear category selection
-        categoryCards.forEach(card => card.classList.remove('active'));
-        categoryInput.value = '';
-        
-        // Clear issue selection
-        document.querySelectorAll('.issue-card').forEach(card => card.classList.remove('active'));
-        document.getElementById('issue').value = '';
-        document.getElementById('selectedIssueDisplay').style.display = 'none';
-        issuesContainer.style.display = 'none';
-        
-        // Clear priority selection
-        priorityCards.forEach(card => card.classList.remove('active'));
-        priorityInput.value = '';
-        
-        previewContainer.style.display = 'none';
-        urlContainer.style.display = 'none';
-        successMessage.style.display = 'none';
-        errorMessage.style.display = 'none';
-    });
-
-    // Form submission
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        // Validate required fields
-        const requiredFields = form.querySelectorAll('[required]');
-        let isValid = true;
-
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                isValid = false;
-                field.style.borderColor = 'var(--error)';
-            } else {
-                field.style.borderColor = '';
-            }
-        });
-
-        if (!isValid) {
-            errorMessage.textContent = 'Please fill all required fields';
-            errorMessage.style.display = 'block';
-            return;
-        }
-
-        // Submit to Google Forms
-        loading.style.display = 'block';
-
-        const formData = new FormData(form);
-        const formAction = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSd4uLHDE4qP9BTAorYPVLPMGc-e-hhNeeM35Q4SF0ZzPQkKXg/formResponse';
-
-        // Convert FormData to URL encoded string
-        const urlEncodedData = new URLSearchParams(formData).toString();
-
-        console.log('Submitting data:', urlEncodedData);
-
-        // Submit using fetch
-        fetch(formAction, {
-            method: 'POST',
-            body: urlEncodedData,
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            mode: 'no-cors'
-        })
-        .then(() => {
-            // Since we're using no-cors, we can't read the response
-            // But we assume success if the request was sent
-            loading.style.display = 'none';
-            successMessage.style.display = 'block';
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+            // Store current auto-filled values
+            const currentEmpid = empidInput ? empidInput.value : '';
+            const currentName = nameInput ? nameInput.value : '';
             
-            // Store current auto-filled values before reset
-            const currentEmpid = empidInput.value;
-            const currentName = nameInput.value;
+            if (form) form.reset();
             
-            form.reset();
-            
-            // Restore auto-filled values after reset
-            if (currentEmpid) {
+            // Restore auto-filled values
+            if (currentEmpid && empidInput) {
                 empidInput.value = currentEmpid;
                 empidInput.readOnly = true;
             }
-            if (currentName) {
+            if (currentName && nameInput) {
                 nameInput.value = currentName;
                 nameInput.readOnly = true;
             }
-            
-            // Clear selections
+
+            // Clear category selection
             categoryCards.forEach(card => card.classList.remove('active'));
-            categoryInput.value = '';
-            document.querySelectorAll('.issue-card').forEach(card => card.classList.remove('active'));
-            document.getElementById('issue').value = '';
-            document.getElementById('selectedIssueDisplay').style.display = 'none';
-            issuesContainer.style.display = 'none';
-            priorityCards.forEach(card => card.classList.remove('active'));
-            priorityInput.value = '';
+            if (categoryInput) categoryInput.value = '';
             
-            previewContainer.style.display = 'none';
-            urlContainer.style.display = 'none';
-
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            // Redirect to dashboard after 2 seconds
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 2000);
-        })
-        .catch(error => {
-            loading.style.display = 'none';
-            errorMessage.textContent = 'Submission failed. Please try again.';
-            errorMessage.style.display = 'block';
-            console.error('Submission error:', error);
+            // Clear issue selection
+            document.querySelectorAll('.issue-card').forEach(card => card.classList.remove('active'));
+            const issueInput = getElement('issue');
+            if (issueInput) issueInput.value = '';
+            const selectedIssueDisplay = getElement('selectedIssueDisplay');
+            if (selectedIssueDisplay) selectedIssueDisplay.style.display = 'none';
+            if (issuesContainer) issuesContainer.style.display = 'none';
+            
+            // Clear priority selection
+            priorityCards.forEach(card => card.classList.remove('active'));
+            if (priorityInput) priorityInput.value = '';
+            
+            if (previewContainer) previewContainer.style.display = 'none';
+            if (urlContainer) urlContainer.style.display = 'none';
+            if (successMessage) successMessage.style.display = 'none';
+            if (errorMessage) errorMessage.style.display = 'none';
         });
-    });
+    }
+
+    // Form submission
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Validate required fields
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.style.borderColor = 'var(--error)';
+                } else {
+                    field.style.borderColor = '';
+                }
+            });
+
+            // Validate location
+            const finalLocation = locationInput ? locationInput.value : '';
+            if (!finalLocation || finalLocation.trim() === '') {
+                isValid = false;
+                if (locationInput) {
+                    locationInput.style.borderColor = 'var(--error)';
+                }
+            }
+
+            // Validate school
+            const finalSchool = schoolInput ? schoolInput.value : '';
+            if (!finalSchool || finalSchool.trim() === '') {
+                isValid = false;
+                if (schoolInput) {
+                    schoolInput.style.borderColor = 'var(--error)';
+                }
+            }
+
+            if (!isValid) {
+                if (errorMessage) {
+                    errorMessage.textContent = 'Please fill all required fields';
+                    errorMessage.style.display = 'block';
+                }
+                return;
+            }
+
+            // Submit to Google Forms
+            if (loading) loading.style.display = 'block';
+
+            const formData = new FormData(form);
+            const formAction = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSd4uLHDE4qP9BTAorYPVLPMGc-e-hhNeeM35Q4SF0ZzPQkKXg/formResponse';
+
+            // Convert FormData to URL encoded string
+            const urlEncodedData = new URLSearchParams(formData).toString();
+
+            console.log('Submitting data:', urlEncodedData);
+            console.log('Location being submitted:', finalLocation);
+            console.log('School being submitted:', finalSchool);
+
+            // Submit using fetch
+            fetch(formAction, {
+                method: 'POST',
+                body: urlEncodedData,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                mode: 'no-cors'
+            })
+            .then(() => {
+                // Since we're using no-cors, we can't read the response
+                // But we assume success if the request was sent
+                if (loading) loading.style.display = 'none';
+                if (successMessage) successMessage.style.display = 'block';
+                
+                // Store current auto-filled values before reset
+                const currentEmpid = empidInput ? empidInput.value : '';
+                const currentName = nameInput ? nameInput.value : '';
+                
+                if (form) form.reset();
+                
+                // Restore auto-filled values after reset
+                if (currentEmpid && empidInput) {
+                    empidInput.value = currentEmpid;
+                    empidInput.readOnly = true;
+                }
+                if (currentName && nameInput) {
+                    nameInput.value = currentName;
+                    nameInput.readOnly = true;
+                }
+                
+                // Clear selections
+                categoryCards.forEach(card => card.classList.remove('active'));
+                if (categoryInput) categoryInput.value = '';
+                document.querySelectorAll('.issue-card').forEach(card => card.classList.remove('active'));
+                const issueInput = getElement('issue');
+                if (issueInput) issueInput.value = '';
+                const selectedIssueDisplay = getElement('selectedIssueDisplay');
+                if (selectedIssueDisplay) selectedIssueDisplay.style.display = 'none';
+                if (issuesContainer) issuesContainer.style.display = 'none';
+                priorityCards.forEach(card => card.classList.remove('active'));
+                if (priorityInput) priorityInput.value = '';
+                
+                if (previewContainer) previewContainer.style.display = 'none';
+                if (urlContainer) urlContainer.style.display = 'none';
+
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                // Redirect to dashboard after 2 seconds
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 2000);
+            })
+            .catch(error => {
+                if (loading) loading.style.display = 'none';
+                if (errorMessage) {
+                    errorMessage.textContent = 'Submission failed. Please try again.';
+                    errorMessage.style.display = 'block';
+                }
+                console.error('Submission error:', error);
+            });
+        });
+    }
 });

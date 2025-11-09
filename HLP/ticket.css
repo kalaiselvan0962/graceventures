@@ -410,6 +410,14 @@ body {
     border-radius: 2px;
 }
 
+
+
+/* Optional: Update the label style to indicate it's optional */
+.form-group:has(#screenshotUrl) .form-label::after {
+    content: " (Optional)";
+    color: #64748b;
+    font-weight: normal;
+}
 /* Form Elements */
 .form-group {
     margin-bottom: 20px;
@@ -945,6 +953,20 @@ body {
     background: rgba(102, 126, 234, 0.2);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+
+
+/* Remarks Textarea */
+.remarks-textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+.remarks-textarea:focus {
+    min-height: 120px;
 }
 
 /* Enhanced Priority Selection */

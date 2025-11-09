@@ -7,8 +7,29 @@
             <link rel="stylesheet" href="style.css"> <!-- This line links your CSS -->
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <!-- Firebase SDK -->
+     <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyD4hyxY6IP4aNp7e0UHjhshH64NvGvtEAo",
+        authDomain: "issuetracker-df444.firebaseapp.com",
+        projectId: "issuetracker-df444",
+        storageBucket: "issuetracker-df444.firebasestorage.app",
+        messagingSenderId: "80331965649",
+        appId: "1:80331965649:web:e1022467ffc19c41a9b1f0",
+        measurementId: "G-9R0J9NVLQE"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+    console.log('✅ Firebase initialized in dashboard');
+</script>
 </head>
+
+
 <body>
     <!-- Animated Background -->
     <div class="background">
@@ -35,9 +56,13 @@
 </div>
         <div class="user-section">
             <div class="user-info">
-                <div class="user-name" id="employeeName">John Doe</div>
-                <div class="user-position" id="employeePosition">Software Engineer</div>
-            </div>
+    <div class="user-name" id="employeeName">John Doe</div>
+    <div class="user-position" id="employeePosition">Software Engineer</div>
+    <div class="user-details">
+        <span class="school-info" id="schoolInfo"><i class="fas fa-school"></i> Loading...</span>
+        <span class="location-info" id="locationInfo"><i class="fas fa-map-marker-alt"></i> Loading...</span>
+    </div>
+</div>
             <button class="raise-ticket-btn" onclick="raiseTicket()">
                 <i class="fas fa-plus-circle"></i>
                 Raise Ticket
@@ -97,41 +122,29 @@
             </footer>
         </div>
     </div>
-
 <script>
 // === UPDATE DOMContentLoaded ===
 document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🚀 DOMContentLoaded - Starting application');
+    
     const employeeData = getEmployeeData();
     
     if (employeeData && employeeData.name) {
-        console.log('🚀 App starting for:', employeeData.name, '(', employeeData.userType, ')');
+        console.log('👤 Employee data found:', employeeData.name, '(', employeeData.userType, ')');
         displayEmployeeInfo(employeeData);
         
-        // For managers, refresh data first
-        if (employeeData.userType === 'account_manager' || employeeData.userType === 'program_manager') {
-            console.log('👨‍💼 Manager detected, refreshing from Firebase...');
-            
-            // Show loading state
-            document.getElementById('data-container').innerHTML = 
-                '<div class="loading">Loading Data 📊</div>';
-            
-            // Wait for Firebase data
-            const updatedData = await refreshManagerData();
-            
-            if (updatedData) {
-                console.log('✅ Firebase refresh completed');
-                if (updatedData.managedEmployees && updatedData.managedEmployees.length > 0) {
-                    console.log('🎯 Manager can see employees:', updatedData.managedEmployees);
-                } else {
-                    console.log('⚠️ Manager has no managed employees defined');
-                }
-                // Update display with potentially updated data
-                displayEmployeeInfo(updatedData);
-            }
-        }
-        
-        // Initialize tracker for all users
+        // Initialize tracker immediately
         initializeTracker();
+        
+        // Try to fetch school/location from Firebase if available
+        setTimeout(async () => {
+            try {
+                await fetchAndDisplaySchoolLocation(employeeData);
+            } catch (error) {
+                console.log('⚠️ Could not fetch school/location:', error);
+                showDefaultSchoolLocation();
+            }
+        }, 1000);
         
     } else {
         console.log('❌ No valid employee data, redirecting to login');
@@ -139,56 +152,134 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 
-// === REPLACE refreshManagerData FUNCTION ===
+// Fetch and display school and location from Firebase using Modular SDK
+async function fetchAndDisplaySchoolLocation(employeeData) {
+    try {
+        // Check if Firebase Modular SDK is available
+        if (typeof db === 'undefined') {
+            console.log('❌ Firebase db not available');
+            showDefaultSchoolLocation();
+            return;
+        }
+
+        const empid = employeeData.empid || employeeData.id;
+        console.log(`📡 Fetching school/location from Firebase for: ${empid}`);
+        
+        // Use Modular SDK syntax
+        const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js');
+        
+        const docRef = doc(db, "employees", empid);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+            const firebaseData = docSnap.data();
+            console.log('✅ Firebase data received:', firebaseData);
+            
+            // Update school information display
+            const schoolInfoElement = document.getElementById('schoolInfo');
+            if (firebaseData.school) {
+                schoolInfoElement.innerHTML = `<i class="fas fa-school"></i> ${firebaseData.school}`;
+                schoolInfoElement.style.display = 'inline-flex';
+                schoolInfoElement.style.opacity = '1';
+                console.log(`🏫 School: ${firebaseData.school}`);
+            } else {
+                schoolInfoElement.innerHTML = `<i class="fas fa-school"></i> Not specified`;
+                schoolInfoElement.style.opacity = '0.6';
+            }
+            
+            // Update location information display
+            const locationInfoElement = document.getElementById('locationInfo');
+            if (firebaseData.location) {
+                locationInfoElement.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${firebaseData.location}`;
+                locationInfoElement.style.display = 'inline-flex';
+                locationInfoElement.style.opacity = '1';
+                console.log(`📍 Location: ${firebaseData.location}`);
+            } else {
+                locationInfoElement.innerHTML = `<i class="fas fa-map-marker-alt"></i> Not specified`;
+                locationInfoElement.style.opacity = '0.6';
+            }
+            
+        } else {
+            console.log('❌ No employee document found in Firebase');
+            showDefaultSchoolLocation();
+        }
+    } catch (error) {
+        console.error('❌ Error fetching school/location:', error);
+        showDefaultSchoolLocation();
+    }
+}
+
+// Function to show default values when Firebase fails
+function showDefaultSchoolLocation() {
+    const schoolInfoElement = document.getElementById('schoolInfo');
+    const locationInfoElement = document.getElementById('locationInfo');
+    
+    schoolInfoElement.innerHTML = `<i class="fas fa-school"></i> Not available`;
+    locationInfoElement.innerHTML = `<i class="fas fa-map-marker-alt"></i> Not available`;
+    
+    schoolInfoElement.style.opacity = '0.5';
+    locationInfoElement.style.opacity = '0.5';
+}
+
+// Fetch employee data from Firebase using Modular SDK
+async function fetchEmployeeFromFirebase(empid) {
+    try {
+        console.log(`📡 Fetching employee data from Firebase for: ${empid}`);
+        
+        const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js');
+        
+        const docRef = doc(db, "employees", empid);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            console.log('✅ Firebase data retrieved:', data);
+            return data;
+        } else {
+            console.log('❌ No employee found in Firebase with ID:', empid);
+            return null;
+        }
+    } catch (error) {
+        console.error('❌ Error fetching from Firebase:', error);
+        return null;
+    }
+}
+
+// Refresh manager data using Modular SDK
 async function refreshManagerData() {
     try {
         const employeeData = getEmployeeData();
-        if (!employeeData) {
-            console.log('❌ No employee data available');
-            return null;
-        }
+        if (!employeeData) return null;
         
         const empid = employeeData.empid || employeeData.id;
         const userType = employeeData.userType;
         
-        console.log(`🔄 refreshManagerData for ${employeeData.name} (${userType}) - ID: ${empid}`);
-        
-        // Only refresh for managers
         if (userType === 'account_manager' || userType === 'program_manager') {
             const firebaseData = await fetchEmployeeFromFirebase(empid);
             
             if (firebaseData) {
-                // Merge data carefully, preserving essential fields
                 const updatedData = {
                     ...employeeData,
                     ...firebaseData,
-                    // Ensure critical fields are preserved
-                    id: employeeData.id || firebaseData.id,
-                    empid: employeeData.empid || firebaseData.empid,
-                    name: employeeData.name || firebaseData.name,
-                    userType: employeeData.userType || firebaseData.userType,
-                    // Use managedEmployees from Firebase if available
+                    // Preserve school and location from Firebase
+                    school: firebaseData.school || employeeData.school,
+                    location: firebaseData.location || employeeData.location,
                     managedEmployees: firebaseData.managedEmployees || employeeData.managedEmployees || []
                 };
                 
-                // Save to localStorage
                 localStorage.setItem('employeeData', JSON.stringify(updatedData));
-                console.log('💾 Updated localStorage with Firebase data');
-                console.log('✅ Managed employees after refresh:', updatedData.managedEmployees);
+                
+                // Update school/location display for managers too
+                await fetchAndDisplaySchoolLocation(updatedData);
                 
                 return updatedData;
-            } else {
-                console.log('❌ No data returned from Firebase for', empid);
             }
-        } else {
-            console.log('ℹ️ User is not a manager, skipping Firebase refresh');
         }
         
         return employeeData;
-        
     } catch (error) {
         console.error('❌ Error in refreshManagerData:', error);
-        return getEmployeeData(); // Return original data as fallback
+        return getEmployeeData();
     }
 }
 
@@ -217,7 +308,7 @@ function getEmployeeData() {
     return null;
 }
 
-// === REPLACE getManagedEmployees FUNCTION WITH COMPLETE HARDCODED VALUES ===
+// === getManagedEmployees FUNCTION WITH COMPLETE HARDCODED VALUES ===
 function getManagedEmployees(employeeData) {
     if (!employeeData) {
         console.log('❌ No employee data in getManagedEmployees');
@@ -258,151 +349,110 @@ function getManagedEmployees(employeeData) {
     // === COMPLETE HARDCODED FALLBACK EMPIDs FOR ALL MANAGERS ===
     console.log('🔄 Using hardcoded EMPID fallbacks for', userType);
     
-if (name === 'HimanshuVerma' || empid === 'HYD603385') {
-    // Area Manager: HimanshuVerma (HYD603385)
-    const hardcodedEmployees = [
-        'RET244', 'EMP3715', 'RET247', 'EMP3722', 'EMP3782', 
-        'RET260', 'EMP3635', 'RET276', 'RET723', 'RET255', 
-        'EMP3772', 'EMP3771', 'RET248', 'RET253', 'HYD603396', 'RET284'
-    ];
-    console.log('🎯 HimanshuVerma (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
-    return hardcodedEmployees;
-} 
-else if (name === 'Aditi Ashok Katti' || empid === 'EMP2470') {
-    // Program Manager: Aditi Ashok Katti (EMP2470) - can see both teams
-    const hardcodedEmployees = [
-        // Himanshu Verma's team
-        'RET244', 'EMP3715', 'RET247', 'EMP3722', 'EMP3782', 
-        'RET260', 'EMP3635', 'RET276', 'RET723', 'RET255', 
-        'EMP3772', 'EMP3771', 'RET248', 'RET253', 'HYD603396', 'RET284',
-        // Aditi's direct team
-        'EMP3714', 'RET269', 'HYD603412', 'HYD603388', 'EMP3742', 
-        'RET275', 'RET264', 'RET290', 'EMP3718', 'EMP3775', 
-        'EMP3710', 'RET252',
-        // Include managers
-        'EMP2470', 'HYD603385'
-    ];
-    console.log('🎯 Aditi Ashok Katti (Program Manager) hardcoded EMPIDs:', hardcodedEmployees);
-    return hardcodedEmployees;
-}
-else if (name === 'John Emmanuel' || empid === 'EMP665') {
-    // Area Manager: John Emmanuel (EMP665)
-    const hardcodedEmployees = [
-        'EMP3632', 'EMP3784', 'EMP670', 'EMP3778', 'EMP3701', 'EMP737', 
-        'EMP3792', 'EMP3756', 'EMP3769', 'EMP3268', 'HYD603372', 'EMP3661', 
-        'EMP3728', 'HYD603563', 'EMP576', 'EMP3767', 'HYD607795', 'EMP3757', 
-        'EMP3763', 'EMP3707', 'EMP3758', 'EMP3744', 'EMP3773', 'RET289', 
-        'EMP3646', 'EMP3793', 'EMP3755', 'RET267', 'EMP3681', 'EMP3667', 
-        'EMP2957', 'EMP3626', 'EMP3668', 'EMP3787'
-    ];
-    console.log('🎯 John Emmanuel (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
-    return hardcodedEmployees;
-}
-else if (name === 'MEENA' || empid === 'HYD603338') {
-    // Program Manager: MEENA (HYD603338) - can see John's team and S Sandeep Kumar's team
-    const hardcodedEmployees = [
-        // John Emmanuel's team
-        'EMP3632', 'EMP3784', 'EMP670', 'EMP3778', 'EMP3701', 'EMP737', 
-        'EMP3792', 'EMP3756', 'EMP3769', 'EMP3268', 'HYD603372', 'EMP3661', 
-        'EMP3728', 'HYD603563', 'EMP576', 'EMP3767', 'HYD607795', 'EMP3757', 
-        'EMP3763', 'EMP3707', 'EMP3758', 'EMP3744', 'EMP3773', 'RET289', 
-        'EMP3646', 'EMP3793', 'EMP3755', 'RET267', 'EMP3681', 'EMP3667', 
-        'EMP2957', 'EMP3626', 'EMP3668', 'EMP3787',
-        // S Sandeep Kumar's team
-        'EMP3593', 'EMP3777', 'EMP3745', 'RET256', 'EMP3716', 'RET278', 
-        'EMP3789', 'RET243', 'RET227', 'RET291', 'EMP743', 'EMP3770', 
-        'RET228', 'RET277', 'RET268', 'RET288', 'EMP3759', 'EMP3683', 
-        'EMP3788', 'EMP3791', 'EMP734', 'EMP3721',
-        // Include managers
-        'EMP665', 'EMP060', 'HYD603338'
-    ];
-    console.log('🎯 MEENA (Program Manager) hardcoded EMPIDs:', hardcodedEmployees);
-    return hardcodedEmployees;
-}
-else if (name === 'S Sandeep Kumar' || empid === 'EMP060') {
-    // Area Manager: S Sandeep Kumar (EMP060)
-    const hardcodedEmployees = [
-        'EMP3593', 'EMP3777', 'EMP3745', 'RET256', 'EMP3716', 'RET278', 
-        'EMP3789', 'RET243', 'RET227', 'RET291', 'EMP743', 'EMP3770', 
-        'RET228', 'RET277', 'RET268', 'RET288', 'EMP3759', 'EMP3683', 
-        'EMP3788', 'EMP3791', 'EMP734', 'EMP3721'
-    ];
-    console.log('🎯 S Sandeep Kumar (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
-    return hardcodedEmployees;
-}
-else if (name === 'Rishav Kumar' || empid === 'HYD603381') {
-    // Area Manager: Rishav Kumar (HYD603381)
-    const hardcodedEmployees = [
-        'EMP3785', 'EMP3766', 'RET246', 'EMP626', 'EMP3774', 'EMP850', 
-        'EMP3717', 'EMP3743', 'EMP3786', 'RET266', 'EMP3260', 'RET265', 
-        'RET286', 'EMP3740', 'EMP3761', 'HYD603319', 'EMP3747', 'RET287', 
-        'EMP3768', 'RET270', 'EMP3781', 'RET282', 'EMP3764', 'RET251', 
-        'EMP3780', 'RET285', 'EMP3754', 'EMP3689', 'RET283', 'EMP3376', 
-        'EMP3154', 'EMP3703', 'EMP3760', 'EMP3723', 'EMP3783', 'EMP3776', 
-        'EMP3779', 'RET281', 'EMP3630', 'EMP3684', 'EMP3705', 'EMP3665'
-    ];
-    console.log('🎯 Rishav Kumar (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
-    return hardcodedEmployees;
-}
-else if (name === 'PADMAJA' || empid === 'EMP679') {
-    // Program Manager: PADMAJA (EMP679) - can see Rishav's team
-    const hardcodedEmployees = [
-        // Rishav Kumar's team
-        'EMP3785', 'EMP3766', 'RET246', 'EMP626', 'EMP3774', 'EMP850', 
-        'EMP3717', 'EMP3743', 'EMP3786', 'RET266', 'EMP3260', 'RET265', 
-        'RET286', 'EMP3740', 'EMP3761', 'HYD603319', 'EMP3747', 'RET287', 
-        'EMP3768', 'RET270', 'EMP3781', 'RET282', 'EMP3764', 'RET251', 
-        'EMP3780', 'RET285', 'EMP3754', 'EMP3689', 'RET283', 'EMP3376', 
-        'EMP3154', 'EMP3703', 'EMP3760', 'EMP3723', 'EMP3783', 'EMP3776', 
-        'EMP3779', 'RET281', 'EMP3630', 'EMP3684', 'EMP3705', 'EMP3665',
-        // Include managers
-        'HYD603381', 'EMP679'
-    ];
-    console.log('🎯 PADMAJA (Program Manager) hardcoded EMPIDs:', hardcodedEmployees);
-    return hardcodedEmployees;
-}
+    if (name === 'HimanshuVerma' || empid === 'HYD603385') {
+        const hardcodedEmployees = [
+            'RET244', 'EMP3715', 'RET247', 'EMP3722', 'EMP3782', 
+            'RET260', 'EMP3635', 'RET276', 'RET723', 'RET255', 
+            'EMP3772', 'EMP3771', 'RET248', 'RET253', 'HYD603396', 'RET284'
+        ];
+        console.log('🎯 HimanshuVerma (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
+        return hardcodedEmployees;
+    } 
+    else if (name === 'Aditi Ashok Katti' || empid === 'EMP2470') {
+        const hardcodedEmployees = [
+            'RET244', 'EMP3715', 'RET247', 'EMP3722', 'EMP3782', 
+            'RET260', 'EMP3635', 'RET276', 'RET723', 'RET255', 
+            'EMP3772', 'EMP3771', 'RET248', 'RET253', 'HYD603396', 'RET284',
+            'EMP3714', 'RET269', 'HYD603412', 'HYD603388', 'EMP3742', 
+            'RET275', 'RET264', 'RET290', 'EMP3718', 'EMP3775', 
+            'EMP3710', 'RET252',
+            'EMP2470', 'HYD603385'
+        ];
+        console.log('🎯 Aditi Ashok Katti (Program Manager) hardcoded EMPIDs:', hardcodedEmployees);
+        return hardcodedEmployees;
+    }
+    else if (name === 'John Emmanuel' || empid === 'EMP665') {
+        const hardcodedEmployees = [
+            'EMP3632', 'EMP3784', 'EMP670', 'EMP3778', 'EMP3701', 'EMP737', 
+            'EMP3792', 'EMP3756', 'EMP3769', 'EMP3268', 'HYD603372', 'EMP3661', 
+            'EMP3728', 'HYD603563', 'EMP576', 'EMP3767', 'HYD607795', 'EMP3757', 
+            'EMP3763', 'EMP3707', 'EMP3758', 'EMP3744', 'EMP3773', 'RET289', 
+            'EMP3646', 'EMP3793', 'EMP3755', 'RET267', 'EMP3681', 'EMP3667', 
+            'EMP2957', 'EMP3626', 'EMP3668', 'EMP3787'
+        ];
+        console.log('🎯 John Emmanuel (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
+        return hardcodedEmployees;
+    }
+    else if (name === 'MEENA' || empid === 'HYD603338') {
+        const hardcodedEmployees = [
+            'EMP3632', 'EMP3784', 'EMP670', 'EMP3778', 'EMP3701', 'EMP737', 
+            'EMP3792', 'EMP3756', 'EMP3769', 'EMP3268', 'HYD603372', 'EMP3661', 
+            'EMP3728', 'HYD603563', 'EMP576', 'EMP3767', 'HYD607795', 'EMP3757', 
+            'EMP3763', 'EMP3707', 'EMP3758', 'EMP3744', 'EMP3773', 'RET289', 
+            'EMP3646', 'EMP3793', 'EMP3755', 'RET267', 'EMP3681', 'EMP3667', 
+            'EMP2957', 'EMP3626', 'EMP3668', 'EMP3787',
+            'EMP3593', 'EMP3777', 'EMP3745', 'RET256', 'EMP3716', 'RET278', 
+            'EMP3789', 'RET243', 'RET227', 'RET291', 'EMP743', 'EMP3770', 
+            'RET228', 'RET277', 'RET268', 'RET288', 'EMP3759', 'EMP3683', 
+            'EMP3788', 'EMP3791', 'EMP734', 'EMP3721',
+            'EMP665', 'EMP060', 'HYD603338'
+        ];
+        console.log('🎯 MEENA (Program Manager) hardcoded EMPIDs:', hardcodedEmployees);
+        return hardcodedEmployees;
+    }
+    else if (name === 'S Sandeep Kumar' || empid === 'EMP060') {
+        const hardcodedEmployees = [
+            'EMP3593', 'EMP3777', 'EMP3745', 'RET256', 'EMP3716', 'RET278', 
+            'EMP3789', 'RET243', 'RET227', 'RET291', 'EMP743', 'EMP3770', 
+            'RET228', 'RET277', 'RET268', 'RET288', 'EMP3759', 'EMP3683', 
+            'EMP3788', 'EMP3791', 'EMP734', 'EMP3721'
+        ];
+        console.log('🎯 S Sandeep Kumar (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
+        return hardcodedEmployees;
+    }
+    else if (name === 'Rishav Kumar' || empid === 'HYD603381') {
+        const hardcodedEmployees = [
+            'EMP3785', 'EMP3766', 'RET246', 'EMP626', 'EMP3774', 'EMP850', 
+            'EMP3717', 'EMP3743', 'EMP3786', 'RET266', 'EMP3260', 'RET265', 
+            'RET286', 'EMP3740', 'EMP3761', 'HYD603319', 'EMP3747', 'RET287', 
+            'EMP3768', 'RET270', 'EMP3781', 'RET282', 'EMP3764', 'RET251', 
+            'EMP3780', 'RET285', 'EMP3754', 'EMP3689', 'RET283', 'EMP3376', 
+            'EMP3154', 'EMP3703', 'EMP3760', 'EMP3723', 'EMP3783', 'EMP3776', 
+            'EMP3779', 'RET281', 'EMP3630', 'EMP3684', 'EMP3705', 'EMP3665'
+        ];
+        console.log('🎯 Rishav Kumar (Area Manager) hardcoded EMPIDs:', hardcodedEmployees);
+        return hardcodedEmployees;
+    }
+    else if (name === 'PADMAJA' || empid === 'EMP679') {
+        const hardcodedEmployees = [
+            'EMP3785', 'EMP3766', 'RET246', 'EMP626', 'EMP3774', 'EMP850', 
+            'EMP3717', 'EMP3743', 'EMP3786', 'RET266', 'EMP3260', 'RET265', 
+            'RET286', 'EMP3740', 'EMP3761', 'HYD603319', 'EMP3747', 'RET287', 
+            'EMP3768', 'RET270', 'EMP3781', 'RET282', 'EMP3764', 'RET251', 
+            'EMP3780', 'RET285', 'EMP3754', 'EMP3689', 'RET283', 'EMP3376', 
+            'EMP3154', 'EMP3703', 'EMP3760', 'EMP3723', 'EMP3783', 'EMP3776', 
+            'EMP3779', 'RET281', 'EMP3630', 'EMP3684', 'EMP3705', 'EMP3665',
+            'HYD603381', 'EMP679'
+        ];
+        console.log('🎯 PADMAJA (Program Manager) hardcoded EMPIDs:', hardcodedEmployees);
+        return hardcodedEmployees;
+    }
+    
     // Generic fallbacks for other managers
     if (userType === 'program_manager') {
-        // Program Manager fallback - can see all program-related employees
         const fallbackEmployees = ['EMP2470', 'HYD603385', 'EMP665', 'EMP060', 'HYD603381'];
         console.log('🎯 Generic Program Manager fallback EMPIDs:', fallbackEmployees);
         return fallbackEmployees;
     } else if (userType === 'account_manager') {
-        // Area Manager fallback - can see area-specific employees
         const fallbackEmployees = ['RET244', 'EMP3715', 'RET247', 'EMP3722'];
         console.log('🎯 Generic Area Manager fallback EMPIDs:', fallbackEmployees);
         return fallbackEmployees;
     }
     
     console.log('❌ No managed employees found in employee data');
-    console.log('📊 Available employeeData fields:', Object.keys(employeeData));
-    
-    return []; // Return empty array as last resort
+    return [];
 }
 
-// Fetch employee data from Firebase
-async function fetchEmployeeFromFirebase(empid) {
-    try {
-        console.log(`📡 Fetching employee data from Firebase for: ${empid}`);
-        
-        const docRef = db.collection('employees').doc(empid);
-        const doc = await docRef.get();
-        
-        if (doc.exists) {
-            const data = doc.data();
-            console.log('✅ Firebase data retrieved:', data);
-            return data;
-        } else {
-            console.log('❌ No employee found in Firebase with ID:', empid);
-            return null;
-        }
-    } catch (error) {
-        console.error('❌ Error fetching from Firebase:', error);
-        return null;
-    }
-}
-
-// Display employee information in the header
 function displayEmployeeInfo(employeeData) {
     document.getElementById('employeeName').textContent = employeeData.name;
     
@@ -425,7 +475,10 @@ function displayEmployeeInfo(employeeData) {
             roleDisplay = 'Employee';
     }
     
-    document.getElementById('employeePosition').textContent = `${employeeData.position} (${roleDisplay})`;
+    // Build position text WITHOUT school and location (they will be displayed separately)
+    let positionText = `${employeeData.position} (${roleDisplay})`;
+    
+    document.getElementById('employeePosition').textContent = positionText;
     
     // Update dashboard title based on user type
     const titleElement = document.getElementById('dashboard-title');
@@ -456,39 +509,53 @@ function displayEmployeeInfo(employeeData) {
     
     console.log(`User logged in: ${employeeData.name} - ${employeeData.position} - ${employeeData.userType}`);
     
-    // Update avatar with employee initials
-    const avatar = document.querySelector('.user-avatar');
+    // Update avatar with employee initials and location badge if available
+    updateUserAvatar(employeeData);
+}
+
+function updateUserAvatar(employeeData) {
+    let avatar = document.querySelector('.user-avatar');
+    
     if (!avatar) {
         const userSection = document.querySelector('.user-section');
-        const avatar = document.createElement('div');
+        avatar = document.createElement('div');
         avatar.className = 'avatar user-avatar';
-        const initials = employeeData.name.split(' ').map(n => n[0]).join('').toUpperCase();
-        avatar.textContent = initials;
         userSection.insertBefore(avatar, userSection.firstChild);
-    } else {
-        const initials = employeeData.name.split(' ').map(n => n[0]).join('').toUpperCase();
-        avatar.textContent = initials;
+    }
+    
+    const initials = employeeData.name.split(' ').map(n => n[0]).join('').toUpperCase();
+    avatar.textContent = initials;
+    
+    // Add location badge if location data is available
+    if (employeeData.location) {
+        // Remove existing location badge if any
+        const existingBadge = avatar.querySelector('.location-badge');
+        if (existingBadge) {
+            existingBadge.remove();
+        }
+        
+        const locationBadge = document.createElement('div');
+        locationBadge.className = 'location-badge';
+        locationBadge.title = employeeData.location;
+        locationBadge.innerHTML = `<i class="fas fa-map-marker-alt"></i>`;
+        avatar.appendChild(locationBadge);
     }
 }
 
 // Raise Ticket function
 function raiseTicket() {
-    // Redirect to index.html to raise a new ticket
     window.location.href = 'raisetickets.html';
 }
 
 // Logout function - Clear all stored data
 function logout() {
-    // Clear all authentication data
     localStorage.removeItem('employeeData');
     sessionStorage.removeItem('currentEmployee');
-    
-    // Redirect to login page
     window.location.href = 'index.html';
 }
 
-// Jira Tracker Functionality - UPDATED FOR NEW GOOGLE SHEET STRUCTURE
-const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw8l8QJZjSPzWR8Vk7bKDMM0l2CxiBwWWR4QBEsj3ouqcy0H8FjckH-bwye-INCT74A-A/exec'; 
+// Jira Tracker Functionality
+const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxxUX2PVC6urTMgc-wbqmfbfuIfViyZBQnIsuoJNXQJpJxfyQJna16QCdAR3f-h1H_FKg/exec'; 
 const POLLING_INTERVAL = 10000; 
 
 let currentData = [];
@@ -557,11 +624,6 @@ function handleData(response) {
             console.log('⚠️ No data returned from sheet');
         }
         
-        // Refresh manager data in background for account_manager and program_manager
-        if (employeeData.userType === 'account_manager' || employeeData.userType === 'program_manager') {
-            refreshManagerData(); // Runs async in background
-        }
-        
         const filteredData = applyFilters(currentData);
         console.log(`🎯 Filtered tickets for ${employeeData.userType}: ${filteredData.length}`);
         
@@ -589,7 +651,7 @@ function showError(message) {
         </div>`;
 }
 
-// UPDATED applyFilters FUNCTION FOR NEW COLUMN NAMES
+// UPDATED applyFilters FUNCTION WITH EXACT COLUMN NAMES
 function applyFilters(data) {
     const statusFilter = document.getElementById('status-filter').value;
     const priorityFilter = document.getElementById('priority-filter').value;
@@ -602,7 +664,7 @@ function applyFilters(data) {
     console.log(`🔍 Applying filters - User: ${userName}, Type: ${userType}, EMPID: ${currentEmpID}`);
     
     const filteredData = data.filter(issue => {
-        // UPDATED: Use new column names from Google Form
+        // UPDATED: Use exact column names
         const issueEmpID = issue['EMPID (Ex:EMP737)'] || issue.EMPID || '';
         const issueName = issue['name'] || issue.Name || '';
         
@@ -612,46 +674,25 @@ function applyFilters(data) {
         switch(userType) {
             case 'employee':
                 shouldShow = currentEmpID && issueEmpID === currentEmpID;
-                if (!shouldShow) {
-                    console.log(`❌ Employee ${currentEmpID} cannot see ticket from ${issueEmpID}`);
-                } else {
-                    console.log(`✅ Employee ${currentEmpID} CAN see their own ticket`);
-                }
                 break;
                 
             case 'account_manager':
             case 'program_manager':
                 const managedEmployees = getManagedEmployees(employeeData);
-                console.log(`👨‍💼 ${userType} ${userName} manages:`, managedEmployees);
-                
                 shouldShow = managedEmployees.includes(issueEmpID);
-                
-                if (!shouldShow) {
-                    console.log(`❌ ${userType} cannot see ticket from ${issueEmpID} (not in managed employees)`);
-                } else {
-                    console.log(`✅ ${userType} can see ticket from ${issueEmpID}`);
-                }
                 break;
                 
             case 'assignee':
-                // UPDATED: Use new column name for assignee
                 const assigneeValue = issue.Assignee || issue['Assigned To'] || issue.Assigned_empid || issue['Assigned EmpID'] || '';
                 shouldShow = assigneeValue === userName;
-                if (!shouldShow) {
-                    console.log(`❌ Assignee ${userName} cannot see ticket assigned to ${assigneeValue}`);
-                } else {
-                    console.log(`✅ Assignee ${userName} CAN see ticket assigned to them`);
-                }
                 break;
                 
             case 'admin':
                 shouldShow = true;
-                console.log(`✅ Admin can see all tickets`);
                 break;
                 
             default:
                 shouldShow = false;
-                console.log(`❌ Unknown user type: ${userType}`);
         }
         
         if (!shouldShow) return false;
@@ -665,26 +706,26 @@ function applyFilters(data) {
             return false;
         }
         
-        // UPDATED: Search across new column names including screenshot
+        // UPDATED: Search with exact column names for school and location
         if (searchTerm && !(
             (issue.Category || '').toLowerCase().includes(searchTerm) ||
             (issue.Issue || '').toLowerCase().includes(searchTerm) ||
             (issueEmpID || '').toString().includes(searchTerm) ||
             (issueName || '').toLowerCase().includes(searchTerm) ||
-            ((issue.Assignee || issue['Assigned To'] || issue.Assigned_empid || '') || '').toLowerCase().includes(searchTerm) ||
-            ((issue.Screenshot || issue['Screenshot URL'] || '') || '').toLowerCase().includes(searchTerm)
+            (issue['School '] || '').toLowerCase().includes(searchTerm) || // Exact column name
+            (issue['Location '] || '').toLowerCase().includes(searchTerm) || // Exact column name
+            (issue.Assignee || issue['Assigned To'] || issue.Assigned_empid || '').toLowerCase().includes(searchTerm) ||
+            (issue.Screenshot || issue['Screenshot URL'] || '').toLowerCase().includes(searchTerm) ||
+            (issue.Remarks || issue['Additional Remarks'] || issue.Comments || issue['Remarks from Assignee'] || issue['Resolution Remarks'] || issue['Admin Remarks'] || '').toLowerCase().includes(searchTerm)
         )) {
             return false;
         }
-        
         return true;
     });
     
     console.log(`🎯 Final filtered tickets for ${userType}: ${filteredData.length}`);
     return filteredData;
-}
-
-// COMPLETE UPDATED renderTable FUNCTION WITH SCREENSHOT SUPPORT
+}// UPDATED renderTable FUNCTION WITH EXACT COLUMN NAMES
 function renderTable(data) {
     const container = document.getElementById('data-container');
     const employeeData = getEmployeeData();
@@ -723,15 +764,22 @@ function renderTable(data) {
         return;
     }
 
+    // DEBUG: Log the first row to see actual column names
+    console.log('📋 First row column names:', Object.keys(data[0]));
+    console.log('🔍 First row data:', data[0]);
+
     let html = `
         <table>
             <thead>
                 <tr>
                     <th>EMP ID</th>
                     <th>Name</th>
+                    <th>School</th>
+                    <th>Location</th>
                     <th>Category</th>
                     <th>Issue</th>
                     <th>Screenshot</th>
+                    <th>Remarks</th>
                     <th>Priority</th>
                     <th>Assignee</th>
                     <th>Status</th>
@@ -750,21 +798,48 @@ function renderTable(data) {
         if (issue.Priority === 'High') priorityClass = 'priority-high';
         if (issue.Priority === 'Medium') priorityClass = 'priority-medium';
         
-        // UPDATED: Use new column names from Google Form
+        // Use exact column names from Google Sheets
         const empId = issue['EMPID (Ex:EMP737)'] || issue.EMPID || '-';
         const name = issue['name'] || issue.Name || '-';
+        
+        // EXACT column names from Google Sheets
+        const school = issue['School '] || 'Not specified'; // Note the space after 'School'
+        const location = issue['Location '] || 'Not specified'; // Note the space after 'Location'
+        
         const category = issue.Category || '-';
         const issueDescription = issue.Issue || issue.Description || '';
         const status = issue.Status || 'To Do';
         const priority = issue.Priority || 'Low';
         
         // Get assignee from multiple possible column names
-        const assignee = issue.Assignee || issue['Assigned To'] || issue.Assigned_empid || issue['Assigned EmpID'] || 'Unassigned';
+        const assignee = issue.Assignee || 
+                        issue['Assigned To'] || 
+                        issue.Assigned_empid || 
+                        issue['Assigned EmpID'] || 
+                        'Unassigned';
+        
         const rowId = issue.rowId || '';
         
         // Get screenshot URL
-        const screenshotUrl = issue.Screenshot || issue['Screenshot URL'] || issue['Attachment'] || '';
+        const screenshotUrl = issue.Screenshot || 
+                             issue['Screenshot URL'] || 
+                             issue['Attachment'] || 
+                             '';
         
+        // Get remarks from multiple possible column names
+        const remarks = issue.Remarks || 
+                       issue['Additional Remarks'] || 
+                       issue.Comments || 
+                       issue['Remarks from Assignee'] ||
+                       issue['Resolution Remarks'] ||
+                       issue['Admin Remarks'] ||
+                       issue['Remarks '] || // with space
+                       '';
+
+        const displayText = remarks || '-';
+        const shouldTruncate = remarks && remarks.length > 30;
+        const displayRemarks = shouldTruncate ? remarks.substring(0, 30) + '...' : displayText;
+
         // Get resolved timestamp
         const resolvedAt = issue['Resolved At'] || issue['Resolved_At'] || issue.resolvedAt || '';
         const lastUpdated = issue['Last Updated'] || issue['Last_Updated'] || issue.lastUpdated || '';
@@ -782,6 +857,16 @@ function renderTable(data) {
             </td>` :
             `<td><span class="no-screenshot">-</span></td>`;
         
+        // Remarks cell with simple tooltip
+        const remarksCell = `
+            <td>
+                <div class="tooltip ${remarks ? '' : 'no-remarks'}" 
+                     data-tooltip="${remarks ? remarks.replace(/"/g, '&quot;') : 'No remarks'}">
+                    ${displayRemarks}
+                </div>
+            </td>
+        `;
+
         // Determine which action buttons to show
         let actionButtons = '';
         if (canUpdateStatus) {
@@ -842,9 +927,12 @@ function renderTable(data) {
             <tr>
                 <td>${empId}</td>
                 <td>${name}</td>
+                <td>${school}</td>
+                <td>${location}</td>
                 <td>${category}</td>
                 <td><div class="issue-description" title="${issueDescription}">${issueDescription || '-'}</div></td>
                 ${screenshotCell}
+                ${remarksCell}
                 <td><span class="priority-badge ${priorityClass}">${priority}</span></td>
                 <td>
                     <div class="assignee">
@@ -864,13 +952,11 @@ function renderTable(data) {
     // Log access permissions for debugging
     console.log(`🔧 User ${employeeData.name} (${userType}) can update status: ${canUpdateStatus}`);
 }
-
 function formatTimestamp(timestamp) {
     if (!timestamp) return '';
     
     // If it's already in a readable format, return as is
     if (typeof timestamp === 'string' && timestamp.includes('/')) {
-        // Format: dd/mm/yyyy hh:mm:ss - extract date part only for compact display
         const parts = timestamp.split(' ');
         if (parts.length > 0) {
             return parts[0]; // Return just the date part
@@ -1139,7 +1225,5 @@ function setupEventListeners() {
     });
 }
 </script>
-
-
 </body>
 </html>
