@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To My Love - I'm So Sorry</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #0a0416;
+            color: #f0e6ff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            transition: background 1s ease;
+        }
+        
+        /* Page container */
+        .page {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .page.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Page backgrounds */
+        .page-1 {
+            background: linear-gradient(135deg, #0a0416 0%, #1a0b2e 100%);
+        }
+        
+        .page-2 {
+            background: linear-gradient(135deg, #1a0b2e 0%, #2d0b5e 100%);
+        }
+        
+        .page-3 {
+            background: linear-gradient(135deg, #2d0b5e 0%, #4a1d8c 100%);
+        }
+        
+        .page-4 {
+            background: linear-gradient(135deg, #4a1d8c 0%, #7b2cbf 100%);
+        }
+        
+        .page-5 {
+            background: linear-gradient(135deg, #7b2cbf 0%, #9d4edd 100%);
+        }
+        
+        .floating-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .heart {
+            position: absolute;
+            background: linear-gradient(45deg, #9d4edd, #ff5e9c);
+            width: 20px;
+            height: 20px;
+            transform: rotate(45deg);
+            opacity: 0.7;
+            filter: drop-shadow(0 0 8px rgba(157, 78, 221, 0.7));
+            animation: float 6s infinite ease-in-out;
+        }
+        
+        .heart:before,
+        .heart:after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            background: inherit;
+            border-radius: 50%;
+            position: absolute;
+        }
+        
+        .heart:before {
+            top: -10px;
+            left: 0;
+        }
+        
+        .heart:after {
+            top: 0;
+            left: -10px;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(45deg); }
+            50% { transform: translateY(-20px) rotate(45deg); }
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 0 20px;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            background: linear-gradient(45deg, #c77dff, #ff5e9c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(199, 125, 255, 0.3);
+            letter-spacing: 1px;
+        }
+        
+        .page-title {
+            font-size: 2.2rem;
+            color: #ff9ec5;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #d0b3ff;
+            font-weight: 300;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .glass-card {
+            background: rgba(25, 10, 50, 0.25);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 24px;
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            padding: 40px;
+            margin: 30px 0;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                        0 0 30px rgba(157, 78, 221, 0.2);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .glass-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #9d4edd, transparent);
+        }
+        
+        .message-container {
+            margin: 30px 0;
+        }
+        
+        .message {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            padding-left: 20px;
+            border-left: 3px solid #9d4edd;
+            background: rgba(157, 78, 221, 0.08);
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .message:hover {
+            background: rgba(157, 78, 221, 0.12);
+            transform: translateX(5px);
+        }
+        
+        .heart-icon {
+            color: #ff5e9c;
+            margin: 0 8px;
+            animation: heartbeat 1.5s infinite;
+            display: inline-block;
+        }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 16px 32px;
+            border-radius: 50px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 200px;
+            justify-content: center;
+        }
+        
+        .next-btn {
+            background: linear-gradient(45deg, #7b2cbf, #ff5e9c);
+            color: white;
+            box-shadow: 0 8px 20px rgba(123, 44, 191, 0.4);
+        }
+        
+        .next-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(123, 44, 191, 0.6);
+        }
+        
+        .prev-btn {
+            background: rgba(157, 78, 221, 0.15);
+            color: #d0b3ff;
+            border: 1px solid rgba(157, 78, 221, 0.4);
+        }
+        
+        .prev-btn:hover {
+            background: rgba(157, 78, 221, 0.25);
+            transform: translateY(-3px);
+        }
+        
+        .forgive-btn {
+            background: linear-gradient(45deg, #4cc9f0, #4361ee);
+            color: white;
+            box-shadow: 0 8px 20px rgba(76, 201, 240, 0.4);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 8px 20px rgba(76, 201, 240, 0.4); }
+            50% { box-shadow: 0 8px 25px rgba(76, 201, 240, 0.7); }
+        }
+        
+        .signature {
+            text-align: center;
+            margin: 40px 0 30px;
+            font-size: 1.5rem;
+            color: #c77dff;
+            font-style: italic;
+        }
+        
+        .floating-element {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.3;
+            z-index: 1;
+        }
+        
+        .purple-orb {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #7b2cbf, transparent 70%);
+            top: -200px;
+            right: -200px;
+        }
+        
+        .pink-orb {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, #ff5e9c, transparent 70%);
+            bottom: -150px;
+            left: -150px;
+        }
+        
+        .page-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(25, 10, 50, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 10px 20px;
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .page-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .page-dot.active {
+            background: #ff5e9c;
+            box-shadow: 0 0 10px #ff5e9c;
+            transform: scale(1.3);
+        }
+        
+        .three-d-container {
+            width: 100%;
+            height: 250px;
+            margin: 30px 0;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        #heart3d {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .story-image {
+            width: 100%;
+            height: 200px;
+            border-radius: 16px;
+            margin: 20px 0;
+            background: rgba(157, 78, 221, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #ff5e9c;
+            border: 1px solid rgba(157, 78, 221, 0.3);
+        }
+        
+        .memory-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #ff5e9c;
+        }
+        
+        .memory-title {
+            color: #ff9ec5;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .page-title {
+                font-size: 1.8rem;
+            }
+            
+            .glass-card {
+                padding: 25px;
+            }
+            
+            .message {
+                font-size: 1.1rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .three-d-container {
+                height: 200px;
+            }
+            
+            .page-counter {
+                top: 10px;
+                right: 10px;
+            }
+        }
+        
+        /* Page transitions */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .page-enter {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+    </style>
+</head>
+<body class="page-1">
+    <!-- Floating background elements -->
+    <div class="floating-element purple-orb"></div>
+    <div class="floating-element pink-orb"></div>
+    
+    <!-- Floating hearts -->
+    <div class="floating-hearts" id="floatingHearts"></div>
+    
+    <!-- Page counter -->
+    <div class="page-counter">
+        <div class="page-dot active" data-page="1"></div>
+        <div class="page-dot" data-page="2"></div>
+        <div class="page-dot" data-page="3"></div>
+        <div class="page-dot" data-page="4"></div>
+        <div class="page-dot" data-page="5"></div>
+    </div>
+    
+    <!-- Page 1: Introduction -->
+    <div class="page page-1 active" id="page1">
+        <div class="container">
+            <header>
+                <h1>My Dearest Love</h1>
+                <p class="subtitle">This is for you, with all my heart</p>
+            </header>
+            
+            <div class="three-d-container">
+                <div id="heart3d"></div>
+            </div>
+            
+            <div class="glass-card">
+                <h2 class="page-title">I Need to Tell You Something</h2>
+                
+                <div class="message-container">
+                    <div class="message">
+                        My love, I created this because words alone can't express how sorry I am.
+                        I hope you'll take this journey with me through these pages.
+                    </div>
+                    
+                    <div class="message">
+                        Every word here comes from the deepest part of my heart. 
+                        Please know that you mean everything to me.
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn next-btn" data-next="2">
+                        Start This Journey With Me <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="signature">
+                Always yours
+            </div>
+        </div>
+    </div>
+    
+    <!-- Page 2: What Happened -->
+    <div class="page page-2" id="page2">
+        <div class="container">
+            <div class="glass-card">
+                <h2 class="page-title">What I Did Wrong</h2>
+                
+                <div class="story-image">
+                    <i class="fas fa-heart-crack"></i>
+                </div>
+                
+                <div class="message-container">
+                    <div class="message">
+                        I realize now how my actions hurt you, and I've been replaying that moment in my mind ever since.
+                    </div>
+                    
+                    <div class="message">
+                        I was thoughtless and didn't consider how my words/actions would make you feel. 
+                        That was completely unfair to you.
+                    </div>
+                    
+                    <div class="message">
+                        You deserve so much better than that. You deserve someone who always puts your feelings first.
+                    </div>
+                </div>
+                
+                <div class="memory-box">
+                    <div class="memory-title">
+                        <i class="fas fa-brain heart-icon"></i> What I Should Have Done
+                    </div>
+                    <p>I should have paused, thought about you first, and chosen my words/actions more carefully. 
+                    I should have remembered how much I love you in that moment.</p>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn prev-btn" data-prev="1">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn next-btn" data-next="3">
+                        Continue <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Page 3: How I Feel -->
+    <div class="page page-3" id="page3">
+        <div class="container">
+            <div class="glass-card">
+                <h2 class="page-title">How I Feel About Hurting You</h2>
+                
+                <div class="message-container">
+                    <div class="message">
+                        Seeing you hurt because of me is the worst feeling I've ever experienced.
+                        <i class="fas fa-heart heart-icon"></i>
+                    </div>
+                    
+                    <div class="message">
+                        I feel a deep regret that weighs on my heart every moment we're apart.
+                        I miss your smile, your laugh, the way your eyes light up.
+                    </div>
+                    
+                    <div class="message">
+                        The thought that I caused you pain makes me feel sick to my stomach.
+                        You're the most precious person in my life, and I failed to protect your heart.
+                    </div>
+                </div>
+                
+               
+                
+                <div class="memory-box">
+                    <div class="memory-title">
+                        <i class="fas fa-hand-holding-heart heart-icon"></i> My Promise
+                    </div>
+                    <p>I promise to be more mindful, to think before I speak/act, and to always prioritize your feelings. 
+                    Your happiness will be my guiding light.</p>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn prev-btn" data-prev="2">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn next-btn" data-next="4">
+                        Continue <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Page 4: Our Memories -->
+    <div class="page page-4" id="page4">
+        <div class="container">
+            <div class="glass-card">
+                <h2 class="page-title">Remembering Us</h2>
+                
+                <div class="story-image">
+                    <i class="fas fa-memory"></i>
+                </div>
+                
+                <div class="message-container">
+                    <div class="message">
+                        I've been thinking about all our beautiful moments together...
+                        <i class="fas fa-heart heart-icon"></i> the laughter, the late night talks, the way you look at me.
+                    </div>
+                    
+                    <div class="message">
+                        Remember when we held hands That was one of the happiest days of my life because I was with you.
+                    </div>
+                    
+                    <div class="message">
+                        And that time we seen eyes, I fell in love and care with you a little more that day.
+                    </div>
+                    
+                    <div class="message">
+                        These memories are what give me hope that we can get through this.
+                        Our story is too beautiful to let one mistake define it.
+                    </div>
+                </div>
+                
+                <div class="memory-box">
+                    <div class="memory-title">
+                        <i class="fas fa-star heart-icon"></i> What I Love About You
+                    </div>
+                    <p>Your kindness, your smile, the way you make me feel like I'm the only person in the world, 
+                    your strength, your compassion, your beautiful soul that I fell in love with.</p>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn prev-btn" data-prev="3">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn next-btn" data-next="5">
+                        One Last Page <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Page 5: Final Apology -->
+    <div class="page page-5" id="page5">
+        <div class="container">
+            <div class="glass-card">
+                <h2 class="page-title">My Heartfelt Apology</h2>
+                
+                <div class="message-container">
+                    <div class="message" style="border-left-color: #ff5e9c;">
+                        From the bottom of my heart, I am so incredibly sorry.
+                        <i class="fas fa-heart heart-icon"></i> <i class="fas fa-heart heart-icon"></i> <i class="fas fa-heart heart-icon"></i>
+                    </div>
+                    
+                    <div class="message">
+                        I take full responsibility for my actions and the pain they caused you.
+                        I never wanted to be the source of your sadness.
+                    </div>
+                    
+                    <div class="message">
+                        I promise to learn from this, to grow, and to become the person you deserve.
+                        Please give me a chance to make things right.
+                    </div>
+                    
+                    <div class="message" style="background: rgba(255, 94, 156, 0.1); border-left-color: #4cc9f0;">
+                        I love you more than words can express. You're my everything, my world, my heart.
+But everything came to an end.                    </div>
+                </div>
+               
+                
+                <div class="action-buttons">
+                    <button class="btn prev-btn" data-prev="4">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn forgive-btn" id="finalForgiveBtn">
+                        <i class="fas fa-heart heart-icon"></i> Can You Click here Forgive Me?
+                    </button>
+                </div>
+            </div>
+            
+            <div class="signature">
+                With all my love, forever and always<br>
+                <span style="font-size: 2rem; color: #ff9ec5; margin-top: 10px; display: block;">
+                    ❤️ Jeremiah
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create floating hearts
+        function createFloatingHearts() {
+            const container = document.getElementById('floatingHearts');
+            const heartCount = 30;
+            
+            for (let i = 0; i < heartCount; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                
+                // Random properties
+                const size = Math.random() * 15 + 10;
+                const posX = Math.random() * 100;
+                const delay = Math.random() * 5;
+                const duration = Math.random() * 4 + 4;
+                const colorVal = Math.random() > 0.5 ? '#ff5e9c' : '#9d4edd';
+                
+                heart.style.width = `${size}px`;
+                heart.style.height = `${size}px`;
+                heart.style.left = `${posX}vw`;
+                heart.style.top = `${Math.random() * 100}vh`;
+                heart.style.animationDelay = `${delay}s`;
+                heart.style.animationDuration = `${duration}s`;
+                heart.style.background = `linear-gradient(45deg, ${colorVal}, ${colorVal}dd)`;
+                
+                container.appendChild(heart);
+            }
+        }
+        
+        // 3D Heart Animation
+        let scene, camera, renderer, heart;
+        function init3DHeart() {
+            const container = document.getElementById('heart3d');
+            if (!container) return;
+            
+            // Scene setup
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.innerHTML = '';
+            container.appendChild(renderer.domElement);
+            
+            // Heart geometry
+            const heartShape = new THREE.Shape();
+            heartShape.moveTo(0, 0.25);
+            heartShape.bezierCurveTo(0, 0.25, 0.1, 0, 0.25, 0);
+            heartShape.bezierCurveTo(0.4, 0, 0.5, 0.25, 0.5, 0.25);
+            heartShape.bezierCurveTo(0.5, 0.25, 0.6, 0, 0.75, 0);
+            heartShape.bezierCurveTo(0.9, 0, 1, 0.25, 1, 0.25);
+            heartShape.bezierCurveTo(1, 0.25, 1, 0.5, 0.75, 0.75);
+            heartShape.bezierCurveTo(0.5, 1, 0.5, 1, 0.5, 1);
+            heartShape.bezierCurveTo(0.5, 1, 0.5, 1, 0.25, 0.75);
+            heartShape.bezierCurveTo(0, 0.5, 0, 0.25, 0, 0.25);
+            
+            const extrudeSettings = {
+                depth: 0.2,
+                bevelEnabled: true,
+                bevelSegments: 2,
+                bevelSize: 0.05,
+                bevelThickness: 0.05
+            };
+            
+            const geometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
+            const material = new THREE.MeshPhongMaterial({
+                color: 0xff5e9c,
+                shininess: 100,
+                specular: 0xffffff,
+                emissive: 0x9d4edd,
+                emissiveIntensity: 0.4
+            });
+            
+            heart = new THREE.Mesh(geometry, material);
+            scene.add(heart);
+            
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xff9ec5, 0.8);
+            directionalLight.position.set(5, 5, 5);
+            scene.add(directionalLight);
+            
+            const purpleLight = new THREE.PointLight(0x9d4edd, 0.7, 10);
+            purpleLight.position.set(-3, -1, 2);
+            scene.add(purpleLight);
+            
+            camera.position.z = 3;
+            
+            // Animation
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                if (heart) {
+                    heart.rotation.x += 0.005;
+                    heart.rotation.y += 0.01;
+                    
+                    // Pulsing effect
+                    const scale = 1 + 0.1 * Math.sin(Date.now() * 0.002);
+                    heart.scale.set(scale, scale, scale);
+                }
+                
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            
+            // Handle resize
+            window.addEventListener('resize', function() {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        }
+        
+        // Page navigation
+        let currentPage = 1;
+        const totalPages = 5;
+        
+        function goToPage(pageNum) {
+            // Validate page number
+            if (pageNum < 1 || pageNum > totalPages) return;
+            
+            // Update current page
+            currentPage = pageNum;
+            
+            // Update body class for background
+            document.body.className = `page-${pageNum}`;
+            
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+                page.classList.remove('page-enter');
+            });
+            
+            // Show target page
+            const targetPage = document.getElementById(`page${pageNum}`);
+            targetPage.classList.add('active');
+            
+            // Add entrance animation
+            setTimeout(() => {
+                targetPage.classList.add('page-enter');
+            }, 10);
+            
+            // Update page counter dots
+            document.querySelectorAll('.page-dot').forEach(dot => {
+                dot.classList.remove('active');
+                if (parseInt(dot.getAttribute('data-page')) === pageNum) {
+                    dot.classList.add('active');
+                }
+            });
+            
+            // Reinitialize 3D heart on pages that have it
+            if (pageNum === 1 || pageNum === 3 || pageNum === 5) {
+                setTimeout(init3DHeart, 100);
+            }
+            
+            // Create floating hearts for new page
+            createPageHearts();
+        }
+        
+        // Create page-specific floating hearts
+        function createPageHearts() {
+            const container = document.getElementById('floatingHearts');
+            // Clear old hearts
+            container.innerHTML = '';
+            
+            // Create new hearts based on current page
+            const heartCount = 25 + (currentPage * 5);
+            
+            for (let i = 0; i < heartCount; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                
+                // Different colors based on page
+                let color1, color2;
+                switch(currentPage) {
+                    case 1: color1 = '#9d4edd'; color2 = '#ff5e9c'; break;
+                    case 2: color1 = '#7b2cbf'; color2 = '#ff5e9c'; break;
+                    case 3: color1 = '#5a189a'; color2 = '#ff5e9c'; break;
+                    case 4: color1 = '#9d4edd'; color2 = '#ff9ec5'; break;
+                    case 5: color1 = '#4cc9f0'; color2 = '#ff5e9c'; break;
+                    default: color1 = '#9d4edd'; color2 = '#ff5e9c';
+                }
+                
+                const size = Math.random() * 15 + 8;
+                const posX = Math.random() * 100;
+                const delay = Math.random() * 5;
+                const duration = Math.random() * 3 + 3;
+                
+                heart.style.width = `${size}px`;
+                heart.style.height = `${size}px`;
+                heart.style.left = `${posX}vw`;
+                heart.style.top = `${Math.random() * 100}vh`;
+                heart.style.animationDelay = `${delay}s`;
+                heart.style.animationDuration = `${duration}s`;
+                heart.style.background = `linear-gradient(45deg, ${color1}, ${color2})`;
+                
+                container.appendChild(heart);
+            }
+        }
+        
+        // Create heart explosion effect
+        function createHeartExplosion() {
+            const container = document.getElementById('floatingHearts');
+            const explosionCount = 80;
+            
+            for (let i = 0; i < explosionCount; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                
+                // Random properties
+                const size = Math.random() * 15 + 5;
+                const posX = 50 + (Math.random() - 0.5) * 40;
+                const posY = 50 + (Math.random() - 0.5) * 40;
+                const delay = Math.random() * 0.5;
+                
+                heart.style.width = `${size}px`;
+                heart.style.height = `${size}px`;
+                heart.style.left = `${posX}vw`;
+                heart.style.top = `${posY}vh`;
+                heart.style.animation = `float 4s ease-out ${delay}s forwards`;
+                heart.style.background = `linear-gradient(45deg, #4cc9f0, #4361ee)`;
+                
+                container.appendChild(heart);
+                
+                // Remove after animation
+                setTimeout(() => {
+                    if (heart.parentNode) {
+                        heart.remove();
+                    }
+                }, 4000 + delay * 1000);
+            }
+        }
+        
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create initial floating hearts
+            createPageHearts();
+            
+            // Initialize 3D heart
+            init3DHeart();
+            
+            // Set up navigation buttons
+            document.querySelectorAll('.next-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const nextPage = parseInt(this.getAttribute('data-next'));
+                    goToPage(nextPage);
+                });
+            });
+            
+            document.querySelectorAll('.prev-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const prevPage = parseInt(this.getAttribute('data-prev'));
+                    goToPage(prevPage);
+                });
+            });
+            
+            // Set up page counter dots
+            document.querySelectorAll('.page-dot').forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const pageNum = parseInt(this.getAttribute('data-page'));
+                    goToPage(pageNum);
+                });
+            });
+            
+            // Final forgive button
+            document.getElementById('finalForgiveBtn').addEventListener('click', function() {
+                this.innerHTML = '<i class="fas fa-heart heart-icon"></i> Thank You, My Love!';
+                this.style.background = 'linear-gradient(45deg, #4cc9f0, #4361ee)';
+                this.style.transform = 'scale(1.1)';
+                
+                // Create heart explosion
+                createHeartExplosion();
+                
+                // Show message
+                setTimeout(() => {
+                    alert("You've made me the happiest person in the world. I promise to cherish you always and never take your love for granted. I love you more than anything. ❤️");
+                    
+                    // Add celebration effect
+                    document.body.style.background = 'linear-gradient(135deg, #0a0416 0%, #4cc9f0 100%)';
+                    setTimeout(() => {
+                        document.body.style.background = '';
+                    }, 2000);
+                }, 1000);
+            });
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowRight' && currentPage < totalPages) {
+                    goToPage(currentPage + 1);
+                } else if (e.key === 'ArrowLeft' && currentPage > 1) {
+                    goToPage(currentPage - 1);
+                }
+            });
+            
+            // Swipe navigation for mobile
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            document.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+            
+            document.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            });
+            
+            function handleSwipe() {
+                const swipeThreshold = 50;
+                const diff = touchStartX - touchEndX;
+                
+                if (Math.abs(diff) > swipeThreshold) {
+                    if (diff > 0 && currentPage < totalPages) {
+                        // Swipe left - go to next page
+                        goToPage(currentPage + 1);
+                    } else if (diff < 0 && currentPage > 1) {
+                        // Swipe right - go to previous page
+                        goToPage(currentPage - 1);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
