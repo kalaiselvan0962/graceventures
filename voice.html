@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To My Love - The Pieces of My Heart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Georgia', serif;
+        }
+        
+        body {
+            background: #0a0416;
+            color: #f0e6ff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            transition: background 1s ease;
+        }
+        
+        /* Audio controls */
+        .audio-controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: rgba(10, 4, 22, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 50px;
+            padding: 10px 20px;
+            border: 1px solid rgba(255, 94, 156, 0.4);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .audio-btn {
+            background: transparent;
+            border: none;
+            color: #ff9ec5;
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .audio-btn:hover {
+            background: rgba(255, 94, 156, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .audio-btn.active {
+            background: rgba(255, 94, 156, 0.4);
+            color: white;
+        }
+        
+        .volume-slider {
+            width: 100px;
+            height: 5px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            outline: none;
+        }
+        
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ff5e9c;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 94, 156, 0.8);
+        }
+        
+        /* Voice indicator */
+        .voice-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(10, 4, 22, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 50px;
+            padding: 15px 30px;
+            border: 1px solid rgba(255, 94, 156, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .voice-indicator.active {
+            opacity: 1;
+        }
+        
+        .voice-pulse {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff5e9c;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.7; }
+        }
+        
+        /* Page container */
+        .page {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+        
+        .page.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Page backgrounds */
+        .page-1 {
+            background: linear-gradient(135deg, #0a0416 0%, #1a0b2e 100%);
+        }
+        
+        .page-2 {
+            background: linear-gradient(135deg, #1a0b2e 0%, #2d0b5e 100%);
+        }
+        
+        .page-3 {
+            background: linear-gradient(135deg, #2d0b5e 0%, #4a1d8c 100%);
+        }
+        
+        .page-4 {
+            background: linear-gradient(135deg, #4a1d8c 0%, #7b2cbf 100%);
+        }
+        
+        .page-5 {
+            background: linear-gradient(135deg, #7b2cbf 0%, #9d4edd 100%);
+        }
+        
+        .floating-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .heart {
+            position: absolute;
+            background: linear-gradient(45deg, #ff5e9c, #ff9ec5);
+            width: 20px;
+            height: 20px;
+            transform: rotate(45deg);
+            opacity: 0.7;
+            filter: drop-shadow(0 0 8px rgba(255, 94, 156, 0.7));
+            animation: float 6s infinite ease-in-out;
+        }
+        
+        .heart:before,
+        .heart:after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            background: inherit;
+            border-radius: 50%;
+            position: absolute;
+        }
+        
+        .heart:before {
+            top: -10px;
+            left: 0;
+        }
+        
+        .heart:after {
+            top: 0;
+            left: -10px;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(45deg) scale(1); }
+            50% { transform: translateY(-20px) rotate(45deg) scale(1.1); }
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 0 20px;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            background: linear-gradient(45deg, #ff9ec5, #ff5e9c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(255, 158, 197, 0.3);
+            letter-spacing: 1px;
+            font-weight: 300;
+        }
+        
+        .page-title {
+            font-size: 2.2rem;
+            color: #ff9ec5;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 300;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        .page-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff5e9c, transparent);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #d0b3ff;
+            font-weight: 300;
+            margin-bottom: 30px;
+            text-align: center;
+            font-style: italic;
+        }
+        
+        .glass-card {
+            background: rgba(25, 10, 50, 0.25);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 94, 156, 0.3);
+            padding: 40px;
+            margin: 30px 0;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                        0 0 40px rgba(255, 94, 156, 0.2);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-5px) scale(1.005);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                        0 0 50px rgba(255, 94, 156, 0.3);
+        }
+        
+        .glass-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #ff5e9c, transparent);
+        }
+        
+        .message-container {
+            margin: 30px 0;
+        }
+        
+        .message {
+            font-size: 1.25rem;
+            line-height: 1.9;
+            margin-bottom: 25px;
+            padding-left: 20px;
+            border-left: 3px solid #ff5e9c;
+            background: rgba(255, 94, 156, 0.08);
+            padding: 25px;
+            border-radius: 0 12px 12px 0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .message:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .message:hover:before {
+            left: 100%;
+        }
+        
+        .message:hover {
+            background: rgba(255, 94, 156, 0.12);
+            transform: translateX(5px);
+        }
+        
+        .heart-icon {
+            color: #ff5e9c;
+            margin: 0 8px;
+            animation: heartbeat 1.5s infinite;
+            display: inline-block;
+        }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 16px 32px;
+            border-radius: 50px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 200px;
+            justify-content: center;
+        }
+        
+        .next-btn {
+            background: linear-gradient(45deg, #ff5e9c, #ff9ec5);
+            color: white;
+            box-shadow: 0 8px 20px rgba(255, 94, 156, 0.4);
+        }
+        
+        .next-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(255, 94, 156, 0.6);
+        }
+        
+        .prev-btn {
+            background: rgba(255, 94, 156, 0.15);
+            color: #ff9ec5;
+            border: 1px solid rgba(255, 94, 156, 0.4);
+        }
+        
+        .prev-btn:hover {
+            background: rgba(255, 94, 156, 0.25);
+            transform: translateY(-3px);
+        }
+        
+        .forgive-btn {
+            background: linear-gradient(45deg, #ff5e9c, #4cc9f0);
+            color: white;
+            box-shadow: 0 8px 20px rgba(255, 94, 156, 0.4);
+            animation: pulse 2s infinite;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .forgive-btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .forgive-btn:hover:before {
+            left: 100%;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 8px 20px rgba(255, 94, 156, 0.4); }
+            50% { box-shadow: 0 8px 25px rgba(255, 94, 156, 0.7); }
+        }
+        
+        .signature {
+            text-align: center;
+            margin: 40px 0 30px;
+            font-size: 1.5rem;
+            color: #ff9ec5;
+            font-style: italic;
+            position: relative;
+            padding-top: 20px;
+        }
+        
+        .signature:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #ff5e9c, transparent);
+        }
+        
+        .floating-element {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.3;
+            z-index: 1;
+        }
+        
+        .purple-orb {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #ff5e9c, transparent 70%);
+            top: -200px;
+            right: -200px;
+        }
+        
+        .pink-orb {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, #ff9ec5, transparent 70%);
+            bottom: -150px;
+            left: -150px;
+        }
+        
+        .page-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(10, 4, 22, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 10px 20px;
+            border: 1px solid rgba(255, 94, 156, 0.3);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .page-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .page-dot.active {
+            background: #ff5e9c;
+            box-shadow: 0 0 10px #ff5e9c;
+            transform: scale(1.3);
+        }
+        
+        .three-d-container {
+            width: 100%;
+            height: 250px;
+            margin: 30px 0;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 94, 156, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        #heart3d {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .story-image {
+            width: 100%;
+            height: 200px;
+            border-radius: 16px;
+            margin: 20px 0;
+            background: rgba(255, 94, 156, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #ff9ec5;
+            border: 1px solid rgba(255, 94, 156, 0.3);
+        }
+        
+        .memory-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 4px solid #ff9ec5;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .memory-box:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 158, 197, 0.05), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+        }
+        
+        .memory-box:hover:before {
+            transform: translateX(100%);
+        }
+        
+        .memory-title {
+            color: #ff9ec5;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .page-title {
+                font-size: 1.8rem;
+            }
+            
+            .glass-card {
+                padding: 25px;
+            }
+            
+            .message {
+                font-size: 1.1rem;
+                padding: 20px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .three-d-container {
+                height: 200px;
+            }
+            
+            .page-counter {
+                top: 10px;
+                right: 10px;
+            }
+            
+            .audio-controls {
+                top: 10px;
+                left: 10px;
+                padding: 8px 15px;
+            }
+            
+            .voice-indicator {
+                bottom: 20px;
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Page transitions */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .page-enter {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        /* Audio waveform */
+        .audio-wave {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            height: 30px;
+        }
+        
+        .wave-bar {
+            width: 3px;
+            background: #ff5e9c;
+            border-radius: 3px;
+            animation: wave 1.2s infinite ease-in-out;
+        }
+        
+        @keyframes wave {
+            0%, 100% { height: 5px; }
+            50% { height: 20px; }
+        }
+        
+        /* Typing effect */
+        .typing {
+            display: inline-block;
+            overflow: hidden;
+            border-right: 2px solid #ff5e9c;
+            white-space: nowrap;
+            animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #ff5e9c; }
+        }
+    </style>
+</head>
+<body class="page-1">
+    <!-- Audio Controls -->
+    <div class="audio-controls">
+        <button class="audio-btn" id="bgMusicToggle">
+            <i class="fas fa-music"></i>
+        </button>
+        <button class="audio-btn" id="narrationToggle">
+            <i class="fas fa-microphone"></i>
+        </button>
+        <input type="range" min="0" max="1" step="0.01" value="0.7" class="volume-slider" id="masterVolume">
+        <div class="audio-wave" id="audioWave">
+            <div class="wave-bar" style="animation-delay: 0s"></div>
+            <div class="wave-bar" style="animation-delay: 0.1s"></div>
+            <div class="wave-bar" style="animation-delay: 0.2s"></div>
+            <div class="wave-bar" style="animation-delay: 0.3s"></div>
+            <div class="wave-bar" style="animation-delay: 0.4s"></div>
+        </div>
+    </div>
+    
+    <!-- Voice Indicator -->
+    <div class="voice-indicator" id="voiceIndicator">
+        <div class="voice-pulse"></div>
+        <span id="voiceText">Whispering to your heart...</span>
+    </div>
+    
+    <!-- Floating background elements -->
+    <div class="floating-element purple-orb"></div>
+    <div class="floating-element pink-orb"></div>
+    
+    <!-- Floating hearts -->
+    <div class="floating-hearts" id="floatingHearts"></div>
+    
+    <!-- Page counter -->
+    <div class="page-counter">
+        <div class="page-dot active" data-page="1"></div>
+        <div class="page-dot" data-page="2"></div>
+        <div class="page-dot" data-page="3"></div>
+        <div class="page-dot" data-page="4"></div>
+        <div class="page-dot" data-page="5"></div>
+    </div>
+    
+    <!-- Page 1: Introduction -->
+    <div class="page page-1 active" id="page1">
+        <div class="container">
+            <header>
+                <h1>My Dearest Love</h1>
+                <p class="subtitle">This is the sound of my broken heart reaching out to yours...</p>
+            </header>
+            
+            <div class="three-d-container">
+                <div id="heart3d"></div>
+            </div>
+            
+            <div class="glass-card">
+                <h2 class="page-title">My Heart in Your Hands</h2>
+                
+                <div class="message-container">
+                    <div class="message">
+                        There are moments when the silence between us speaks louder than any words ever could. 
+                        Tonight, that silence echoes through the chambers of my heart.
+                    </div>
+                    
+                    <div class="message">
+                        I'm not just writing these words—I'm pouring out every piece of my soul onto this page. 
+                        Each letter is a tear I've cried, each sentence a prayer whispered in the dark.
+                    </div>
+                    
+                    <div class="message">
+                        Please, listen not just with your ears, but with the same heart that taught me how to love.
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn next-btn" data-next="2" id="page1Btn">
+                        Listen to My Heart <i class="fas fa-heartbeat"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="signature">
+                With every shattered piece of me
+            </div>
+        </div>
+    </div>
+    
+    <!-- Page 2: The Shattering -->
+    <div class="page page-2" id="page2">
+        <div class="container">
+            <div class="glass-card">
+                <h2 class="page-title">The Day I Broke Us</h2>
+                
+                <div class="story-image">
+                    <i class="fas fa-heart-crack"></i>
+                </div>
+                
+                <div class="message-container">
+                    <div class="message">
+                        I remember the exact moment—the way the light left your eyes, the slight tremble in your hands. 
+                        That's when I knew I had shattered something precious.
+                    </div>
+                    
+                    <div class="message">
+                        In my blindness, I took your love—this beautiful, fragile gift—and treated it like it was ordinary. 
+                        Like it wouldn't shatter if I dropped it.
+                    </div>
+                    
+                    <div class="message">
+                        The truth is, I was scared. Scared of how much I need you. 
+                        Scared that this love was too beautiful for someone like me to hold.
+                    </div>
+                </div>
+                
+                <div class="memory-box">
+                    <div class="memory-title">
+                        <i class="fas fa-brain heart-icon"></i> The Echo in My Soul
+                    </div>
+                    <p>Every night since, I hear it—the sound of your heart breaking. 
+                    It plays on repeat in the quiet moments, a haunting melody of my own making.</p>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn prev-btn" data-prev="1">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn next-btn" data-next="3">
+                        Hear My Regret <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Page 3: The Aftermath -->
+    <div class="page page-3" id="page3">
+        <div class="container">
+            <div class="glass-card">
+                <h2 class="page-title">Living in the Ruins of Us</h2>
+                
+                <div class="message-container">
+                    <div class="message">
+                        Do you know what it's like to drown in daylight? To walk through a world that keeps spinning 
+                        while yours has stopped?
+                    </div>
+                    
+                    <div class="message">
+                        Every morning, I wake up reaching for you. My hands find only empty space, 
+                        and in that moment, I break all over again.
+                    </div>
+                    
+                    <div class="message">
+                        I see you everywhere—in the way the coffee steam rises, in the pattern of rain on the window, 
+                        in the quiet between songs. You haunt the beautiful parts of my day.
+                    </div>
+                </div>
+                
+                <div class="story-image">
+                    <i class="fas fa-teardrop"></i>
+                </div>
+                
+                <div class="memory-box">
+                    <div class="memory-title">
+                        <i class="fas fa-hand-holding-heart heart-icon"></i> The Ghost of Your Touch
+                    </div>
+                    <p>My skin remembers yours. In the dark, I can still feel where your hand rested on my arm, 
+                    where your head leaned against my shoulder. These memories are both my punishment and my salvation.</p>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn prev-btn" data-prev="2">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn next-btn" data-next="4">
+                        Remember With Me <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Page 4: Our Symphony -->
+    <div class="page page-4" id="page4">
+        <div class="container">
+            <div class="glass-card">
+                <h2 class="page-title">The Music We Made</h2>
+                
+                <div class="story-image">
+                    <i class="fas fa-music"></i>
+                </div>
+                
+                <div class="message-container">
+                    <div class="message">
+                        I've been listening to our soundtrack on repeat. 
+                        Do you remember how we'd dance in the kitchen to songs that weren't even playing?
+                    </div>
+                    
+                    <div class="message">
+                        That Tuesday morning when you laughed so hard you snorted your coffee— 
+                        that sound became my favorite song. I'd trade every symphony for one more chorus.
+                    </div>
+                    
+                    <div class="message">
+                        And the way you'd hum while cooking, completely off-key but somehow perfect. 
+                        Our home was never quiet when you were in it.
+                    </div>
+                    
+                    <div class="message">
+                        These memories aren't just pictures in my mind—they're sensations. 
+                        The warmth of your hand in mine, the scent of your shampoo on our pillow, 
+                        the rhythm of your breathing as you slept.
+                    </div>
+                </div>
+                
+                <div class="memory-box">
+                    <div class="memory-title">
+                        <i class="fas fa-star heart-icon"></i> The Constellation of You
+                    </div>
+                    <p>You taught me that love isn't just a feeling—it's a place. 
+                    A specific geography of the soul where I found home in the curve of your smile, 
+                    sanctuary in the sound of your voice.</p>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn prev-btn" data-prev="3">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn next-btn" data-next="5">
+                        My Final Plea <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Page 5: Final Apology -->
+    <div class="page page-5" id="page5">
+        <div class="container">
+            <div class="glass-card">
+                <h2 class="page-title">A Love Letter to What We Were</h2>
+                
+                <div class="message-container">
+                    <div class="message" style="border-left-color: #4cc9f0;">
+                        If love has a sound, it's the one your heart makes when it's safe. 
+                        I silenced that sound, and for that, I will never forgive myself.
+                    </div>
+                    
+                    <div class="message">
+                        I'm not asking you to forget the breaking—only to remember what came before it. 
+                        The thousand mornings of gentle touches, the million whispered "I love you"s.
+                    </div>
+                    
+                    <div class="message">
+                        I am a different man now. The old me died in the moment I hurt you, 
+                        and what remains is someone who understands the weight of a heart in his hands.
+                    </div>
+                    
+                    <div class="message" style="background: rgba(76, 201, 240, 0.1); border-left-color: #ff5e9c;">
+                        This isn't just an apology. It's a testament. 
+                        A declaration that what we had was real, was beautiful, was worth fighting for.
+                    </div>
+                </div>
+                
+                <div class="story-image">
+                    <i class="fas fa-heart-circle-check"></i>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn prev-btn" data-prev="4">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn forgive-btn" id="finalForgiveBtn">
+                        <i class="fas fa-heart heart-icon"></i> Can We Try to Mend?
+                    </button>
+                </div>
+            </div>
+            
+            <div class="signature">
+                With every broken piece,<br>
+                <span style="font-size: 2rem; color: #ff9ec5; margin-top: 10px; display: block;">
+                    ❤️ Jeremiah
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Audio Manager
+        const AudioManager = {
+            sounds: {},
+            bgMusic: null,
+            narration: null,
+            isMusicPlaying: true,
+            isNarrationPlaying: true,
+            masterVolume: 0.7,
+            currentPage: 1,
+            
+            init: function() {
+                // Background music - emotional ambient track
+                this.bgMusic = new Howl({
+                    src: ['https://assets.mixkit.co/music/preview/mixkit-deep-urban-623.mp3'],
+                    volume: 0.5 * this.masterVolume,
+                    loop: true,
+                    autoplay: true,
+                    onplay: () => {
+                        document.getElementById('bgMusicToggle').classList.add('active');
+                        this.updateAudioWave();
+                    }
+                });
+                
+                // Page-specific narration tracks
+                this.narration = new Howl({
+                    src: ['https://assets.mixkit.co/voice/preview/mixkit-man-sad-apology-433.mp3'],
+                    volume: 0.8 * this.masterVolume,
+                    onplay: () => {
+                        document.getElementById('voiceIndicator').classList.add('active');
+                        document.getElementById('narrationToggle').classList.add('active');
+                    },
+                    onend: () => {
+                        document.getElementById('voiceIndicator').classList.remove('active');
+                    }
+                });
+                
+                // Heartbeat sound
+                this.sounds.heartbeat = new Howl({
+                    src: ['https://assets.mixkit.co/sfx/preview/mixkit-heartbeat-slow-1195.mp3'],
+                    volume: 0.3 * this.masterVolume,
+                    loop: true
+                });
+                
+                // Page turn sounds
+                this.sounds.pageTurn = new Howl({
+                    src: ['https://assets.mixkit.co/sfx/preview/mixkit-page-turn-swipe-1491.mp3'],
+                    volume: 0.5 * this.masterVolume
+                });
+                
+                // Heartbreak sound
+                this.sounds.heartbreak = new Howl({
+                    src: ['https://assets.mixkit.co/sfx/preview/mixkit-glass-break-with-huge-reverb-389.mp3'],
+                    volume: 0.4 * this.masterVolume
+                });
+                
+                // Gentle piano for memories
+                this.sounds.memories = new Howl({
+                    src: ['https://assets.mixkit.co/music/preview/mixkit-memories-128.mp3'],
+                    volume: 0.4 * this.masterVolume
+                });
+                
+                // Forgive sound
+                this.sounds.forgive = new Howl({
+                    src: ['https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3'],
+                    volume: 0.6 * this.masterVolume
+                });
+                
+                // Rain sound for sad pages
+                this.sounds.rain = new Howl({
+                    src: ['https://assets.mixkit.co/sfx/preview/mixkit-rain-loop-1249.mp3'],
+                    volume: 0.3 * this.masterVolume,
+                    loop: true
+                });
+                
+                this.setupEventListeners();
+                this.updateVoiceText(1);
+            },
+            
+            setupEventListeners: function() {
+                // Music toggle
+                document.getElementById('bgMusicToggle').addEventListener('click', () => {
+                    this.isMusicPlaying = !this.isMusicPlaying;
+                    if (this.isMusicPlaying) {
+                        this.bgMusic.play();
+                        document.getElementById('bgMusicToggle').classList.add('active');
+                    } else {
+                        this.bgMusic.pause();
+                        document.getElementById('bgMusicToggle').classList.remove('active');
+                    }
+                });
+                
+                // Narration toggle
+                document.getElementById('narrationToggle').addEventListener('click', () => {
+                    this.isNarrationPlaying = !this.isNarrationPlaying;
+                    document.getElementById('narrationToggle').classList.toggle('active', this.isNarrationPlaying);
+                    if (!this.isNarrationPlaying && this.narration.playing()) {
+                        this.narration.pause();
+                    }
+                });
+                
+                // Volume control
+                document.getElementById('masterVolume').addEventListener('input', (e) => {
+                    this.masterVolume = parseFloat(e.target.value);
+                    this.updateAllVolumes();
+                });
+                
+                // Page navigation sounds
+                document.querySelectorAll('.next-btn, .prev-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.sounds.pageTurn.play();
+                    });
+                });
+            },
+            
+            updateAllVolumes: function() {
+                Howler.volume(this.masterVolume);
+            },
+            
+            updateAudioWave: function() {
+                const wave = document.getElementById('audioWave');
+                if (this.isMusicPlaying) {
+                    wave.style.opacity = '1';
+                } else {
+                    wave.style.opacity = '0.3';
+                }
+            },
+            
+            playPageAudio: function(pageNum) {
+                // Stop all page-specific sounds
+                this.sounds.heartbeat.stop();
+                this.sounds.memories.stop();
+                this.sounds.rain.stop();
+                
+                // Play page-specific sounds
+                switch(pageNum) {
+                    case 1:
+                        this.sounds.heartbeat.play();
+                        this.updateVoiceText(1);
+                        break;
+                    case 2:
+                        this.sounds.heartbreak.play();
+                        this.sounds.rain.play();
+                        this.updateVoiceText(2);
+                        break;
+                    case 3:
+                        this.sounds.rain.play();
+                        this.updateVoiceText(3);
+                        break;
+                    case 4:
+                        this.sounds.memories.play();
+                        this.updateVoiceText(4);
+                        break;
+                    case 5:
+                        this.sounds.heartbeat.play();
+                        this.updateVoiceText(5);
+                        break;
+                }
+                
+                this.currentPage = pageNum;
+            },
+            
+            updateVoiceText: function(pageNum) {
+                const voiceText = document.getElementById('voiceText');
+                const texts = [
+                    "Whispering to your heart...",
+                    "The sound of breaking...",
+                    "Tears in the silence...",
+                    "Playing our memories...",
+                    "My final confession..."
+                ];
+                voiceText.textContent = texts[pageNum - 1];
+            }
+        };
+        
+        // Create floating hearts
+        function createFloatingHearts() {
+            const container = document.getElementById('floatingHearts');
+            const heartCount = 30;
+            
+            for (let i = 0; i < heartCount; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                
+                // Random properties
+                const size = Math.random() * 15 + 10;
+                const posX = Math.random() * 100;
+                const delay = Math.random() * 5;
+                const duration = Math.random() * 4 + 4;
+                const colorVal = Math.random() > 0.5 ? '#ff5e9c' : '#ff9ec5';
+                
+                heart.style.width = `${size}px`;
+                heart.style.height = `${size}px`;
+                heart.style.left = `${posX}vw`;
+                heart.style.top = `${Math.random() * 100}vh`;
+                heart.style.animationDelay = `${delay}s`;
+                heart.style.animationDuration = `${duration}s`;
+                heart.style.background = `linear-gradient(45deg, ${colorVal}, ${colorVal}dd)`;
+                
+                container.appendChild(heart);
+            }
+        }
+        
+        // 3D Heart Animation
+        let scene, camera, renderer, heart;
+        function init3DHeart() {
+            const container = document.getElementById('heart3d');
+            if (!container) return;
+            
+            // Scene setup
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.innerHTML = '';
+            container.appendChild(renderer.domElement);
+            
+            // Heart geometry
+            const heartShape = new THREE.Shape();
+            heartShape.moveTo(0, 0.25);
+            heartShape.bezierCurveTo(0, 0.25, 0.1, 0, 0.25, 0);
+            heartShape.bezierCurveTo(0.4, 0, 0.5, 0.25, 0.5, 0.25);
+            heartShape.bezierCurveTo(0.5, 0.25, 0.6, 0, 0.75, 0);
+            heartShape.bezierCurveTo(0.9, 0, 1, 0.25, 1, 0.25);
+            heartShape.bezierCurveTo(1, 0.25, 1, 0.5, 0.75, 0.75);
+            heartShape.bezierCurveTo(0.5, 1, 0.5, 1, 0.5, 1);
+            heartShape.bezierCurveTo(0.5, 1, 0.5, 1, 0.25, 0.75);
+            heartShape.bezierCurveTo(0, 0.5, 0, 0.25, 0, 0.25);
+            
+            const extrudeSettings = {
+                depth: 0.2,
+                bevelEnabled: true,
+                bevelSegments: 2,
+                bevelSize: 0.05,
+                bevelThickness: 0.05
+            };
+            
+            const geometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
+            const material = new THREE.MeshPhongMaterial({
+                color: 0xff5e9c,
+                shininess: 100,
+                specular: 0xffffff,
+                emissive: 0xff9ec5,
+                emissiveIntensity: 0.4
+            });
+            
+            heart = new THREE.Mesh(geometry, material);
+            scene.add(heart);
+            
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xff9ec5, 0.8);
+            directionalLight.position.set(5, 5, 5);
+            scene.add(directionalLight);
+            
+            const pinkLight = new THREE.PointLight(0xff5e9c, 0.7, 10);
+            pinkLight.position.set(-3, -1, 2);
+            scene.add(pinkLight);
+            
+            camera.position.z = 3;
+            
+            // Animation
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                if (heart) {
+                    heart.rotation.x += 0.005;
+                    heart.rotation.y += 0.01;
+                    
+                    // Pulsing effect
+                    const scale = 1 + 0.1 * Math.sin(Date.now() * 0.002);
+                    heart.scale.set(scale, scale, scale);
+                }
+                
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            
+            // Handle resize
+            window.addEventListener('resize', function() {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        }
+        
+        // Page navigation
+        let currentPage = 1;
+        const totalPages = 5;
+        
+        function goToPage(pageNum) {
+            // Validate page number
+            if (pageNum < 1 || pageNum > totalPages) return;
+            
+            // Update current page
+            currentPage = pageNum;
+            
+            // Update body class for background
+            document.body.className = `page-${pageNum}`;
+            
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+                page.classList.remove('page-enter');
+            });
+            
+            // Show target page
+            const targetPage = document.getElementById(`page${pageNum}`);
+            targetPage.classList.add('active');
+            
+            // Add entrance animation
+            setTimeout(() => {
+                targetPage.classList.add('page-enter');
+            }, 10);
+            
+            // Update page counter dots
+            document.querySelectorAll('.page-dot').forEach(dot => {
+                dot.classList.remove('active');
+                if (parseInt(dot.getAttribute('data-page')) === pageNum) {
+                    dot.classList.add('active');
+                }
+            });
+            
+            // Play page-specific audio
+            AudioManager.playPageAudio(pageNum);
+            
+            // Reinitialize 3D heart on pages that have it
+            if (pageNum === 1 || pageNum === 3 || pageNum === 5) {
+                setTimeout(init3DHeart, 100);
+            }
+            
+            // Create floating hearts for new page
+            createPageHearts();
+            
+            // Play narration if enabled
+            if (AudioManager.isNarrationPlaying) {
+                setTimeout(() => {
+                    AudioManager.narration.play();
+                }, 500);
+            }
+        }
+        
+        // Create page-specific floating hearts
+        function createPageHearts() {
+            const container = document.getElementById('floatingHearts');
+            // Clear old hearts
+            container.innerHTML = '';
+            
+            // Create new hearts based on current page
+            const heartCount = 25 + (currentPage * 5);
+            
+            for (let i = 0; i < heartCount; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                
+                // Different colors based on page
+                let color1, color2;
+                switch(currentPage) {
+                    case 1: color1 = '#ff5e9c'; color2 = '#ff9ec5'; break;
+                    case 2: color1 = '#7b2cbf'; color2 = '#ff5e9c'; break;
+                    case 3: color1 = '#5a189a'; color2 = '#ff5e9c'; break;
+                    case 4: color1 = '#ff9ec5'; color2 = '#4cc9f0'; break;
+                    case 5: color1 = '#4cc9f0'; color2 = '#ff5e9c'; break;
+                    default: color1 = '#ff5e9c'; color2 = '#ff9ec5';
+                }
+                
+                const size = Math.random() * 15 + 8;
+                const posX = Math.random() * 100;
+                const delay = Math.random() * 5;
+                const duration = Math.random() * 3 + 3;
+                
+                heart.style.width = `${size}px`;
+                heart.style.height = `${size}px`;
+                heart.style.left = `${posX}vw`;
+                heart.style.top = `${Math.random() * 100}vh`;
+                heart.style.animationDelay = `${delay}s`;
+                heart.style.animationDuration = `${duration}s`;
+                heart.style.background = `linear-gradient(45deg, ${color1}, ${color2})`;
+                
+                container.appendChild(heart);
+            }
+        }
+        
+        // Create heart explosion effect
+        function createHeartExplosion() {
+            const container = document.getElementById('floatingHearts');
+            const explosionCount = 80;
+            
+            for (let i = 0; i < explosionCount; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                
+                // Random properties
+                const size = Math.random() * 15 + 5;
+                const posX = 50 + (Math.random() - 0.5) * 40;
+                const posY = 50 + (Math.random() - 0.5) * 40;
+                const delay = Math.random() * 0.5;
+                
+                heart.style.width = `${size}px`;
+                heart.style.height = `${size}px`;
+                heart.style.left = `${posX}vw`;
+                heart.style.top = `${posY}vh`;
+                heart.style.animation = `float 4s ease-out ${delay}s forwards`;
+                heart.style.background = `linear-gradient(45deg, #4cc9f0, #ff5e9c)`;
+                
+                container.appendChild(heart);
+                
+                // Remove after animation
+                setTimeout(() => {
+                    if (heart.parentNode) {
+                        heart.remove();
+                    }
+                }, 4000 + delay * 1000);
+            }
+        }
+        
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize audio manager
+            AudioManager.init();
+            
+            // Create initial floating hearts
+            createPageHearts();
+            
+            // Initialize 3D heart
+            init3DHeart();
+            
+            // Set up navigation buttons
+            document.querySelectorAll('.next-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const nextPage = parseInt(this.getAttribute('data-next'));
+                    goToPage(nextPage);
+                });
+            });
+            
+            document.querySelectorAll('.prev-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const prevPage = parseInt(this.getAttribute('data-prev'));
+                    goToPage(prevPage);
+                });
+            });
+            
+            // Set up page counter dots
+            document.querySelectorAll('.page-dot').forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const pageNum = parseInt(this.getAttribute('data-page'));
+                    goToPage(pageNum);
+                });
+            });
+            
+            // Final forgive button
+            document.getElementById('finalForgiveBtn').addEventListener('click', function() {
+                AudioManager.sounds.forgive.play();
+                
+                this.innerHTML = '<i class="fas fa-heart heart-icon"></i> Thank You for Hearing Me';
+                this.style.background = 'linear-gradient(45deg, #4cc9f0, #4361ee)';
+                this.style.transform = 'scale(1.1)';
+                
+                // Create heart explosion
+                createHeartExplosion();
+                
+                // Show message
+                setTimeout(() => {
+                    const messages = [
+                        "Even broken hearts can learn to beat in sync again.",
+                        "Your forgiveness is the first note of our new beginning.",
+                        "Thank you for giving us a chance to write a new chapter.",
+                        "This is not the end of our story—it's where we begin again."
+                    ];
+                    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+                    
+                    // Create a floating message
+                    const messageDiv = document.createElement('div');
+                    messageDiv.style.position = 'fixed';
+                    messageDiv.style.top = '50%';
+                    messageDiv.style.left = '50%';
+                    messageDiv.style.transform = 'translate(-50%, -50%)';
+                    messageDiv.style.background = 'rgba(10, 4, 22, 0.9)';
+                    messageDiv.style.backdropFilter = 'blur(20px)';
+                    messageDiv.style.padding = '30px';
+                    messageDiv.style.borderRadius = '20px';
+                    messageDiv.style.border = '2px solid #ff5e9c';
+                    messageDiv.style.color = '#ff9ec5';
+                    messageDiv.style.fontSize = '1.5rem';
+                    messageDiv.style.textAlign = 'center';
+                    messageDiv.style.zIndex = '1000';
+                    messageDiv.style.boxShadow = '0 0 50px rgba(255, 94, 156, 0.5)';
+                    messageDiv.innerHTML = `<i class="fas fa-heart" style="color:#ff5e9c; margin-bottom:15px; display:block; font-size:3rem;"></i>${randomMessage}`;
+                    
+                    document.body.appendChild(messageDiv);
+                    
+                    // Remove after 5 seconds
+                    setTimeout(() => {
+                        messageDiv.style.opacity = '0';
+                        messageDiv.style.transform = 'translate(-50%, -50%) scale(0.9)';
+                        messageDiv.style.transition = 'all 0.5s ease';
+                        setTimeout(() => {
+                            document.body.removeChild(messageDiv);
+                        }, 500);
+                    }, 5000);
+                }, 1000);
+            });
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowRight' && currentPage < totalPages) {
+                    goToPage(currentPage + 1);
+                } else if (e.key === 'ArrowLeft' && currentPage > 1) {
+                    goToPage(currentPage - 1);
+                } else if (e.key === ' ') {
+                    // Space toggles music
+                    document.getElementById('bgMusicToggle').click();
+                }
+            });
+            
+            // Swipe navigation for mobile
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            document.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+            
+            document.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            });
+            
+            function handleSwipe() {
+                const swipeThreshold = 50;
+                const diff = touchStartX - touchEndX;
+                
+                if (Math.abs(diff) > swipeThreshold) {
+                    if (diff > 0 && currentPage < totalPages) {
+                        // Swipe left - go to next page
+                        goToPage(currentPage + 1);
+                    } else if (diff < 0 && currentPage > 1) {
+                        // Swipe right - go to previous page
+                        goToPage(currentPage - 1);
+                    }
+                }
+            }
+            
+            // Interactive message clicks
+            document.querySelectorAll('.message').forEach(message => {
+                message.addEventListener('click', function() {
+                    // Create a ripple effect
+                    const ripple = document.createElement('div');
+                    ripple.style.position = 'absolute';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.background = 'rgba(255, 94, 156, 0.3)';
+                    ripple.style.transform = 'scale(0)';
+                    ripple.style.animation = 'ripple 0.6s linear';
+                    
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = rect.width / 2;
+                    const y = rect.height / 2;
+                    
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x - size/2 + 'px';
+                    ripple.style.top = y - size/2 + 'px';
+                    
+                    this.style.position = 'relative';
+                    this.style.overflow = 'hidden';
+                    this.appendChild(ripple);
+                    
+                    // Play gentle sound
+                    const clickSound = new Howl({
+                        src: ['https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3'],
+                        volume: 0.2 * AudioManager.masterVolume
+                    });
+                    clickSound.play();
+                    
+                    // Remove ripple after animation
+                    setTimeout(() => {
+                        if (ripple.parentNode) {
+                            ripple.remove();
+                        }
+                    }, 600);
+                });
+            });
+            
+            // Add CSS for ripple animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes ripple {
+                    to {
+                        transform: scale(4);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
