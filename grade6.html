@@ -49,105 +49,147 @@
 <h1>🎮 Falling Blocks (Python + Pygame)</h1>
 
 <pre id="code">
+
+
 import pygame
 import sys
 import random
+import requests
+import json
+import time
 
-# 1. Initialize Pygame
+# ------------------ API CONFIG ------------------
+URL = "https://wizklub.com/api/secured/wiziot-poll-request/"
+HEADERS = {
+    "Api-Access-Key": "USER_ACCESS_API_KEY",
+    "Api-Secret-Key": "USER_SECRET_API_KEY",
+    "Content-Type": "application/json"
+}
+
+PAYLOAD = json.dumps({
+    "mode": "READ",
+    "device_id": "aws_device_id",
+    "source": "API",
+    "api": "sensor",
+    "sensor": "joystick"
+})
+
+# ------------------ GAME SETUP ------------------
 pygame.init()
 
-# 2. Game grid setup
 ROWS, COLS = 10, 10
 BLOCK_SIZE = 40
-WIDTH, HEIGHT = COLS * BLOCK_SIZE, ROWS * BLOCK_SIZE
 TOP_MARGIN = 40
+WIDTH, HEIGHT = COLS * BLOCK_SIZE, ROWS * BLOCK_SIZE
 
-# 3. Create window
 screen = pygame.display.set_mode((WIDTH, HEIGHT + TOP_MARGIN))
-pygame.display.set_caption("Falling Blocks")
+pygame.display.set_caption("Falling Blocks - IoT Controlled")
 
-# 4. Clock for FPS control
 clock = pygame.time.Clock()
+font = pygame.font.SysFont(None, 28)
 
-# 5. Colors
 BLACK = (0, 0, 0)
-GRAY = (40, 40, 40)
+GRAY = (50, 50, 50)
 RED = (200, 50, 50)
+WHITE = (255, 255, 255)
 
-# 6. Draw grid
+# ------------------ FUNCTIONS ------------------
 def draw_grid():
-    for row in range(ROWS):
-        for col in range(COLS):
+    for r in range(ROWS):
+        for c in range(COLS):
             pygame.draw.rect(
                 screen,
                 GRAY,
-                (col * BLOCK_SIZE, row * BLOCK_SIZE + TOP_MARGIN, BLOCK_SIZE, BLOCK_SIZE),
+                (c * BLOCK_SIZE, r * BLOCK_SIZE + TOP_MARGIN, BLOCK_SIZE, BLOCK_SIZE),
                 1
             )
 
-# 7. Block class
+def read_joystick():
+    try:
+        response = requests.post(URL, headers=HEADERS, data=PAYLOAD, timeout=1)
+        data = response.json()
+
+        # Example expected: {"direction": "LEFT"}
+        return data.get("direction", None)
+
+    except:
+        return None
+
+# ------------------ BLOCK CLASS ------------------
 class Block:
     def __init__(self):
         self.col = random.randint(0, COLS - 1)
         self.row = 0
         self.color = RED
-        self.speed = 0.3  # Falling speed (lower = slower)
-        self.fall_timer = 0
+        self.speed = 0.4
+        self.timer = 0
 
     def move(self, dx, dy):
-        new_col = self.col + dx
-        new_row = self.row + dy
-        if 0 <= new_col < COLS and 0 <= new_row < ROWS:
-            self.col = new_col
-            self.row = new_row
+        if 0 <= self.col + dx < COLS:
+            self.col += dx
+        if 0 <= self.row + dy < ROWS:
+            self.row += dy
 
     def update(self, dt):
-        self.fall_timer += dt
-        if self.fall_timer >= self.speed:
-            self.fall_timer = 0
+        self.timer += dt
+        if self.timer >= self.speed:
+            self.timer = 0
             if self.row < ROWS - 1:
-                self.row += 1  # Move down
+                self.row += 1
+            else:
+                self.__init__()  # Respawn when bottom
 
     def draw(self):
         pygame.draw.rect(
             screen,
             self.color,
-            (self.col * BLOCK_SIZE, self.row * BLOCK_SIZE + TOP_MARGIN, BLOCK_SIZE, BLOCK_SIZE)
+            (self.col * BLOCK_SIZE, self.row * BLOCK_SIZE + TOP_MARGIN,
+             BLOCK_SIZE, BLOCK_SIZE)
         )
 
-# 8. Create a block
+# ------------------ GAME LOOP ------------------
 block = Block()
+last_api_read = 0
+API_INTERVAL = 0.3  # seconds
 
-# 9. Game loop
 running = True
 while running:
-    dt = clock.tick(60) / 1000  # Delta time in seconds
+    dt = clock.tick(60) / 1000
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    # Get pressed keys
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
-        block.move(-1, 0)
-    if keys[pygame.K_RIGHT]:
-        block.move(1, 0)
-    if keys[pygame.K_DOWN]:
-        block.move(0, 1)
+    # ----- READ JOYSTICK FROM API -----
+    if time.time() - last_api_read > API_INTERVAL:
+        joystick = read_joystick()
+        last_api_read = time.time()
 
-    # Update block (falling)
+        if joystick == "LEFT":
+            block.move(-1, 0)
+        elif joystick == "RIGHT":
+            block.move(1, 0)
+        elif joystick == "DOWN":
+            block.move(0, 1)
+
+    # ----- FALLING -----
     block.update(dt)
 
-    # Draw everything
+    # ----- DRAW -----
     screen.fill(BLACK)
+
+    title = font.render("Falling Blocks (IoT Joystick)", True, WHITE)
+    screen.blit(title, (10, 8))
+
     draw_grid()
     block.draw()
-    pygame.display.update()
+    pygame.display.flip()
 
-# Quit safely
 pygame.quit()
 sys.exit()
+
+
+    
 </pre>
 
 <button onclick="copyCode()">📋 Copy Code</button>
