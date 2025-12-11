@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Voice Jump – Enhanced Graphics</title>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+  }
+
+  /* Background */
+  #bg {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(#5cd4ff, #1a7ad9 60%, #135aba);
+    overflow: hidden;
+  }
+
+  /* Ground */
+  #ground {
+    position: absolute;
+    bottom: 0;
+    width: 100vw;
+    height: 120px;
+    background: repeating-linear-gradient(
+      45deg,
+      #2b2b2b,
+      #2b2b2b 10px,
+      #333 10px,
+      #333 20px
+    );
+    border-top: 4px solid #555;
+  }
+
+  /* Player */
+  #player {
+    position: absolute;
+    width: 45px;
+    height: 45px;
+    background: #00ff88;
+    border-radius: 10px;
+    left: 120px;
+
+    /* Glow */
+    box-shadow: 0 0 20px #29ffa3;
+  }
+
+  /* Shadow */
+  #shadow {
+    position: absolute;
+    width: 50px;
+    height: 12px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 50%;
+    left: 117px;
+    bottom: 110px;
+    filter: blur(3px);
+  }
+
+  .obstacle {
+    position: absolute;
+    width: 60px;
+    background: linear-gradient(to bottom, #ff5656, #cc0000);
+    border: 3px solid #880000;
+    border-radius: 8px;
+    animation: wobble 2s ease-in-out infinite;
+  }
+
+  @keyframes wobble {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(3deg); }
+    100% { transform: rotate(0deg); }
+  }
+
+  #score {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 26px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 2px 2px #000;
+  }
+
+  #msg {
+    position: absolute;
+    top: 48%;
+    width: 100%;
+    text-align: center;
+    font-size: 28px;
+    color: white;
+    text-shadow: 2px 2px #000;
+    animation: pulse 1.8s infinite;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+  }
+
+</style>
+</head>
+
+<body>
+<div id="bg"></div>
+<div id="score">Score: 0</div>
+<div id="msg">Allow microphone & start humming!</div>
+
+<div id="player"></div>
+<div id="shadow"></div>
+<div id="ground"></div>
+
+<script>
+let player = document.getElementById("player");
+let shadow = document.getElementById("shadow");
+let msg = document.getElementById("msg");
+let scoreEl = document.getElementById("score");
+let obstacles = [];
+
+let playerY = window.innerHeight - 180;
+let velocityY = 0;
+let gravity = 1;
+let running = true;
+let score = 0;
+
+let audioContext, analyser;
+
+// ----------------------
+// Microphone + Audio
+// ----------------------
+async function initAudio() {
+  msg.innerHTML = "Loading microphone...";
+  audioContext = new AudioContext();
+
+  let stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  let source = audioContext.createMediaStreamSource(stream);
+
+  analyser = audioContext.createAnalyser();
+  analyser.fftSize = 2048;
+  source.connect(analyser);
+
+  msg.innerHTML = "Hum / speak to JUMP!";
+  startGame();
+}
+initAudio();
+
+// Pitch detection
+function getPitch(buf, sampleRate) {
+  let size = buf.length;
+  let max = size / 2;
+  let best = 0;
+  let bestOffset = -1;
+
+  for (let off = 8; off < max; off++) {
+    let corr = 0;
+    for (let i = 0; i < max; i++)
+      corr += Math.abs(buf[i] - buf[i + off]);
+    corr = 1 - corr / max;
+
+    if (corr > best) {
+      best = corr;
+      bestOffset = off;
+    }
+  }
+  return bestOffset > -1 ? sampleRate / bestOffset : 0;
+}
+
+// ----------------------
+// GAME LOOP
+// ----------------------
+function startGame() {
+  spawnObstacles();
+  loop();
+}
+
+function loop() {
+  if (!running) return;
+
+  // Pitch detection
+  let buf = new Float32Array(analyser.fftSize);
+  analyser.getFloatTimeDomainData(buf);
+  let pitch = getPitch(buf, audioContext.sampleRate);
+
+  if (pitch > 120 && pitch < 900) {
+    let force = (pitch - 120) / 780;
+    velocityY -= force * 4.3;
+  }
+
+  velocityY += gravity;
+  playerY += velocityY;
+
+  let floor = window.innerHeight - 170;
+
+  if (playerY > floor) {
+    playerY = floor;
+    velocityY = 0;
+  }
+
+  // Update positions
+  player.style.top = playerY + "px";
+  shadow.style.top = (playerY + 40) + "px";
+
+  // Move obstacles
+  obstacles.forEach(o => {
+    o.x -= 6;
+    o.el.style.left = o.x + "px";
+
+    if (o.x < 170 && o.x > 60) {
+      if (playerY + 45 > o.top && playerY < o.top + o.height) {
+        gameOver();
+      }
+    }
+  });
+
+  obstacles = obstacles.filter(o => o.x > -150);
+
+  requestAnimationFrame(loop);
+}
+
+// ----------------------
+// OBSTACLES
+// ----------------------
+function spawnObstacles() {
+  if (!running) return;
+
+  let height = 70 + Math.random() * 190;
+  let top = window.innerHeight - height - 120;
+
+  let obs = document.createElement("div");
+  obs.classList.add("obstacle");
+  obs.style.height = height + "px";
+  obs.style.left = window.innerWidth + "px";
+  obs.style.top = top + "px";
+
+  document.body.appendChild(obs);
+
+  obstacles.push({ el: obs, x: window.innerWidth, top: top, height: height });
+
+  score++;
+  scoreEl.innerHTML = "Score: " + score;
+
+  setTimeout(spawnObstacles, 1500);
+}
+
+// ----------------------
+// GAME OVER
+// ----------------------
+function gameOver() {
+  running = false;
+  msg.innerHTML = "GAME OVER! Click to restart";
+  msg.style.display = "block";
+
+  document.body.onclick = () => location.reload();
+}
+</script>
+
+</body>
+</html>
