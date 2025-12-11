@@ -1,98 +1,89 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Voicejump – Smooth & Controlled</title>
+<title>Voice– Pitch + Loudness Control</title>
 <style>
-  body {
-    margin: 0;
-    overflow: hidden;
-    font-family: Arial, sans-serif;
-  }
-
-  #bg {
-    position: fixed;
-    width: 100vw;
-    height: 100vh;
-    background: linear-gradient(#5cd4ff, #1a7ad9 60%, #135aba);
-  }
-
-  #ground {
-    position: absolute;
-    bottom: 0;
-    width: 100vw;
-    height: 120px;
-    background: repeating-linear-gradient(
-      45deg,
-      #2b2b2b,
-      #2b2b2b 10px,
-      #333 10px,
-      #333 20px
-    );
-    border-top: 4px solid #555;
-  }
-
-  #player {
-    position: absolute;
-    width: 45px;
-    height: 45px;
-    background: #00ff88;
-    border-radius: 10px;
-    left: 120px;
-    box-shadow: 0 0 20px #29ffa3;
-  }
-
-  #shadow {
-    position: absolute;
-    width: 50px;
-    height: 12px;
-    background: rgba(0,0,0,0.25);
-    border-radius: 50%;
-    left: 117px;
-    bottom: 110px;
-    filter: blur(3px);
-  }
-
-  .obstacle {
-    position: absolute;
-    width: 60px;
-    background: linear-gradient(to bottom, #ff5656, #cc0000);
-    border: 3px solid #880000;
-    border-radius: 8px;
-    animation: wobble 2s ease-in-out infinite;
-  }
-
-  @keyframes wobble {
-    0% { transform: rotate(0deg); }
-    50% { transform: rotate(3deg); }
-    100% { transform: rotate(0deg); }
-  }
-
-  #score {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    font-size: 26px;
-    font-weight: bold;
-    color: white;
-    text-shadow: 2px 2px #000;
-  }
-
-  #msg {
-    position: absolute;
-    top: 48%;
-    width: 100%;
-    text-align: center;
-    font-size: 28px;
-    color: white;
-    text-shadow: 2px 2px #000;
-    animation: pulse 1.8s infinite;
-  }
-
-  @keyframes pulse {
-    0% { opacity: 0.7; }
-    50% { opacity: 1; }
-    100% { opacity: 0.7; }
-  }
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+#bg {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(#5cd4ff, #1a7ad9 60%, #135aba);
+}
+#ground {
+  position: absolute;
+  bottom: 0;
+  width: 100vw;
+  height: 120px;
+  background: repeating-linear-gradient(
+    45deg,
+    #2b2b2b,
+    #2b2b2b 10px,
+    #333 10px,
+    #333 20px
+  );
+  border-top: 4px solid #555;
+}
+#player {
+  position: absolute;
+  width: 45px;
+  height: 45px;
+  background: #00ff88;
+  border-radius: 10px;
+  left: 120px;
+  box-shadow: 0 0 20px #29ffa3;
+}
+#shadow {
+  position: absolute;
+  width: 50px;
+  height: 12px;
+  background: rgba(0,0,0,0.25);
+  border-radius: 50%;
+  left: 117px;
+  bottom: 110px;
+  filter: blur(3px);
+}
+.obstacle {
+  position: absolute;
+  width: 60px;
+  background: linear-gradient(to bottom, #ff5656, #cc0000);
+  border: 3px solid #880000;
+  border-radius: 8px;
+  animation: wobble 2s ease-in-out infinite;
+}
+@keyframes wobble {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(3deg); }
+  100% { transform: rotate(0deg); }
+}
+#score {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 26px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 2px 2px #000;
+}
+#msg {
+  position: absolute;
+  top: 48%;
+  width: 100%;
+  text-align: center;
+  font-size: 28px;
+  color: white;
+  text-shadow: 2px 2px #000;
+  animation: pulse 1.8s infinite;
+}
+@keyframes pulse {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
 </style>
 </head>
 
@@ -106,6 +97,9 @@
 <div id="ground"></div>
 
 <script>
+// ---------------------
+// GAME VARIABLES
+// ---------------------
 let player = document.getElementById("player");
 let shadow = document.getElementById("shadow");
 let msg = document.getElementById("msg");
@@ -118,11 +112,16 @@ let gravity = 1;
 let running = true;
 let score = 0;
 
-// Audio
+// AUDIO
 let audioContext, analyser;
+let dataArray;
 let lastPitch = 0;
-const smoothing = 0.15; // low-pass smoothing
+let lastLoudness = 0;
+const smoothing = 0.15;
 
+// ---------------------
+// INIT MICROPHONE
+// ---------------------
 async function initAudio() {
     msg.innerHTML = "Loading microphone...";
     audioContext = new AudioContext();
@@ -132,13 +131,17 @@ async function initAudio() {
 
     analyser = audioContext.createAnalyser();
     analyser.fftSize = 2048;
+    dataArray = new Float32Array(analyser.fftSize);
     source.connect(analyser);
 
     msg.innerHTML = "Hum / speak to JUMP!";
     startGame();
 }
+initAudio();
 
-// Autocorrelation pitch detection
+// ---------------------
+// PITCH DETECTION
+// ---------------------
 function getPitch(buf, sampleRate) {
     let size = buf.length;
     let max = size / 2;
@@ -159,13 +162,21 @@ function getPitch(buf, sampleRate) {
     return bestOffset > -1 ? sampleRate / bestOffset : 0;
 }
 
-// Smooth sudden pitch spikes
-function getSmoothedPitch(newPitch) {
-    lastPitch = lastPitch + (newPitch - lastPitch) * smoothing;
-    return lastPitch;
+// SMOOTHING
+function getSmoothed(prev, current) {
+    return prev + (current - prev) * smoothing;
 }
 
-// Game loop
+// GET LOUDNESS
+function getLoudness(buf) {
+    let sum = 0;
+    for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+    return Math.sqrt(sum / buf.length);
+}
+
+// ---------------------
+// GAME LOOP
+// ---------------------
 function startGame() {
     spawnObstacles();
     loop();
@@ -174,23 +185,36 @@ function startGame() {
 function loop() {
     if (!running) return;
 
-    // Audio
-    let buf = new Float32Array(analyser.fftSize);
-    analyser.getFloatTimeDomainData(buf);
-    let pitch = getPitch(buf, audioContext.sampleRate);
-    pitch = getSmoothedPitch(pitch);
+    analyser.getFloatTimeDomainData(dataArray);
 
-    // Map pitch to jump with cap
-    if (pitch > 120 && pitch < 800) { // ignore extreme highs
-        let normalized = (pitch - 120) / 680; // 0..1
-        if (normalized > 0.55) normalized = 0.55; // max jump cap
-        velocityY -= normalized * 4.2;
+    // Pitch
+    let pitch = getPitch(dataArray, audioContext.sampleRate);
+    pitch = getSmoothed(lastPitch, pitch);
+    lastPitch = pitch;
+
+    // Loudness
+    let loudness = getLoudness(dataArray);
+    loudness = getSmoothed(lastLoudness, loudness);
+    lastLoudness = loudness;
+
+    // -----------------
+    // APPLY JUMP FORCE
+    // -----------------
+    if (pitch > 120 && pitch < 800) {
+        // Map pitch to base jump (0..1)
+        let base = (pitch - 120) / 680;
+        if (base > 0.5) base = 0.5;
+
+        // Loudness factor (0..1) for scaling
+        let loudFactor = Math.min(loudness * 10, 1); // scale RMS
+        let jumpForce = base * 4.5 * loudFactor;
+
+        velocityY -= jumpForce;
     }
 
-    // Gravity
+    // Gravity & physics
     velocityY += gravity;
     playerY += velocityY;
-
     let floor = window.innerHeight - 170;
     if (playerY > floor) {
         playerY = floor;
@@ -201,12 +225,11 @@ function loop() {
     player.style.top = playerY + "px";
     shadow.style.top = (playerY + 40) + "px";
 
-    // Move obstacles
+    // Move obstacles & collisions
     obstacles.forEach(o => {
         o.x -= 6;
         o.el.style.left = o.x + "px";
 
-        // Collision
         if (o.x < 170 && o.x > 60) {
             if (playerY + 45 > o.top && playerY < o.top + o.height) {
                 gameOver();
@@ -219,7 +242,9 @@ function loop() {
     requestAnimationFrame(loop);
 }
 
-// Spawn obstacles
+// ---------------------
+// OBSTACLES
+// ---------------------
 function spawnObstacles() {
     if (!running) return;
 
@@ -242,7 +267,9 @@ function spawnObstacles() {
     setTimeout(spawnObstacles, 1500);
 }
 
-// Game over
+// ---------------------
+// GAME OVER
+// ---------------------
 function gameOver() {
     running = false;
     msg.innerHTML = "GAME OVER! Click to restart";
@@ -250,8 +277,6 @@ function gameOver() {
 
     document.body.onclick = () => location.reload();
 }
-
-initAudio();
 </script>
 </body>
 </html>
