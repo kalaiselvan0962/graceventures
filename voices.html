@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Voice Jump – Enhanced Graphics</title>
+<title>Voicejump – Smooth & Controlled</title>
 <style>
   body {
     margin: 0;
@@ -9,16 +9,13 @@
     font-family: Arial, sans-serif;
   }
 
-  /* Background */
   #bg {
     position: fixed;
     width: 100vw;
     height: 100vh;
     background: linear-gradient(#5cd4ff, #1a7ad9 60%, #135aba);
-    overflow: hidden;
   }
 
-  /* Ground */
   #ground {
     position: absolute;
     bottom: 0;
@@ -34,7 +31,6 @@
     border-top: 4px solid #555;
   }
 
-  /* Player */
   #player {
     position: absolute;
     width: 45px;
@@ -42,12 +38,9 @@
     background: #00ff88;
     border-radius: 10px;
     left: 120px;
-
-    /* Glow */
     box-shadow: 0 0 20px #29ffa3;
   }
 
-  /* Shadow */
   #shadow {
     position: absolute;
     width: 50px;
@@ -100,7 +93,6 @@
     50% { opacity: 1; }
     100% { opacity: 0.7; }
   }
-
 </style>
 </head>
 
@@ -126,136 +118,140 @@ let gravity = 1;
 let running = true;
 let score = 0;
 
+// Audio
 let audioContext, analyser;
+let lastPitch = 0;
+const smoothing = 0.15; // low-pass smoothing
 
-// ----------------------
-// Microphone + Audio
-// ----------------------
 async function initAudio() {
-  msg.innerHTML = "Loading microphone...";
-  audioContext = new AudioContext();
+    msg.innerHTML = "Loading microphone...";
+    audioContext = new AudioContext();
 
-  let stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  let source = audioContext.createMediaStreamSource(stream);
+    let stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    let source = audioContext.createMediaStreamSource(stream);
 
-  analyser = audioContext.createAnalyser();
-  analyser.fftSize = 2048;
-  source.connect(analyser);
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = 2048;
+    source.connect(analyser);
 
-  msg.innerHTML = "Hum / speak to JUMP!";
-  startGame();
+    msg.innerHTML = "Hum / speak to JUMP!";
+    startGame();
 }
-initAudio();
 
-// Pitch detection
+// Autocorrelation pitch detection
 function getPitch(buf, sampleRate) {
-  let size = buf.length;
-  let max = size / 2;
-  let best = 0;
-  let bestOffset = -1;
+    let size = buf.length;
+    let max = size / 2;
+    let best = 0;
+    let bestOffset = -1;
 
-  for (let off = 8; off < max; off++) {
-    let corr = 0;
-    for (let i = 0; i < max; i++)
-      corr += Math.abs(buf[i] - buf[i + off]);
-    corr = 1 - corr / max;
+    for (let off = 8; off < max; off++) {
+        let corr = 0;
+        for (let i = 0; i < max; i++)
+            corr += Math.abs(buf[i] - buf[i + off]);
+        corr = 1 - corr / max;
 
-    if (corr > best) {
-      best = corr;
-      bestOffset = off;
+        if (corr > best) {
+            best = corr;
+            bestOffset = off;
+        }
     }
-  }
-  return bestOffset > -1 ? sampleRate / bestOffset : 0;
+    return bestOffset > -1 ? sampleRate / bestOffset : 0;
 }
 
-// ----------------------
-// GAME LOOP
-// ----------------------
+// Smooth sudden pitch spikes
+function getSmoothedPitch(newPitch) {
+    lastPitch = lastPitch + (newPitch - lastPitch) * smoothing;
+    return lastPitch;
+}
+
+// Game loop
 function startGame() {
-  spawnObstacles();
-  loop();
+    spawnObstacles();
+    loop();
 }
 
 function loop() {
-  if (!running) return;
+    if (!running) return;
 
-  // Pitch detection
-  let buf = new Float32Array(analyser.fftSize);
-  analyser.getFloatTimeDomainData(buf);
-  let pitch = getPitch(buf, audioContext.sampleRate);
+    // Audio
+    let buf = new Float32Array(analyser.fftSize);
+    analyser.getFloatTimeDomainData(buf);
+    let pitch = getPitch(buf, audioContext.sampleRate);
+    pitch = getSmoothedPitch(pitch);
 
-  if (pitch > 120 && pitch < 900) {
-    let force = (pitch - 120) / 780;
-    velocityY -= force * 4.3;
-  }
-
-  velocityY += gravity;
-  playerY += velocityY;
-
-  let floor = window.innerHeight - 170;
-
-  if (playerY > floor) {
-    playerY = floor;
-    velocityY = 0;
-  }
-
-  // Update positions
-  player.style.top = playerY + "px";
-  shadow.style.top = (playerY + 40) + "px";
-
-  // Move obstacles
-  obstacles.forEach(o => {
-    o.x -= 6;
-    o.el.style.left = o.x + "px";
-
-    if (o.x < 170 && o.x > 60) {
-      if (playerY + 45 > o.top && playerY < o.top + o.height) {
-        gameOver();
-      }
+    // Map pitch to jump with cap
+    if (pitch > 120 && pitch < 800) { // ignore extreme highs
+        let normalized = (pitch - 120) / 680; // 0..1
+        if (normalized > 0.55) normalized = 0.55; // max jump cap
+        velocityY -= normalized * 4.2;
     }
-  });
 
-  obstacles = obstacles.filter(o => o.x > -150);
+    // Gravity
+    velocityY += gravity;
+    playerY += velocityY;
 
-  requestAnimationFrame(loop);
+    let floor = window.innerHeight - 170;
+    if (playerY > floor) {
+        playerY = floor;
+        velocityY = 0;
+    }
+
+    // Update player & shadow
+    player.style.top = playerY + "px";
+    shadow.style.top = (playerY + 40) + "px";
+
+    // Move obstacles
+    obstacles.forEach(o => {
+        o.x -= 6;
+        o.el.style.left = o.x + "px";
+
+        // Collision
+        if (o.x < 170 && o.x > 60) {
+            if (playerY + 45 > o.top && playerY < o.top + o.height) {
+                gameOver();
+            }
+        }
+    });
+
+    obstacles = obstacles.filter(o => o.x > -150);
+
+    requestAnimationFrame(loop);
 }
 
-// ----------------------
-// OBSTACLES
-// ----------------------
+// Spawn obstacles
 function spawnObstacles() {
-  if (!running) return;
+    if (!running) return;
 
-  let height = 70 + Math.random() * 190;
-  let top = window.innerHeight - height - 120;
+    let height = 70 + Math.random() * 190;
+    let top = window.innerHeight - height - 120;
 
-  let obs = document.createElement("div");
-  obs.classList.add("obstacle");
-  obs.style.height = height + "px";
-  obs.style.left = window.innerWidth + "px";
-  obs.style.top = top + "px";
+    let obs = document.createElement("div");
+    obs.classList.add("obstacle");
+    obs.style.height = height + "px";
+    obs.style.left = window.innerWidth + "px";
+    obs.style.top = top + "px";
 
-  document.body.appendChild(obs);
+    document.body.appendChild(obs);
 
-  obstacles.push({ el: obs, x: window.innerWidth, top: top, height: height });
+    obstacles.push({ el: obs, x: window.innerWidth, top: top, height: height });
 
-  score++;
-  scoreEl.innerHTML = "Score: " + score;
+    score++;
+    scoreEl.innerHTML = "Score: " + score;
 
-  setTimeout(spawnObstacles, 1500);
+    setTimeout(spawnObstacles, 1500);
 }
 
-// ----------------------
-// GAME OVER
-// ----------------------
+// Game over
 function gameOver() {
-  running = false;
-  msg.innerHTML = "GAME OVER! Click to restart";
-  msg.style.display = "block";
+    running = false;
+    msg.innerHTML = "GAME OVER! Click to restart";
+    msg.style.display = "block";
 
-  document.body.onclick = () => location.reload();
+    document.body.onclick = () => location.reload();
 }
-</script>
 
+initAudio();
+</script>
 </body>
 </html>
