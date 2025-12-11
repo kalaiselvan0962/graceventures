@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Voice– Pitch + Loudness Control</title>
+<title>Voicoice Only</title>
 <style>
 body {
   margin: 0;
@@ -118,6 +118,7 @@ let dataArray;
 let lastPitch = 0;
 let lastLoudness = 0;
 const smoothing = 0.15;
+const LOUDNESS_THRESHOLD = 0.02; // Only voice triggers jump
 
 // ---------------------
 // INIT MICROPHONE
@@ -198,21 +199,21 @@ function loop() {
     lastLoudness = loudness;
 
     // -----------------
-    // APPLY JUMP FORCE
+    // APPLY JUMP FORCE (VOICE-ONLY)
     // -----------------
-    if (pitch > 120 && pitch < 800) {
+    if (loudness > LOUDNESS_THRESHOLD && pitch > 120 && pitch < 800) {
         // Map pitch to base jump (0..1)
         let base = (pitch - 120) / 680;
         if (base > 0.5) base = 0.5;
 
-        // Loudness factor (0..1) for scaling
-        let loudFactor = Math.min(loudness * 10, 1); // scale RMS
+        // Loudness factor (0..1)
+        let loudFactor = Math.min(loudness * 20, 1); // scale RMS
         let jumpForce = base * 4.5 * loudFactor;
 
         velocityY -= jumpForce;
     }
 
-    // Gravity & physics
+    // Gravity
     velocityY += gravity;
     playerY += velocityY;
     let floor = window.innerHeight - 170;
@@ -225,7 +226,7 @@ function loop() {
     player.style.top = playerY + "px";
     shadow.style.top = (playerY + 40) + "px";
 
-    // Move obstacles & collisions
+    // Move obstacles & collision
     obstacles.forEach(o => {
         o.x -= 6;
         o.el.style.left = o.x + "px";
