@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Collage Capture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        
+        .camera-section {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .camera-container {
+            width: 100%;
+            height: 300px;
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #camera-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .camera-placeholder {
+            color: white;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        
+        .countdown-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 4rem;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            display: none;
+        }
+        
+        .controls {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        #start-btn {
+            background: linear-gradient(to right, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        #start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+        
+        #start-btn:active {
+            transform: translateY(1px);
+        }
+        
+        #start-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #e74c3c;
+        }
+        
+        .status-dot.active {
+            background-color: #2ecc71;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .progress-container {
+            width: 100%;
+            max-width: 300px;
+            margin-top: 10px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #2ecc71, #1abc9c);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .collage-section {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+        
+        .collage-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 10px;
+            aspect-ratio: 1/1;
+            max-height: 400px;
+        }
+        
+        .collage-cell {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border: 2px dashed #bdc3c7;
+        }
+        
+        .collage-cell.filled {
+            border: 2px solid #2ecc71;
+            border-style: solid;
+        }
+        
+        .collage-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .cell-label {
+            color: #95a5a6;
+            font-size: 1.2rem;
+        }
+        
+        .photo-counter {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .photo-indicator {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ecf0f1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #7f8c8d;
+            transition: all 0.3s ease;
+        }
+        
+        .photo-indicator.active {
+            background-color: #3498db;
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .photo-indicator.captured {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .instructions {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .instructions h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .steps {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        
+        .step {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 15px;
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #3498db;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .step-text {
+            color: #34495e;
+            line-height: 1.5;
+        }
+        
+        footer {
+            margin-top: 30px;
+            color: #7f8c8d;
+            text-align: center;
+            font-size: 0.9rem;
+            padding: 20px 0;
+            border-top: 1px solid #eee;
+            width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .camera-section, .collage-section {
+                width: 100%;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Photo Collage Capture</h1>
+            <p class="subtitle">Take 4 photos with a 5-second gap and create an automatic collage</p>
+        </header>
+        
+        <div class="main-content">
+            <section class="camera-section">
+                <h2 class="section-title">Camera</h2>
+                <div class="camera-container">
+                    <div class="camera-placeholder" id="camera-placeholder">
+                        Camera access required
+                    </div>
+                    <video id="camera-feed" autoplay playsinline></video>
+                    <div class="countdown-display" id="countdown">5</div>
+                </div>
+                
+                <div class="controls">
+                    <button id="start-btn">Start Photo Capture</button>
+                    
+                    <div class="status-indicator">
+                        <div class="status-dot" id="status-dot"></div>
+                        <span id="status-text">Camera not active</span>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>Progress</span>
+                            <span id="progress-text">0/4 photos</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="photo-counter">
+                    <div class="photo-indicator" id="photo-1">1</div>
+                    <div class="photo-indicator" id="photo-2">2</div>
+                    <div class="photo-indicator" id="photo-3">3</div>
+                    <div class="photo-indicator" id="photo-4">4</div>
+                </div>
+            </section>
+            
+            <section class="collage-section">
+                <h2 class="section-title">Photo Collage</h2>
+                <div class="collage-container">
+                    <div class="collage-cell" id="cell-1">
+                        <span class="cell-label">Photo 1</span>
+                        <img class="collage-img" id="collage-img-1" style="display: none;">
+                    </div>
+                    <div class="collage-cell" id="cell-2">
+                        <span class="cell-label">Photo 2</span>
+                        <img class="collage-img" id="collage-img-2" style="display: none;">
+                    </div>
+                    <div class="collage-cell" id="cell-3">
+                        <span class="cell-label">Photo 3</span>
+                        <img class="collage-img" id="collage-img-3" style="display: none;">
+                    </div>
+                    <div class="collage-cell" id="cell-4">
+                        <span class="cell-label">Photo 4</span>
+                        <img class="collage-img" id="collage-img-4" style="display: none;">
+                    </div>
+                </div>
+                <p id="collage-status" style="text-align: center; margin-top: 15px; color: #7f8c8d;">
+                    Collage will appear here after capturing photos
+                </p>
+            </section>
+        </div>
+        
+        <section class="instructions">
+            <h3>How to use this photo collage tool</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <p class="step-text">Click "Start Photo Capture" to begin the process. Allow camera access when prompted.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <p class="step-text">The system will automatically take 4 photos with a 5-second gap between each.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <p class="step-text">Watch the countdown and position yourself for each photo.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <p class="step-text">After all photos are captured, the collage will be created automatically.</p>
+                </div>
+            </div>
+        </section>
+        
+        <footer>
+            <p>Photo Collage Capture System | HTML, CSS & JavaScript</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const startBtn = document.getElementById('start-btn');
+        const cameraFeed = document.getElementById('camera-feed');
+        const cameraPlaceholder = document.getElementById('camera-placeholder');
+        const countdownDisplay = document.getElementById('countdown');
+        const statusDot = document.getElementById('status-dot');
+        const statusText = document.getElementById('status-text');
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        const collageCells = [
+            document.getElementById('cell-1'),
+            document.getElementById('cell-2'),
+            document.getElementById('cell-3'),
+            document.getElementById('cell-4')
+        ];
+        const collageImgs = [
+            document.getElementById('collage-img-1'),
+            document.getElementById('collage-img-2'),
+            document.getElementById('collage-img-3'),
+            document.getElementById('collage-img-4')
+        ];
+        const photoIndicators = [
+            document.getElementById('photo-1'),
+            document.getElementById('photo-2'),
+            document.getElementById('photo-3'),
+            document.getElementById('photo-4')
+        ];
+        const collageStatus = document.getElementById('collage-status');
+        
+        // State variables
+        let stream = null;
+        let isCapturing = false;
+        let currentPhoto = 0;
+        let countdownInterval = null;
+        let capturedPhotos = [];
+        
+        // Initialize camera
+        async function initCamera() {
+            try {
+                // Request camera access
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'user',
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    } 
+                });
+                
+                // Set camera feed source
+                cameraFeed.srcObject = stream;
+                cameraFeed.style.display = 'block';
+                cameraPlaceholder.style.display = 'none';
+                
+                // Update status
+                statusDot.classList.add('active');
+                statusText.textContent = 'Camera active - Ready to capture';
+                startBtn.disabled = false;
+                
+                console.log('Camera access granted');
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                cameraPlaceholder.textContent = 'Unable to access camera. Please check permissions.';
+                statusText.textContent = 'Camera access denied';
+                startBtn.disabled = true;
+            }
+        }
+        
+        // Start the photo capture process
+        function startCapture() {
+            if (isCapturing) return;
+            
+            // Reset state
+            isCapturing = true;
+            currentPhoto = 0;
+            capturedPhotos = [];
+            startBtn.disabled = true;
+            startBtn.textContent = 'Capturing...';
+            statusText.textContent = 'Starting photo capture...';
+            
+            // Reset collage
+            collageStatus.textContent = 'Capturing photos...';
+            resetCollage();
+            resetPhotoIndicators();
+            
+            // Start capturing first photo
+            captureNextPhoto();
+        }
+        
+        // Capture the next photo in sequence
+        function captureNextPhoto() {
+            if (currentPhoto >= 4) {
+                // All photos captured
+                finishCapture();
+                return;
+            }
+            
+            // Update UI for current photo
+            updateProgress(currentPhoto);
+            
+            // Start countdown for this photo
+            let countdown = 5;
+            countdownDisplay.textContent = countdown;
+            countdownDisplay.style.display = 'flex';
+            
+            // Update photo indicator
+            photoIndicators[currentPhoto].classList.add('active');
+            
+            countdownInterval = setInterval(() => {
+                countdown--;
+                countdownDisplay.textContent = countdown;
+                
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    countdownDisplay.style.display = 'none';
+                    
+                    // Capture photo
+                    capturePhoto();
+                    
+                    // Move to next photo after a brief pause
+                    setTimeout(() => {
+                        currentPhoto++;
+                        if (currentPhoto < 4) {
+                            captureNextPhoto();
+                        } else {
+                            finishCapture();
+                        }
+                    }, 500);
+                }
+            }, 1000);
+        }
+        
+        // Capture a single photo from the camera feed
+        function capturePhoto() {
+            // Create a canvas to capture the photo
+            const canvas = document.createElement('canvas');
+            canvas.width = cameraFeed.videoWidth;
+            canvas.height = cameraFeed.videoHeight;
+            
+            // Draw the current video frame to canvas
+            const context = canvas.getContext('2d');
+            context.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
+            
+            // Convert to data URL
+            const photoData = canvas.toDataURL('image/jpeg');
+            
+            // Store photo
+            capturedPhotos.push(photoData);
+            
+            // Update collage with captured photo
+            updateCollageCell(currentPhoto, photoData);
+            
+            // Update photo indicator
+            photoIndicators[currentPhoto].classList.remove('active');
+            photoIndicators[currentPhoto].classList.add('captured');
+            
+            console.log(`Photo ${currentPhoto + 1} captured`);
+        }
+        
+        // Update collage cell with captured photo
+        function updateCollageCell(index, photoData) {
+            const cell = collageCells[index];
+            const img = collageImgs[index];
+            
+            // Update image source
+            img.src = photoData;
+            img.style.display = 'block';
+            
+            // Update cell appearance
+            cell.classList.add('filled');
+            
+            // Hide the label
+            cell.querySelector('.cell-label').style.display = 'none';
+        }
+        
+        // Reset collage to initial state
+        function resetCollage() {
+            for (let i = 0; i < 4; i++) {
+                collageCells[i].classList.remove('filled');
+                collageImgs[i].style.display = 'none';
+                collageCells[i].querySelector('.cell-label').style.display = 'block';
+            }
+        }
+        
+        // Reset photo indicators
+        function resetPhotoIndicators() {
+            photoIndicators.forEach(indicator => {
+                indicator.classList.remove('active', 'captured');
+            });
+        }
+        
+        // Update progress display
+        function updateProgress(photoIndex) {
+            const progressPercent = ((photoIndex + 1) / 4) * 100;
+            progressFill.style.width = `${progressPercent}%`;
+            progressText.textContent = `${photoIndex + 1}/4 photos`;
+        }
+        
+        // Finish the capture process
+        function finishCapture() {
+            isCapturing = false;
+            startBtn.disabled = false;
+            startBtn.textContent = 'Start Photo Capture';
+            statusText.textContent = 'Capture complete!';
+            collageStatus.textContent = 'Collage created successfully!';
+            
+            // Reset progress bar
+            setTimeout(() => {
+                progressFill.style.width = '0%';
+            }, 1000);
+            
+            console.log('Photo capture completed. Captured', capturedPhotos.length, 'photos');
+        }
+        
+        // Event Listeners
+        startBtn.addEventListener('click', startCapture);
+        
+        // Initialize camera on page load
+        window.addEventListener('DOMContentLoaded', initCamera);
+        
+        // Stop camera when page is unloaded
+        window.addEventListener('beforeunload', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
+</body>
+</html>
