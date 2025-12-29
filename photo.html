@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhotoCollageCapture</title>
+    <title>Photo Collage Capture</title>
     <style>
         * {
             margin: 0;
@@ -97,30 +97,52 @@
         .fallback-upload {
             margin-top: 15px;
             text-align: center;
+            width: 100%;
         }
         
-        #upload-btn {
+        .upload-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        
+        .upload-btn {
             background: linear-gradient(to right, #9b59b6, #8e44ad);
             color: white;
             border: none;
-            padding: 12px 25px;
-            font-size: 1rem;
+            padding: 12px 20px;
+            font-size: 0.95rem;
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin: 0 auto;
+            gap: 8px;
         }
         
-        #upload-btn:hover {
+        .upload-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
         }
         
+        .sample-btn {
+            background: linear-gradient(to right, #3498db, #2980b9);
+        }
+        
+        .sample-btn:hover {
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+        
         #image-upload {
             display: none;
+        }
+        
+        .upload-instruction {
+            color: #7f8c8d;
+            font-size: 0.85rem;
+            margin-top: 5px;
         }
         
         .countdown-display {
@@ -150,7 +172,7 @@
         }
         
         #start-btn {
-            background: linear-gradient(to right, #3498db, #2980b9);
+            background: linear-gradient(to right, #2ecc71, #27ae60);
             color: white;
             border: none;
             padding: 15px 40px;
@@ -158,14 +180,14 @@
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
             width: 100%;
             max-width: 300px;
         }
         
         #start-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
         }
         
         #start-btn:active {
@@ -606,6 +628,17 @@
                 flex-direction: column;
             }
             
+            .upload-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .upload-btn {
+                width: 100%;
+                max-width: 250px;
+                justify-content: center;
+            }
+            
             h1 {
                 font-size: 2rem;
             }
@@ -618,34 +651,47 @@
     <div class="container">
         <header>
             <h1>Photo Collage Capture</h1>
-            <p class="subtitle">Take 4 photos with a 5-second gap and create an automatic collage</p>
+            <p class="subtitle">Create beautiful photo collages with templates and QR code download</p>
         </header>
         
         <div class="main-content">
             <section class="camera-section">
-                <h2 class="section-title">Camera / Upload</h2>
+                <h2 class="section-title">Create Your Collage</h2>
                 <div class="camera-container">
                     <div class="camera-placeholder" id="camera-placeholder">
-                        Camera access required for live capture.<br><br>
-                        <strong>Note:</strong> GitHub Pages may block camera access.<br>
-                        Use the upload option below to add your photos.
+                        <strong>Welcome to Photo Collage Maker!</strong><br><br>
+                        Use the buttons below to:<br>
+                        1. Upload your own photos<br>
+                        2. Try with sample colors<br>
+                        3. Select a template
                     </div>
                     <video id="camera-feed" autoplay playsinline></video>
                     <div class="countdown-display" id="countdown">5</div>
                 </div>
                 
                 <div class="fallback-upload">
-                    <button id="upload-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="17 8 12 3 7 8"></polyline>
-                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                        </svg>
-                        Upload Photos Instead
-                    </button>
+                    <div class="upload-buttons">
+                        <button id="upload-btn" class="upload-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            Upload 4 Photos
+                        </button>
+                        <button id="sample-btn" class="upload-btn sample-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            Try Sample Colors
+                        </button>
+                    </div>
+                    <p class="upload-instruction">Select 4 photos from your device or try with sample colors</p>
                     <input type="file" id="image-upload" accept="image/*" multiple>
                     <div class="demo-mode-notice" id="demo-notice">
-                        Using demo mode. Upload photos or use sample images.
+                        <strong>Note:</strong> Camera access may be restricted on GitHub Pages. Use upload or sample buttons.
                     </div>
                 </div>
                 
@@ -680,11 +726,11 @@
                 </div>
                 
                 <div class="controls">
-                    <button id="start-btn">Start Photo Capture</button>
+                    <button id="start-btn">Generate Collage</button>
                     
                     <div class="status-indicator">
                         <div class="status-dot" id="status-dot"></div>
-                        <span id="status-text">Ready - Click Start or Upload Photos</span>
+                        <span id="status-text">Ready - Upload photos or try samples</span>
                     </div>
                     
                     <div class="progress-container">
@@ -707,7 +753,7 @@
             </section>
             
             <section class="collage-section">
-                <h2 class="section-title">Photo Collage</h2>
+                <h2 class="section-title">Your Photo Collage</h2>
                 <div class="collage-container" id="collage-container">
                     <!-- Grid template (default) -->
                     <div class="collage-cell" id="cell-1">
@@ -734,7 +780,7 @@
                 </div>
                 
                 <p id="collage-status" style="text-align: center; margin-top: 15px; color: #7f8c8d;">
-                    Collage will appear here after capturing or uploading photos
+                    Your collage will appear here after adding photos
                 </p>
             </section>
         </div>
@@ -771,15 +817,15 @@
             <div class="steps">
                 <div class="step">
                     <div class="step-number">1</div>
-                    <p class="step-text">Select a collage template from the options above.</p>
+                    <p class="step-text">Click "Upload 4 Photos" to select images from your device OR "Try Sample Colors" for a quick demo.</p>
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
-                    <p class="step-text">Click "Start Photo Capture" for live photos OR "Upload Photos" to use existing images.</p>
+                    <p class="step-text">Select a collage template from the three layout options.</p>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
-                    <p class="step-text">For live capture: 4 photos will be taken with 5-second gaps. For upload: Select 4 photos from your device.</p>
+                    <p class="step-text">Click "Generate Collage" to create your customized photo collage.</p>
                 </div>
                 <div class="step">
                     <div class="step-number">4</div>
@@ -827,6 +873,7 @@
         const downloadBtn = document.getElementById('download-btn');
         const qrCodeContainer = document.getElementById('qr-code');
         const uploadBtn = document.getElementById('upload-btn');
+        const sampleBtn = document.getElementById('sample-btn');
         const imageUpload = document.getElementById('image-upload');
         const demoNotice = document.getElementById('demo-notice');
         
@@ -842,7 +889,6 @@
         let selectedTemplate = 'grid';
         let collageDataURL = null;
         let isDemoMode = false;
-        let sampleImages = [];
         
         // Template configurations
         const templates = {
@@ -872,14 +918,85 @@
             }
         };
         
-        // Sample images for demo mode
-        function createSampleImages() {
-            return [
-                'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=400&h=400&fit=crop'
+        // Generate sample color images (no external dependencies)
+        function generateSampleColorImages() {
+            const colors = [
+                '#FF6B6B', // Red
+                '#4ECDC4', // Teal
+                '#FFD166', // Yellow
+                '#118AB2'  // Blue
             ];
+            
+            const sampleImages = [];
+            
+            colors.forEach((color, index) => {
+                // Create a canvas for each color
+                const canvas = document.createElement('canvas');
+                canvas.width = 400;
+                canvas.height = 400;
+                const ctx = canvas.getContext('2d');
+                
+                // Fill with color
+                ctx.fillStyle = color;
+                ctx.fillRect(0, 0, 400, 400);
+                
+                // Add pattern
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                for (let i = 0; i < 10; i++) {
+                    const x = Math.random() * 400;
+                    const y = Math.random() * 400;
+                    const radius = Math.random() * 50 + 20;
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                // Add text
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 40px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(`Sample ${index + 1}`, 200, 180);
+                
+                ctx.font = '20px Arial';
+                ctx.fillText('Photo Collage Maker', 200, 240);
+                
+                // Convert to data URL
+                sampleImages.push(canvas.toDataURL('image/jpeg', 0.9));
+            });
+            
+            return sampleImages;
+        }
+        
+        // Initialize app
+        function initApp() {
+            // Check if we're on GitHub Pages (no camera access)
+            const isGitHubPages = window.location.hostname.includes('github.io');
+            
+            if (isGitHubPages) {
+                isDemoMode = true;
+                demoNotice.style.display = 'block';
+                statusText.textContent = 'GitHub Pages mode - Use upload or sample buttons';
+                startBtn.textContent = 'Generate Collage';
+                startBtn.disabled = false;
+                
+                // Update camera placeholder message
+                cameraPlaceholder.innerHTML = `
+                    <strong>Photo Collage Maker</strong><br><br>
+                    Perfect for GitHub Pages!<br><br>
+                    <strong>Options:</strong><br>
+                    • Upload your own photos<br>
+                    • Try with sample colors<br>
+                    • Multiple templates<br>
+                    • QR code download
+                `;
+            } else {
+                // Try to initialize camera for local use
+                initCamera();
+            }
+            
+            // Update status dot
+            statusDot.classList.add('active');
         }
         
         // Initialize camera with fallback
@@ -900,8 +1017,7 @@
                 cameraPlaceholder.style.display = 'none';
                 
                 // Update status
-                statusDot.classList.add('active');
-                statusText.textContent = 'Camera active - Ready to capture';
+                statusText.textContent = 'Camera ready - Click Generate to start';
                 startBtn.disabled = false;
                 
                 console.log('Camera access granted');
@@ -912,125 +1028,55 @@
                 // Enable demo mode
                 isDemoMode = true;
                 demoNotice.style.display = 'block';
-                statusText.textContent = 'Demo mode - Use upload or click Start for sample images';
+                statusText.textContent = 'Use upload or sample buttons to create collage';
                 startBtn.disabled = false;
-                startBtn.textContent = 'Use Sample Images';
                 
                 // Update camera placeholder message
                 cameraPlaceholder.innerHTML = `
-                    <strong>Camera Access Restricted</strong><br><br>
-                    GitHub Pages may block camera access for security.<br><br>
+                    <strong>Photo Collage Maker</strong><br><br>
                     <strong>Options:</strong><br>
-                    1. Click "Upload Photos Instead" to use your own images<br>
-                    2. Click "Use Sample Images" to try with demo photos
+                    1. Click "Upload 4 Photos" to use your own images<br>
+                    2. Click "Try Sample Colors" for a quick demo<br>
+                    3. Select template and Generate!
                 `;
-                
-                // Create sample images for demo
-                sampleImages = createSampleImages();
             }
         }
         
-        // Start the photo capture process
-        function startCapture() {
-            if (isCapturing) return;
-            
-            if (isDemoMode && !stream) {
-                // Use sample images in demo mode
-                useSampleImages();
+        // Start the collage generation process
+        function startCollageGeneration() {
+            if (capturedPhotos.length === 0) {
+                alert('Please add photos first using the upload or sample buttons!');
                 return;
             }
             
+            if (isCapturing) return;
+            
             // Reset state
             isCapturing = true;
-            currentPhoto = 0;
-            capturedPhotos = [];
             collageDataURL = null;
             startBtn.disabled = true;
-            startBtn.textContent = 'Capturing...';
-            statusText.textContent = 'Starting photo capture...';
+            startBtn.textContent = 'Generating...';
+            statusText.textContent = 'Generating your collage...';
             
             // Hide download section
             downloadSection.classList.remove('active');
             
-            // Reset collage
-            collageStatus.textContent = 'Capturing photos...';
+            // Reset collage display
             resetCollage();
             resetPhotoIndicators();
             
             // Apply selected template
             applyTemplate(selectedTemplate);
             
-            // Start capturing first photo
-            captureNextPhoto();
-        }
-        
-        // Use sample images in demo mode
-        function useSampleImages() {
-            isCapturing = true;
-            capturedPhotos = [];
-            collageDataURL = null;
-            startBtn.disabled = true;
-            startBtn.textContent = 'Loading samples...';
-            statusText.textContent = 'Loading sample images...';
+            // Update collage with captured photos
+            capturedPhotos.forEach((photoData, index) => {
+                updateCollageCell(index, photoData);
+                photoIndicators[index].classList.add('captured');
+                updateProgress(index);
+            });
             
-            // Hide download section
-            downloadSection.classList.remove('active');
-            
-            // Reset collage
-            collageStatus.textContent = 'Loading sample images...';
-            resetCollage();
-            resetPhotoIndicators();
-            
-            // Apply selected template
-            applyTemplate(selectedTemplate);
-            
-            // Load sample images
-            loadSampleImages();
-        }
-        
-        // Load sample images
-        async function loadSampleImages() {
-            try {
-                const imagePromises = sampleImages.map(url => {
-                    return new Promise((resolve, reject) => {
-                        const img = new Image();
-                        img.crossOrigin = 'anonymous';
-                        img.onload = () => {
-                            // Create canvas to convert to data URL
-                            const canvas = document.createElement('canvas');
-                            canvas.width = img.width;
-                            canvas.height = img.height;
-                            const ctx = canvas.getContext('2d');
-                            ctx.drawImage(img, 0, 0);
-                            resolve(canvas.toDataURL('image/jpeg'));
-                        };
-                        img.onerror = reject;
-                        img.src = url + '&' + new Date().getTime(); // Add timestamp to avoid cache
-                    });
-                });
-                
-                capturedPhotos = await Promise.all(imagePromises);
-                
-                // Update collage with sample images
-                capturedPhotos.forEach((photoData, index) => {
-                    updateCollageCell(index, photoData);
-                    photoIndicators[index].classList.add('captured');
-                    updateProgress(index);
-                });
-                
-                // Finish the process
-                setTimeout(() => {
-                    finishCapture();
-                }, 1000);
-                
-            } catch (error) {
-                console.error('Error loading sample images:', error);
-                collageStatus.innerHTML = '<span style="color:#e74c3c;">Error loading sample images. Please try uploading your own photos.</span>';
-                statusText.textContent = 'Error loading samples';
-                startBtn.disabled = false;
-                startBtn.textContent = 'Use Sample Images';
-                isCapturing = false;
-            }
+            // Generate the final collage
+            generateFinalCollage();
         }
         
         // Apply selected template to collage container
@@ -1061,81 +1107,7 @@
             console.log(`Applied template: ${template.name}`);
         }
         
-        // Capture the next photo in sequence
-        function captureNextPhoto() {
-            if (currentPhoto >= 4) {
-                // All photos captured
-                finishCapture();
-                return;
-            }
-            
-            // Update UI for current photo
-            updateProgress(currentPhoto);
-            
-            // Start countdown for this photo
-            let countdown = 5;
-            countdownDisplay.textContent = countdown;
-            countdownDisplay.style.display = 'flex';
-            
-            // Update photo indicator
-            photoIndicators[currentPhoto].classList.add('active');
-            
-            countdownInterval = setInterval(() => {
-                countdown--;
-                countdownDisplay.textContent = countdown;
-                
-                if (countdown <= 0) {
-                    clearInterval(countdownInterval);
-                    countdownDisplay.style.display = 'none';
-                    
-                    // Capture photo
-                    capturePhoto();
-                    
-                    // Move to next photo after a brief pause
-                    setTimeout(() => {
-                        currentPhoto++;
-                        if (currentPhoto < 4) {
-                            captureNextPhoto();
-                        } else {
-                            finishCapture();
-                        }
-                    }, 500);
-                }
-            }, 1000);
-        }
-        
-        // Capture a single photo from the camera feed
-        function capturePhoto() {
-            // Create a canvas to capture the photo
-            const canvas = document.createElement('canvas');
-            canvas.width = cameraFeed.videoWidth;
-            canvas.height = cameraFeed.videoHeight;
-            
-            // Draw the current video frame to canvas
-            const context = canvas.getContext('2d');
-            context.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
-            
-            // Add a subtle filter for fun
-            context.filter = 'brightness(1.05) contrast(1.05)';
-            context.drawImage(canvas, 0, 0);
-            
-            // Convert to data URL
-            const photoData = canvas.toDataURL('image/jpeg');
-            
-            // Store photo
-            capturedPhotos.push(photoData);
-            
-            // Update collage with captured photo
-            updateCollageCell(currentPhoto, photoData);
-            
-            // Update photo indicator
-            photoIndicators[currentPhoto].classList.remove('active');
-            photoIndicators[currentPhoto].classList.add('captured');
-            
-            console.log(`Photo ${currentPhoto + 1} captured`);
-        }
-        
-        // Update collage cell with captured photo
+        // Update collage cell with photo
         function updateCollageCell(index, photoData) {
             // Get the cell in current template order
             const cells = Array.from(collageContainer.children);
@@ -1184,19 +1156,8 @@
             progressText.textContent = `${photoIndex + 1}/4 photos`;
         }
         
-        // Load an image and return a promise
-        function loadImage(src) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.crossOrigin = 'anonymous';
-                img.onload = () => resolve(img);
-                img.onerror = reject;
-                img.src = src;
-            });
-        }
-        
-        // Generate the complete collage as an image (simplified version)
-        async function generateCollageImage() {
+        // Generate the final collage image (simplified and reliable)
+        function generateFinalCollage() {
             try {
                 // Create a canvas for the complete collage
                 const collageCanvas = document.createElement('canvas');
@@ -1212,20 +1173,17 @@
                 
                 // Draw collage area
                 const collageArea = {
-                    x: 50,
-                    y: 50,
-                    width: 700,
-                    height: 500
+                    x: 40,
+                    y: 40,
+                    width: 720,
+                    height: 520
                 };
                 
                 // Draw background for collage area
                 ctx.fillStyle = '#f8f9fa';
                 ctx.fillRect(collageArea.x, collageArea.y, collageArea.width, collageArea.height);
                 
-                // Get current template layout
-                const cells = Array.from(collageContainer.children);
-                
-                // Simple layout drawing based on template
+                // Draw collage cells based on template
                 if (selectedTemplate === 'grid') {
                     // 2x2 grid
                     const cellWidth = collageArea.width / 2;
@@ -1237,12 +1195,12 @@
                         const cellX = collageArea.x + (col * cellWidth);
                         const cellY = collageArea.y + (row * cellHeight);
                         
-                        await drawCellImage(ctx, i, cellX, cellY, cellWidth, cellHeight);
+                        drawCellToCanvas(ctx, i, cellX, cellY, cellWidth, cellHeight);
                     }
                 } else if (selectedTemplate === 'featured') {
                     // Featured layout
                     // Large top cell
-                    await drawCellImage(ctx, 0, collageArea.x, collageArea.y, collageArea.width, collageArea.height / 2);
+                    drawCellToCanvas(ctx, 0, collageArea.x, collageArea.y, collageArea.width, collageArea.height / 2);
                     
                     // Smaller bottom cells
                     const smallWidth = collageArea.width / 2;
@@ -1254,12 +1212,12 @@
                         const cellX = collageArea.x + (col * smallWidth);
                         const cellY = collageArea.y + (collageArea.height / 2) + (row * smallHeight);
                         
-                        await drawCellImage(ctx, i, cellX, cellY, smallWidth, smallHeight);
+                        drawCellToCanvas(ctx, i, cellX, cellY, smallWidth, smallHeight);
                     }
                 } else if (selectedTemplate === 'sidebar') {
                     // Sidebar layout
                     // Large left cell
-                    await drawCellImage(ctx, 0, collageArea.x, collageArea.y, collageArea.width / 2, collageArea.height);
+                    drawCellToCanvas(ctx, 0, collageArea.x, collageArea.y, collageArea.width / 2, collageArea.height);
                     
                     // Smaller right cells
                     const smallWidth = collageArea.width / 4;
@@ -1271,16 +1229,19 @@
                         const cellX = collageArea.x + (collageArea.width / 2) + ((col - 1) * smallWidth);
                         const cellY = collageArea.y + (row * smallHeight);
                         
-                        await drawCellImage(ctx, i, cellX, cellY, smallWidth, smallHeight);
+                        drawCellToCanvas(ctx, i, cellX, cellY, smallWidth, smallHeight);
                     }
                 }
                 
                 // Draw footer
-                const footerY = collageArea.y + collageArea.height + 30;
-                const footerHeight = 100;
+                const footerY = collageArea.y + collageArea.height + 20;
+                const footerHeight = 120;
                 
-                // Footer background
-                ctx.fillStyle = '#f8f9fa';
+                // Footer background with gradient
+                const footerGradient = ctx.createLinearGradient(collageArea.x, footerY, collageArea.x, footerY + footerHeight);
+                footerGradient.addColorStop(0, '#f8f9fa');
+                footerGradient.addColorStop(1, '#e9ecef');
+                ctx.fillStyle = footerGradient;
                 ctx.fillRect(collageArea.x, footerY, collageArea.width, footerHeight);
                 
                 // Footer border
@@ -1290,36 +1251,51 @@
                 
                 // Footer text
                 ctx.fillStyle = '#2c3e50';
-                ctx.font = 'bold 24px Arial';
+                ctx.font = 'bold 26px "Segoe UI", Arial, sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('✨ Creative Photo Collage ✨', collageArea.x + collageArea.width / 2, footerY + 35);
+                ctx.fillText('✨ Creative Photo Collage ✨', collageArea.x + collageArea.width / 2, footerY + 40);
                 
                 ctx.fillStyle = '#7f8c8d';
-                ctx.font = '18px Arial';
-                ctx.fillText('Created with ❤️ by Wizklub Students', collageArea.x + collageArea.width / 2, footerY + 70);
+                ctx.font = '20px "Segoe UI", Arial, sans-serif';
+                ctx.fillText('Created with ❤️ by', collageArea.x + collageArea.width / 2, footerY + 75);
+                
+                // Wizklub badge
+                const badgeText = 'Wizklub Students';
+                const badgeWidth = ctx.measureText(badgeText).width + 30;
+                const badgeX = collageArea.x + collageArea.width / 2 - badgeWidth / 2;
+                const badgeY = footerY + 100;
+                
+                // Badge background gradient
+                const badgeGradient = ctx.createLinearGradient(badgeX, badgeY - 20, badgeX, badgeY + 10);
+                badgeGradient.addColorStop(0, '#FF6B6B');
+                badgeGradient.addColorStop(1, '#4ECDC4');
+                ctx.fillStyle = badgeGradient;
+                ctx.fillRect(badgeX, badgeY - 20, badgeWidth, 30);
+                ctx.fillRect(badgeX, badgeY - 20, badgeWidth, 30);
+                
+                // Badge text
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 18px "Segoe UI", Arial, sans-serif';
+                ctx.fillText(badgeText, collageArea.x + collageArea.width / 2, badgeY);
                 
                 // Convert to data URL
                 collageDataURL = collageCanvas.toDataURL('image/png');
-                return collageDataURL;
+                
+                // Finish successfully
+                finishCollageGeneration(true);
                 
             } catch (error) {
-                console.error('Error in generateCollageImage:', error);
-                throw error;
+                console.error('Error generating collage:', error);
+                finishCollageGeneration(false);
             }
         }
         
-        // Draw a single cell image
-        async function drawCellImage(ctx, index, x, y, width, height) {
-            const cells = Array.from(collageContainer.children);
-            if (index >= cells.length) return;
-            
-            const cell = cells[index];
-            const img = cell.querySelector('.collage-img');
-            
-            if (img && img.src && img.src !== '') {
-                try {
-                    const image = await loadImage(img.src);
-                    
+        // Draw a single cell to canvas
+        function drawCellToCanvas(ctx, index, x, y, width, height) {
+            // Get the image data for this cell
+            if (index < capturedPhotos.length && capturedPhotos[index]) {
+                const img = new Image();
+                img.onload = function() {
                     // Draw cell background
                     ctx.fillStyle = '#ffffff';
                     ctx.fillRect(x, y, width, height);
@@ -1331,24 +1307,41 @@
                     const imgWidth = width - (padding * 2);
                     const imgHeight = height - (padding * 2);
                     
-                    ctx.drawImage(image, imgX, imgY, imgWidth, imgHeight);
+                    ctx.drawImage(img, imgX, imgY, imgWidth, imgHeight);
                     
                     // Draw cell border
                     ctx.strokeStyle = '#2ecc71';
-                    ctx.lineWidth = 2;
+                    ctx.lineWidth = 3;
                     ctx.strokeRect(x, y, width, height);
-                    
-                } catch (error) {
-                    console.error(`Error drawing image ${index}:`, error);
-                    // Draw placeholder
-                    ctx.fillStyle = '#ecf0f1';
-                    ctx.fillRect(x, y, width, height);
-                    ctx.fillStyle = '#95a5a6';
-                    ctx.font = '16px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(`Photo ${index + 1}`, x + width / 2, y + height / 2);
-                }
+                };
+                img.onerror = function() {
+                    // Draw placeholder if image fails to load
+                    drawPlaceholderCell(ctx, index, x, y, width, height);
+                };
+                img.src = capturedPhotos[index];
+            } else {
+                // Draw placeholder if no image
+                drawPlaceholderCell(ctx, index, x, y, width, height);
             }
+        }
+        
+        // Draw placeholder cell
+        function drawPlaceholderCell(ctx, index, x, y, width, height) {
+            // Cell background
+            ctx.fillStyle = '#ecf0f1';
+            ctx.fillRect(x, y, width, height);
+            
+            // Placeholder text
+            ctx.fillStyle = '#95a5a6';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`Photo ${index + 1}`, x + width / 2, y + height / 2);
+            
+            // Cell border
+            ctx.strokeStyle = '#bdc3c7';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, width, height);
         }
         
         // Generate QR code for the collage
@@ -1356,44 +1349,75 @@
             // Clear previous QR code
             qrCodeContainer.innerHTML = '';
             
-            // Generate QR code
-            QRCode.toCanvas(qrCodeContainer, dataURL, {
-                width: 200,
-                height: 200,
-                margin: 2,
-                color: {
-                    dark: '#2c3e50',
-                    light: '#ffffff'
-                }
-            }, function(error) {
-                if (error) {
-                    console.error('QR Code generation error:', error);
-                    // Create a simple QR code with download message
-                    const simpleMessage = 'Download your Wizklub Collage!';
-                    QRCode.toCanvas(qrCodeContainer, simpleMessage, {
-                        width: 200,
-                        height: 200,
-                        margin: 2,
-                        color: {
-                            dark: '#2c3e50',
-                            light: '#ffffff'
-                        }
-                    });
-                }
-            });
+            try {
+                // Generate QR code
+                QRCode.toCanvas(qrCodeContainer, dataURL, {
+                    width: 200,
+                    height: 200,
+                    margin: 2,
+                    color: {
+                        dark: '#2c3e50',
+                        light: '#ffffff'
+                    }
+                });
+            } catch (error) {
+                console.error('QR Code generation error:', error);
+                // Create a simple QR code with a message
+                const simpleMessage = 'Your Wizklub Collage is ready!';
+                QRCode.toCanvas(qrCodeContainer, simpleMessage, {
+                    width: 200,
+                    height: 200,
+                    margin: 2,
+                    color: {
+                        dark: '#2c3e50',
+                        light: '#ffffff'
+                    }
+                });
+            }
+        }
+        
+        // Finish collage generation
+        function finishCollageGeneration(success) {
+            isCapturing = false;
+            startBtn.disabled = false;
+            startBtn.textContent = 'Generate Collage';
+            
+            if (success && collageDataURL) {
+                // Update UI
+                collageStatus.innerHTML = '<span style="color:#2ecc71; font-weight:bold;">🎉 Collage Complete! Download using options below.</span>';
+                statusText.textContent = 'Collage ready for download!';
+                
+                // Generate QR code
+                generateQRCode(collageDataURL);
+                
+                // Show download section
+                downloadSection.classList.add('active');
+                
+                console.log('Collage generated successfully');
+            } else {
+                collageStatus.innerHTML = '<span style="color:#e74c3c;">Unable to generate collage. Please try again with different photos.</span>';
+                statusText.textContent = 'Collage generation failed';
+            }
+            
+            // Reset progress bar
+            setTimeout(() => {
+                progressFill.style.width = '0%';
+            }, 1000);
         }
         
         // Download the collage image
         function downloadCollage() {
             if (!collageDataURL) {
-                alert('Please create a collage first!');
+                alert('Please generate a collage first!');
                 return;
             }
             
             const link = document.createElement('a');
             link.download = 'wizklub-collage.png';
             link.href = collageDataURL;
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
             
             // Show download confirmation
             const originalText = downloadBtn.innerHTML;
@@ -1431,6 +1455,7 @@
             
             // Process up to 4 images
             const maxImages = Math.min(files.length, 4);
+            let processedCount = 0;
             
             for (let i = 0; i < maxImages; i++) {
                 const file = files[i];
@@ -1442,58 +1467,58 @@
                     photoIndicators[i].classList.add('captured');
                     updateProgress(i);
                     
-                    // If this is the last image, finish the process
-                    if (i === maxImages - 1) {
-                        setTimeout(() => {
-                            finishCapture();
-                        }, 500);
+                    processedCount++;
+                    
+                    // If all images processed, update status
+                    if (processedCount === maxImages) {
+                        statusText.textContent = `${maxImages} photos added - Ready to generate collage`;
+                        collageStatus.textContent = `${maxImages} photos added. Select template and click Generate.`;
+                        startBtn.disabled = false;
                     }
+                };
+                
+                reader.onerror = function() {
+                    processedCount++;
+                    console.error(`Error reading file ${i}`);
                 };
                 
                 reader.readAsDataURL(file);
             }
+            
+            // Reset file input
+            event.target.value = '';
         }
         
-        // Finish the capture process
-        async function finishCapture() {
-            isCapturing = false;
+        // Handle sample images
+        function handleSampleImages() {
+            // Generate sample color images
+            capturedPhotos = generateSampleColorImages();
+            collageDataURL = null;
+            resetCollage();
+            resetPhotoIndicators();
+            
+            // Update status
+            statusText.textContent = 'Sample colors loaded - Ready to generate collage';
+            collageStatus.textContent = 'Sample colors loaded. Select template and click Generate.';
+            
+            // Hide download section
+            downloadSection.classList.remove('active');
+            
+            // Update collage with sample images
+            capturedPhotos.forEach((photoData, index) => {
+                updateCollageCell(index, photoData);
+                photoIndicators[index].classList.add('captured');
+                updateProgress(index);
+            });
+            
             startBtn.disabled = false;
-            startBtn.textContent = isDemoMode && !stream ? 'Use Sample Images' : 'Start Photo Capture';
-            statusText.textContent = 'Generating collage image...';
-            
-            // Generate collage image
-            collageStatus.innerHTML = '<span style="color:#3498db;">Generating collage image...</span>';
-            
-            try {
-                collageDataURL = await generateCollageImage();
-                
-                // Update UI
-                collageStatus.innerHTML = '<span style="color:#2ecc71; font-weight:bold;">🎉 Collage Complete! Download using options below.</span>';
-                statusText.textContent = 'Collage ready for download!';
-                
-                // Generate QR code
-                generateQRCode(collageDataURL);
-                
-                // Show download section
-                downloadSection.classList.add('active');
-                
-                console.log('Collage generated successfully');
-            } catch (error) {
-                console.error('Error generating collage:', error);
-                collageStatus.innerHTML = '<span style="color:#e74c3c;">Error generating collage. Try with different photos.</span>';
-                statusText.textContent = 'Collage generation failed';
-            }
-            
-            // Reset progress bar
-            setTimeout(() => {
-                progressFill.style.width = '0%';
-            }, 1000);
         }
         
         // Event Listeners
-        startBtn.addEventListener('click', startCapture);
+        startBtn.addEventListener('click', startCollageGeneration);
         downloadBtn.addEventListener('click', downloadCollage);
         uploadBtn.addEventListener('click', () => imageUpload.click());
+        sampleBtn.addEventListener('click', handleSampleImages);
         imageUpload.addEventListener('change', handleImageUpload);
         
         // Template selection
@@ -1502,28 +1527,17 @@
                 selectedTemplate = option.dataset.template;
                 applyTemplate(selectedTemplate);
                 
-                // Reset collage if photos were already captured
+                // Reapply captured photos to new template
                 if (capturedPhotos.length > 0) {
-                    // Reapply captured photos to new template
                     capturedPhotos.forEach((photoData, index) => {
                         updateCollageCell(index, photoData);
                     });
-                    
-                    // Regenerate collage image
-                    if (collageDataURL) {
-                        generateCollageImage().then(newDataURL => {
-                            collageDataURL = newDataURL;
-                            generateQRCode(newDataURL);
-                        }).catch(error => {
-                            console.error('Error regenerating collage:', error);
-                        });
-                    }
                 }
             });
         });
         
-        // Initialize camera on page load
-        window.addEventListener('DOMContentLoaded', initCamera);
+        // Initialize app
+        window.addEventListener('DOMContentLoaded', initApp);
         
         // Stop camera when page is unloaded
         window.addEventListener('beforeunload', () => {
