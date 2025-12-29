@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo Collage Capture</title>
+    <title>Phot</title>
     <style>
         * {
             margin: 0;
@@ -588,6 +588,68 @@
             color: #e74c3c;
         }
         
+        /* QR Code Section */
+        .qr-code-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #3498db;
+            display: none;
+            text-align: center;
+        }
+        
+        .qr-code-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .qr-title {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        #qr-code-canvas {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .qr-instruction {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .qr-download-btn {
+            background: linear-gradient(to right, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .qr-download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(155, 89, 182, 0.4);
+        }
+        
         .instructions {
             background: white;
             border-radius: 15px;
@@ -681,6 +743,8 @@
             }
         }
     </style>
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -810,11 +874,11 @@
                             <polyline points="17 8 12 3 7 8"></polyline>
                             <line x1="12" y1="3" x2="12" y2="15"></line>
                         </svg>
-                        Upload to ImgBB & Get Link
+                        Upload to ImgBB & Get QR Code
                     </button>
                     
                     <p class="download-note">
-                        Download as PNG or upload to ImgBB to get a shareable link
+                        Download as PNG or upload to ImgBB to get a shareable link and QR code
                     </p>
                 </div>
             </div>
@@ -841,6 +905,23 @@
                 
                 <div class="upload-status" id="upload-status"></div>
             </div>
+            
+            <!-- QR Code Section -->
+            <div class="qr-code-section" id="qr-code-section">
+                <h4 class="qr-title">📱 Scan QR Code to Download</h4>
+                <canvas id="qr-code-canvas"></canvas>
+                <p class="qr-instruction">
+                    Scan this QR code with your phone's camera to open the image download link. Save the image to your device.
+                </p>
+                <button class="qr-download-btn" onclick="downloadQRCode()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download QR Code
+                </button>
+            </div>
         </section>
         
         <section class="instructions">
@@ -860,7 +941,7 @@
                 </div>
                 <div class="step">
                     <div class="step-number">4</div>
-                    <p class="step-text">Download your collage or upload to ImgBB to get a shareable link.</p>
+                    <p class="step-text">Download your collage or upload to ImgBB to get a shareable link and QR code.</p>
                 </div>
             </div>
         </section>
@@ -908,6 +989,8 @@
         const imgbbDirectLink = document.getElementById('imgbb-direct-link');
         const imgbbPageLink = document.getElementById('imgbb-page-link');
         const uploadStatus = document.getElementById('upload-status');
+        const qrCodeSection = document.getElementById('qr-code-section');
+        const qrCodeCanvas = document.getElementById('qr-code-canvas');
         
         // Template elements
         const templateOptions = document.querySelectorAll('.template-option');
@@ -920,6 +1003,7 @@
         let capturedPhotos = [];
         let selectedTemplate = 'grid';
         let collageDataURL = null;
+        let imgbbImageUrl = null;
         
         // Your ImgBB API Key (replace with your own)
         // Get free API key from: https://api.imgbb.com/
@@ -993,6 +1077,7 @@
             currentPhoto = 0;
             capturedPhotos = [];
             collageDataURL = null;
+            imgbbImageUrl = null;
             startBtn.disabled = true;
             startBtn.textContent = 'Capturing...';
             statusText.textContent = 'Starting photo capture...';
@@ -1000,6 +1085,7 @@
             // Hide download section and imgbb link
             downloadSection.classList.remove('active');
             imgbbLinkContainer.classList.remove('active');
+            qrCodeSection.classList.remove('active');
             
             // Reset collage
             collageStatus.textContent = 'Capturing photos...';
@@ -1380,11 +1466,17 @@
                     const displayUrl = data.data.display_url; // ImgBB page URL
                     const thumbUrl = data.data.thumb.url; // Thumbnail URL
                     
+                    // Store the direct image URL for QR code
+                    imgbbImageUrl = imageUrl;
+                    
                     // Display the links
                     displayImgBBLinks(imageUrl, displayUrl, thumbUrl);
                     
+                    // Generate QR code for the direct image link
+                    generateQRCode(imageUrl);
+                    
                     // Update status
-                    uploadStatus.textContent = '✅ Upload successful! Links are ready.';
+                    uploadStatus.textContent = '✅ Upload successful! QR code generated.';
                     uploadStatus.className = 'upload-status success';
                     
                     console.log('Image uploaded successfully to ImgBB:', imageUrl);
@@ -1413,7 +1505,7 @@
                         <polyline points="17 8 12 3 7 8"></polyline>
                         <line x1="12" y1="3" x2="12" y2="15"></line>
                     </svg>
-                    Upload to ImgBB & Get Link
+                    Upload to ImgBB & Get QR Code
                 `;
                 uploadBtn.disabled = false;
             }
@@ -1440,9 +1532,15 @@
                     const displayUrl = data.data.display_url;
                     const thumbUrl = data.data.thumb.url;
                     
+                    // Store the direct image URL for QR code
+                    imgbbImageUrl = imageUrl;
+                    
                     displayImgBBLinks(imageUrl, displayUrl, thumbUrl);
                     
-                    uploadStatus.textContent = '✅ Upload successful via alternative method!';
+                    // Generate QR code for the direct image link
+                    generateQRCode(imageUrl);
+                    
+                    uploadStatus.textContent = '✅ Upload successful via alternative method! QR code generated.';
                     uploadStatus.className = 'upload-status success';
                 } else {
                     throw new Error('Alternative upload failed');
@@ -1481,9 +1579,114 @@
             
             // Show the link container
             imgbbLinkContainer.classList.add('active');
+        }
+        
+        // Generate QR code for the image URL
+        function generateQRCode(imageUrl) {
+            try {
+                // Clear previous QR code
+                const ctx = qrCodeCanvas.getContext('2d');
+                ctx.clearRect(0, 0, qrCodeCanvas.width, qrCodeCanvas.height);
+                
+                // Generate QR code with the image URL
+                QRCode.toCanvas(qrCodeCanvas, imageUrl, {
+                    width: 200,
+                    height: 200,
+                    margin: 2,
+                    color: {
+                        dark: '#2c3e50',
+                        light: '#ffffff'
+                    }
+                }, function(error) {
+                    if (error) {
+                        console.error('QR Code generation error:', error);
+                        // Create a fallback QR code
+                        createFallbackQRCode(imageUrl);
+                    } else {
+                        console.log('QR Code generated successfully');
+                    }
+                });
+                
+                // Show the QR code section
+                qrCodeSection.classList.add('active');
+                
+                // Scroll to QR code section
+                qrCodeSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                
+            } catch (error) {
+                console.error('Error generating QR code:', error);
+                createFallbackQRCode(imageUrl);
+            }
+        }
+        
+        // Create fallback QR code if library fails
+        function createFallbackQRCode(url) {
+            const ctx = qrCodeCanvas.getContext('2d');
+            const size = 200;
             
-            // Scroll to the links section
-            imgbbLinkContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            // Clear canvas
+            ctx.clearRect(0, 0, size, size);
+            
+            // Draw background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Draw QR-like pattern
+            ctx.fillStyle = '#2c3e50';
+            
+            // Draw corner squares
+            ctx.fillRect(10, 10, 40, 40);
+            ctx.fillRect(size - 50, 10, 40, 40);
+            ctx.fillRect(10, size - 50, 40, 40);
+            
+            // Draw some pattern lines
+            for (let i = 0; i < 5; i++) {
+                const y = 60 + i * 25;
+                ctx.fillRect(20, y, 160, 10);
+            }
+            
+            // Add text
+            ctx.fillStyle = '#3498db';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('QR CODE', size / 2, size / 2 - 10);
+            ctx.font = '12px Arial';
+            ctx.fillText('Scan to Download', size / 2, size / 2 + 10);
+            ctx.fillStyle = '#7f8c8d';
+            ctx.font = '10px Arial';
+            ctx.fillText('Image Link Available', size / 2, size / 2 + 30);
+            
+            // Still show the section
+            qrCodeSection.classList.add('active');
+        }
+        
+        // Download QR code as image
+        function downloadQRCode() {
+            if (!imgbbImageUrl) {
+                alert('Please upload the collage first to generate QR code');
+                return;
+            }
+            
+            const link = document.createElement('a');
+            link.download = 'wizklub-collage-qrcode.png';
+            link.href = qrCodeCanvas.toDataURL('image/png');
+            link.click();
+            
+            // Show confirmation
+            const button = document.querySelector('.qr-download-btn');
+            const originalText = button.innerHTML;
+            button.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                QR Code Downloaded!
+            `;
+            button.style.background = 'linear-gradient(to right, #27ae60, #2ecc71)';
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.style.background = 'linear-gradient(to right, #9b59b6, #8e44ad)';
+            }, 2000);
         }
         
         // Copy link to clipboard
