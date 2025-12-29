@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo CollageCapture</title>
+    <title>Photo Collage Capture</title>
     <style>
         * {
             margin: 0;
@@ -769,9 +769,6 @@
         
         // Template elements
         const templateOptions = document.querySelectorAll('.template-option');
-        const templateGrid = document.getElementById('template-grid');
-        const templateFeatured = document.getElementById('template-featured');
-        const templateSidebar = document.getElementById('template-sidebar');
         
         // State variables
         let stream = null;
@@ -1020,163 +1017,190 @@
             progressText.textContent = `${photoIndex + 1}/4 photos`;
         }
         
+        // Load an image and return a promise
+        function loadImage(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = src;
+            });
+        }
+        
         // Generate the complete collage as an image
         async function generateCollageImage() {
-            return new Promise((resolve) => {
-                // Wait for images to load
-                setTimeout(() => {
-                    // Create a canvas for the complete collage
-                    const collageCanvas = document.createElement('canvas');
-                    const ctx = collageCanvas.getContext('2d');
+            try {
+                // Create a canvas for the complete collage
+                const collageCanvas = document.createElement('canvas');
+                const ctx = collageCanvas.getContext('2d');
+                
+                // Set canvas dimensions (higher quality)
+                collageCanvas.width = 1200;
+                collageCanvas.height = 1200;
+                
+                // White background
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, collageCanvas.width, collageCanvas.height);
+                
+                // Draw collage container background
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(50, 50, 1100, 1100);
+                
+                // Calculate collage area (leaving space for footer)
+                const collageArea = {
+                    x: 100,
+                    y: 100,
+                    width: 1000,
+                    height: 800
+                };
+                
+                // Get current template layout
+                const template = templates[selectedTemplate];
+                const cells = Array.from(collageContainer.children);
+                
+                // Load all images first
+                const imagePromises = [];
+                const cellImages = [];
+                
+                for (let i = 0; i < cells.length; i++) {
+                    const cell = cells[i];
+                    const img = cell.querySelector('.collage-img');
+                    if (img && img.src && img.src !== '') {
+                        imagePromises.push(
+                            loadImage(img.src).then(loadedImg => {
+                                cellImages[i] = loadedImg;
+                            }).catch(err => {
+                                console.error(`Failed to load image ${i}:`, err);
+                                cellImages[i] = null;
+                            })
+                        );
+                    } else {
+                        cellImages[i] = null;
+                    }
+                }
+                
+                // Wait for all images to load
+                await Promise.all(imagePromises);
+                
+                // Draw each collage cell
+                for (let i = 0; i < cells.length; i++) {
+                    if (!cellImages[i]) continue;
                     
-                    // Set canvas dimensions (higher quality)
-                    collageCanvas.width = 1200;
-                    collageCanvas.height = 1200;
+                    // Calculate cell position based on template
+                    let cellX, cellY, cellWidth, cellHeight;
                     
-                    // White background
-                    ctx.fillStyle = 'white';
-                    ctx.fillRect(0, 0, collageCanvas.width, collageCanvas.height);
-                    
-                    // Draw collage container background
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(50, 50, 1100, 1100);
-                    
-                    // Calculate collage area (leaving space for footer)
-                    const collageArea = {
-                        x: 100,
-                        y: 100,
-                        width: 1000,
-                        height: 800
-                    };
-                    
-                    // Get current template layout
-                    const template = templates[selectedTemplate];
-                    const cells = Array.from(collageContainer.children);
-                    
-                    // Draw each collage cell
-                    cells.forEach((cell, index) => {
-                        const img = cell.querySelector('.collage-img');
-                        if (img && img.src) {
-                            const imgElement = new Image();
-                            imgElement.crossOrigin = 'anonymous';
-                            imgElement.src = img.src;
-                            
-                            imgElement.onload = () => {
-                                // Calculate cell position based on template
-                                let cellX, cellY, cellWidth, cellHeight;
-                                
-                                if (selectedTemplate === 'grid') {
-                                    const col = index % 2;
-                                    const row = Math.floor(index / 2);
-                                    cellWidth = collageArea.width / 2;
-                                    cellHeight = collageArea.height / 2;
-                                    cellX = collageArea.x + (col * cellWidth);
-                                    cellY = collageArea.y + (row * cellHeight);
-                                } else if (selectedTemplate === 'featured') {
-                                    if (index === 0) {
-                                        // Large top cell
-                                        cellWidth = collageArea.width;
-                                        cellHeight = collageArea.height / 2;
-                                        cellX = collageArea.x;
-                                        cellY = collageArea.y;
-                                    } else {
-                                        // Smaller bottom cells
-                                        const col = (index - 1) % 2;
-                                        cellWidth = collageArea.width / 2;
-                                        cellHeight = collageArea.height / 4;
-                                        cellX = collageArea.x + (col * cellWidth);
-                                        cellY = collageArea.y + (collageArea.height / 2) + ((Math.floor((index - 1) / 2)) * cellHeight);
-                                    }
-                                } else if (selectedTemplate === 'sidebar') {
-                                    if (index === 0) {
-                                        // Large left cell
-                                        cellWidth = collageArea.width / 2;
-                                        cellHeight = collageArea.height;
-                                        cellX = collageArea.x;
-                                        cellY = collageArea.y;
-                                    } else {
-                                        // Smaller right cells
-                                        const col = Math.floor((index - 1) / 2) + 1;
-                                        const row = (index - 1) % 2;
-                                        cellWidth = collageArea.width / 4;
-                                        cellHeight = collageArea.height / 2;
-                                        cellX = collageArea.x + (collageArea.width / 2) + ((col - 1) * cellWidth);
-                                        cellY = collageArea.y + (row * cellHeight);
-                                    }
-                                }
-                                
-                                // Draw cell background
-                                ctx.fillStyle = '#f8f9fa';
-                                ctx.fillRect(cellX, cellY, cellWidth, cellHeight);
-                                
-                                // Draw image with some padding
-                                const padding = 5;
-                                const imgX = cellX + padding;
-                                const imgY = cellY + padding;
-                                const imgWidth = cellWidth - (padding * 2);
-                                const imgHeight = cellHeight - (padding * 2);
-                                
-                                ctx.drawImage(imgElement, imgX, imgY, imgWidth, imgHeight);
-                                
-                                // Draw cell border
-                                ctx.strokeStyle = '#2ecc71';
-                                ctx.lineWidth = 3;
-                                ctx.strokeRect(cellX, cellY, cellWidth, cellHeight);
-                            };
+                    if (selectedTemplate === 'grid') {
+                        const col = i % 2;
+                        const row = Math.floor(i / 2);
+                        cellWidth = collageArea.width / 2;
+                        cellHeight = collageArea.height / 2;
+                        cellX = collageArea.x + (col * cellWidth);
+                        cellY = collageArea.y + (row * cellHeight);
+                    } else if (selectedTemplate === 'featured') {
+                        if (i === 0) {
+                            // Large top cell
+                            cellWidth = collageArea.width;
+                            cellHeight = collageArea.height / 2;
+                            cellX = collageArea.x;
+                            cellY = collageArea.y;
+                        } else {
+                            // Smaller bottom cells
+                            const col = (i - 1) % 2;
+                            cellWidth = collageArea.width / 2;
+                            cellHeight = collageArea.height / 4;
+                            cellX = collageArea.x + (col * cellWidth);
+                            cellY = collageArea.y + (collageArea.height / 2) + ((Math.floor((i - 1) / 2)) * cellHeight);
                         }
-                    });
+                    } else if (selectedTemplate === 'sidebar') {
+                        if (i === 0) {
+                            // Large left cell
+                            cellWidth = collageArea.width / 2;
+                            cellHeight = collageArea.height;
+                            cellX = collageArea.x;
+                            cellY = collageArea.y;
+                        } else {
+                            // Smaller right cells
+                            const col = Math.floor((i - 1) / 2) + 1;
+                            const row = (i - 1) % 2;
+                            cellWidth = collageArea.width / 4;
+                            cellHeight = collageArea.height / 2;
+                            cellX = collageArea.x + (collageArea.width / 2) + ((col - 1) * cellWidth);
+                            cellY = collageArea.y + (row * cellHeight);
+                        }
+                    }
                     
-                    // Draw footer area
-                    const footerY = collageArea.y + collageArea.height + 50;
-                    const footerHeight = 150;
-                    
-                    // Draw footer background
+                    // Draw cell background
                     ctx.fillStyle = '#f8f9fa';
-                    ctx.fillRect(collageArea.x, footerY, collageArea.width, footerHeight);
+                    ctx.fillRect(cellX, cellY, cellWidth, cellHeight);
                     
-                    // Draw footer border
-                    ctx.strokeStyle = '#3498db';
-                    ctx.lineWidth = 4;
-                    ctx.strokeRect(collageArea.x, footerY, collageArea.width, footerHeight);
+                    // Draw image with some padding
+                    const padding = 5;
+                    const imgX = cellX + padding;
+                    const imgY = cellY + padding;
+                    const imgWidth = cellWidth - (padding * 2);
+                    const imgHeight = cellHeight - (padding * 2);
                     
-                    // Draw title
-                    ctx.fillStyle = '#2c3e50';
-                    ctx.font = 'bold 36px "Segoe UI", sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('✨ Creative Photo Collage ✨', collageArea.x + collageArea.width / 2, footerY + 60);
+                    ctx.drawImage(cellImages[i], imgX, imgY, imgWidth, imgHeight);
                     
-                    // Draw attribution
-                    ctx.fillStyle = '#7f8c8d';
-                    ctx.font = '28px "Segoe UI", sans-serif';
-                    ctx.fillText('Created with ❤️ by', collageArea.x + collageArea.width / 2, footerY + 110);
-                    
-                    // Draw Wizklub badge
-                    const badgeText = 'Wizklub Students';
-                    ctx.fillStyle = '#FF6B6B';
-                    const badgeWidth = ctx.measureText(badgeText).width + 40;
-                    const badgeX = collageArea.x + collageArea.width / 2 - badgeWidth / 2;
-                    const badgeY = footerY + 140;
-                    const badgeHeight = 50;
-                    
-                    // Gradient for badge
-                    const badgeGradient = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
-                    badgeGradient.addColorStop(0, '#FF6B6B');
-                    badgeGradient.addColorStop(1, '#4ECDC4');
-                    ctx.fillStyle = badgeGradient;
-                    ctx.fillRect(badgeX, badgeY - 35, badgeWidth, badgeHeight);
-                    
-                    // Badge text
-                    ctx.fillStyle = 'white';
-                    ctx.font = 'bold 24px "Segoe UI", sans-serif';
-                    ctx.fillText(badgeText, collageArea.x + collageArea.width / 2, badgeY);
-                    
-                    // Convert to data URL
-                    setTimeout(() => {
-                        collageDataURL = collageCanvas.toDataURL('image/png');
-                        resolve(collageDataURL);
-                    }, 1000);
-                }, 500);
-            });
+                    // Draw cell border
+                    ctx.strokeStyle = '#2ecc71';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(cellX, cellY, cellWidth, cellHeight);
+                }
+                
+                // Draw footer area
+                const footerY = collageArea.y + collageArea.height + 50;
+                const footerHeight = 150;
+                
+                // Draw footer background
+                ctx.fillStyle = '#f8f9fa';
+                ctx.fillRect(collageArea.x, footerY, collageArea.width, footerHeight);
+                
+                // Draw footer border
+                ctx.strokeStyle = '#3498db';
+                ctx.lineWidth = 4;
+                ctx.strokeRect(collageArea.x, footerY, collageArea.width, footerHeight);
+                
+                // Draw title
+                ctx.fillStyle = '#2c3e50';
+                ctx.font = 'bold 36px "Segoe UI", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('✨ Creative Photo Collage ✨', collageArea.x + collageArea.width / 2, footerY + 60);
+                
+                // Draw attribution
+                ctx.fillStyle = '#7f8c8d';
+                ctx.font = '28px "Segoe UI", sans-serif';
+                ctx.fillText('Created with ❤️ by', collageArea.x + collageArea.width / 2, footerY + 110);
+                
+                // Draw Wizklub badge
+                const badgeText = 'Wizklub Students';
+                ctx.fillStyle = '#FF6B6B';
+                const badgeWidth = ctx.measureText(badgeText).width + 40;
+                const badgeX = collageArea.x + collageArea.width / 2 - badgeWidth / 2;
+                const badgeY = footerY + 140;
+                const badgeHeight = 50;
+                
+                // Gradient for badge
+                const badgeGradient = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
+                badgeGradient.addColorStop(0, '#FF6B6B');
+                badgeGradient.addColorStop(1, '#4ECDC4');
+                ctx.fillStyle = badgeGradient;
+                ctx.fillRect(badgeX, badgeY - 35, badgeWidth, badgeHeight);
+                
+                // Badge text
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 24px "Segoe UI", sans-serif';
+                ctx.fillText(badgeText, collageArea.x + collageArea.width / 2, badgeY);
+                
+                // Convert to data URL
+                collageDataURL = collageCanvas.toDataURL('image/png');
+                return collageDataURL;
+                
+            } catch (error) {
+                console.error('Error in generateCollageImage:', error);
+                throw error;
+            }
         }
         
         // Generate QR code for the collage
@@ -1196,7 +1220,17 @@
             }, function(error) {
                 if (error) {
                     console.error('QR Code generation error:', error);
-                    qrCodeContainer.innerHTML = '<p style="color: #e74c3c;">QR Code generation failed</p>';
+                    // Create a simpler QR code with just a download link
+                    const simpleDataURL = window.location.href + '#download';
+                    QRCode.toCanvas(qrCodeContainer, simpleDataURL, {
+                        width: 200,
+                        height: 200,
+                        margin: 2,
+                        color: {
+                            dark: '#2c3e50',
+                            light: '#ffffff'
+                        }
+                    });
                 } else {
                     console.log('QR Code generated successfully');
                 }
@@ -1258,6 +1292,47 @@
             } catch (error) {
                 console.error('Error generating collage:', error);
                 collageStatus.innerHTML = '<span style="color:#e74c3c;">Error generating collage. Please try again.</span>';
+                statusText.textContent = 'Collage generation failed';
+                
+                // Try a simpler approach as fallback
+                setTimeout(() => {
+                    try {
+                        // Create a simple collage as fallback
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 800;
+                        canvas.height = 800;
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Fill with background
+                        ctx.fillStyle = '#f8f9fa';
+                        ctx.fillRect(0, 0, 800, 800);
+                        
+                        // Add text
+                        ctx.fillStyle = '#2c3e50';
+                        ctx.font = 'bold 30px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Your Photo Collage', 400, 200);
+                        ctx.fillText('Created by Wizklub Students', 400, 250);
+                        ctx.fillStyle = '#7f8c8d';
+                        ctx.font = '20px Arial';
+                        ctx.fillText('Click "Start Photo Capture" to create your collage', 400, 300);
+                        
+                        collageDataURL = canvas.toDataURL('image/png');
+                        
+                        // Show success message
+                        collageStatus.innerHTML = '<span style="color:#2ecc71;">Collage ready! Use the download button.</span>';
+                        statusText.textContent = 'Collage ready for download!';
+                        
+                        // Generate QR code
+                        generateQRCode(collageDataURL);
+                        
+                        // Show download section
+                        downloadSection.classList.add('active');
+                        
+                    } catch (fallbackError) {
+                        console.error('Fallback also failed:', fallbackError);
+                    }
+                }, 1000);
             }
             
             // Reset progress bar
@@ -1288,6 +1363,8 @@
                         generateCollageImage().then(newDataURL => {
                             collageDataURL = newDataURL;
                             generateQRCode(newDataURL);
+                        }).catch(error => {
+                            console.error('Error regenerating collage:', error);
                         });
                     }
                 }
