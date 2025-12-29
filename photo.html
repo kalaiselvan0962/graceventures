@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo Collage Capture</title>
+    <title>Photo</title>
     <style>
         * {
             margin: 0;
@@ -478,9 +478,10 @@
             align-items: center;
         }
         
-        #qr-code-canvas {
-            width: 100% !important;
-            height: 100% !important;
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
         .popup-instruction {
@@ -681,7 +682,7 @@
         }
     </style>
     <!-- QR Code Library -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -798,7 +799,7 @@
                 <p class="popup-subtitle">Scan this QR code with your phone to download the collage image</p>
                 
                 <div class="qr-code-container">
-                    <canvas id="qr-code-canvas"></canvas>
+                    <div id="qrcode"></div>
                 </div>
                 
                 <div class="popup-instruction">
@@ -893,7 +894,7 @@
         const collageStatus = document.getElementById('collage-status');
         const qrPopupOverlay = document.getElementById('qr-popup-overlay');
         const popupClose = document.getElementById('popup-close');
-        const qrCodeCanvas = document.getElementById('qr-code-canvas');
+        const qrcodeDiv = document.getElementById('qrcode');
         const popupDownloadBtn = document.getElementById('popup-download-btn');
         const popupCopyBtn = document.getElementById('popup-copy-btn');
         const uploadProgress = document.getElementById('upload-progress');
@@ -911,6 +912,7 @@
         let selectedTemplate = 'grid';
         let collageDataURL = null;
         let imgbbImageUrl = null;
+        let qrCodeInstance = null;
         
         // Your ImgBB API Key (replace with your own)
         // Get free API key from: https://api.imgbb.com/
@@ -990,6 +992,12 @@
             statusText.textContent = 'Starting photo capture...';
             uploadStatus.textContent = '';
             uploadProgress.textContent = '';
+            
+            // Clear previous QR code
+            if (qrCodeInstance) {
+                qrcodeDiv.innerHTML = '';
+                qrCodeInstance = null;
+            }
             
             // Reset collage
             collageStatus.textContent = 'Capturing photos...';
@@ -1384,8 +1392,8 @@
                     
                     uploadProgress.textContent = 'Generating QR code...';
                     
-                    // Generate QR code
-                    await generateQRCode(imageUrl);
+                    // Generate QR code using the provided logic
+                    generateQRCode(imageUrl);
                     
                     // Show success message
                     uploadStatus.textContent = '✅ Upload successful! Scan QR code to download.';
@@ -1404,92 +1412,33 @@
                 uploadStatus.className = 'upload-status error';
                 uploadProgress.textContent = '';
                 
-                // Generate fallback QR code
-                await generateQRCode('https://imgbb.com/');
+                // Generate QR code with fallback message
+                generateQRCode('https://imgbb.com/');
                 
                 return null;
             }
         }
         
-        // Generate QR code for the image URL
-        async function generateQRCode(imageUrl) {
-            return new Promise((resolve, reject) => {
-                try {
-                    // Clear canvas
-                    const ctx = qrCodeCanvas.getContext('2d');
-                    ctx.clearRect(0, 0, qrCodeCanvas.width, qrCodeCanvas.height);
-                    
-                    // Set canvas dimensions explicitly
-                    qrCodeCanvas.width = 250;
-                    qrCodeCanvas.height = 250;
-                    
-                    // Generate QR code
-                    QRCode.toCanvas(qrCodeCanvas, imageUrl, {
-                        width: 250,
-                        height: 250,
-                        margin: 1,
-                        color: {
-                            dark: '#2c3e50',
-                            light: '#ffffff'
-                        }
-                    }, function(error) {
-                        if (error) {
-                            console.error('QR Code generation error:', error);
-                            createFallbackQRCode(imageUrl);
-                            resolve();
-                        } else {
-                            console.log('QR Code generated successfully');
-                            resolve();
-                        }
-                    });
-                } catch (error) {
-                    console.error('Error generating QR code:', error);
-                    createFallbackQRCode(imageUrl);
-                    resolve();
-                }
-            });
-        }
-        
-        // Create fallback QR code if library fails
-        function createFallbackQRCode(url) {
-            const ctx = qrCodeCanvas.getContext('2d');
-            const size = 250;
+        // Generate QR code using your provided logic
+        function generateQRCode(url) {
+            // Clear previous QR code
+            qrcodeDiv.innerHTML = "";
             
-            // Set canvas dimensions
-            qrCodeCanvas.width = size;
-            qrCodeCanvas.height = size;
-            
-            // Clear canvas
-            ctx.clearRect(0, 0, size, size);
-            
-            // Draw background
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, size, size);
-            
-            // Draw QR-like pattern
-            ctx.fillStyle = '#2c3e50';
-            
-            // Draw corner squares
-            ctx.fillRect(20, 20, 50, 50);
-            ctx.fillRect(size - 70, 20, 50, 50);
-            ctx.fillRect(20, size - 70, 50, 50);
-            
-            // Draw some pattern lines
-            for (let i = 0; i < 7; i++) {
-                const y = 80 + i * 25;
-                ctx.fillRect(30, y, 190, 12);
+            if (!url || url.trim() === "") {
+                url = "https://imgbb.com/"; // Fallback URL
             }
             
-            // Add text
-            ctx.fillStyle = '#3498db';
-            ctx.font = 'bold 18px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('QR CODE', size / 2, size / 2 - 15);
-            ctx.font = '14px Arial';
-            ctx.fillText('Scan to Download', size / 2, size / 2 + 10);
-            ctx.fillStyle = '#7f8c8d';
-            ctx.font = '12px Arial';
-            ctx.fillText('Image Link', size / 2, size / 2 + 35);
+            // Generate QR code using the QRCode library
+            qrCodeInstance = new QRCode(qrcodeDiv, {
+                text: url,
+                width: 200,
+                height: 200,
+                colorDark: "#2c3e50",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            console.log('QR Code generated successfully for:', url);
         }
         
         // Show QR code popup
@@ -1578,10 +1527,11 @@
                 collageStatus.innerHTML = '<span style="color:#2ecc71; font-weight:bold;">🎉 Collage Complete! Auto-uploading...</span>';
                 statusText.textContent = 'Uploading to ImgBB...';
                 
-                // Automatically upload to ImgBB
-                uploadProgress.textContent = 'Uploading collage to ImgBB...';
+                // Show QR popup immediately
                 showQRPopup();
+                uploadProgress.textContent = 'Uploading collage to ImgBB...';
                 
+                // Automatically upload to ImgBB
                 const imageUrl = await uploadToImgBB(collageDataURL);
                 
                 if (imageUrl) {
@@ -1603,6 +1553,7 @@
                     showQRPopup();
                     uploadStatus.textContent = '⚠️ Using fallback QR code. Try capturing again.';
                     uploadStatus.className = 'upload-status';
+                    generateQRCode('https://imgbb.com/');
                 }, 1000);
             }
             
