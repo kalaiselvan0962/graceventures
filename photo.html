@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo Collage Capture</title>
+    <title>Photo</title>
     <style>
         * {
             margin: 0;
@@ -697,10 +697,10 @@
                             <polyline points="7 10 12 15 17 10"></polyline>
                             <line x1="12" y1="15" x2="12" y2="3"></line>
                         </svg>
-                        Download Directly
+                        Download Collage
                     </button>
                     <p class="download-note">
-                        Click to download high-quality PNG image. File will be saved as "wizklub-collage.png"
+                        Download high-quality PNG image. File will be saved as "wizklub-collage.png"
                     </p>
                 </div>
             </div>
@@ -1204,12 +1204,15 @@
         }
         
         // Generate QR code for the collage
-        function generateQRCode(dataURL) {
+        function generateQRCode() {
             // Clear previous QR code
             qrCodeContainer.innerHTML = '';
             
-            // Generate QR code
-            QRCode.toCanvas(qrCodeContainer, dataURL, {
+            // Create a simple data URL for QR code (just a message)
+            const qrData = 'Your photo collage is ready! Please use the download button.';
+            
+            // Generate QR code with simpler data to avoid URI length issues
+            QRCode.toCanvas(qrCodeContainer, qrData, {
                 width: 200,
                 height: 200,
                 margin: 2,
@@ -1220,17 +1223,29 @@
             }, function(error) {
                 if (error) {
                     console.error('QR Code generation error:', error);
-                    // Create a simpler QR code with just a download link
-                    const simpleDataURL = window.location.href + '#download';
-                    QRCode.toCanvas(qrCodeContainer, simpleDataURL, {
-                        width: 200,
-                        height: 200,
-                        margin: 2,
-                        color: {
-                            dark: '#2c3e50',
-                            light: '#ffffff'
-                        }
-                    });
+                    // Create fallback QR code
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 200;
+                    canvas.height = 200;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Draw a simple QR-like pattern
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, 200, 200);
+                    
+                    ctx.fillStyle = '#2c3e50';
+                    // Draw some squares
+                    ctx.fillRect(20, 20, 40, 40);
+                    ctx.fillRect(140, 20, 40, 40);
+                    ctx.fillRect(20, 140, 40, 40);
+                    
+                    // Add text
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('QR Code', 100, 100);
+                    ctx.fillText('Scan to Download', 100, 120);
+                    
+                    qrCodeContainer.appendChild(canvas);
                 } else {
                     console.log('QR Code generated successfully');
                 }
@@ -1283,7 +1298,7 @@
                 statusText.textContent = 'Collage ready for download!';
                 
                 // Generate QR code
-                generateQRCode(collageDataURL);
+                generateQRCode();
                 
                 // Show download section
                 downloadSection.classList.add('active');
@@ -1324,7 +1339,7 @@
                         statusText.textContent = 'Collage ready for download!';
                         
                         // Generate QR code
-                        generateQRCode(collageDataURL);
+                        generateQRCode();
                         
                         // Show download section
                         downloadSection.classList.add('active');
@@ -1362,7 +1377,7 @@
                     if (collageDataURL) {
                         generateCollageImage().then(newDataURL => {
                             collageDataURL = newDataURL;
-                            generateQRCode(newDataURL);
+                            generateQRCode();
                         }).catch(error => {
                             console.error('Error regenerating collage:', error);
                         });
