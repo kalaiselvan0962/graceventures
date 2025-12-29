@@ -1863,20 +1863,14 @@
                 ctx.fillStyle = '#2c3e50';
                 ctx.font = 'bold 36px "Segoe UI", sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('✨ Creative Photo Collage ✨', collageArea.x + collageArea.width / 2, footerY + 60);
+                ctx.fillText('✨ Wizklub Students ✨', collageArea.x + collageArea.width / 2, footerY + 60);
                 
                 // Draw attribution
                 ctx.fillStyle = '#7f8c8d';
                 ctx.font = '28px "Segoe UI", sans-serif';
-                ctx.fillText('Created with ❤️ by', collageArea.x + collageArea.width / 2, footerY + 110);
+                ctx.fillText('Created with ❤️', collageArea.x + collageArea.width / 2, footerY + 110);
                 
-                // Draw Wizklub badge
-                const badgeText = 'Wizklub Students';
-                ctx.fillStyle = '#FF6B6B';
-                const badgeWidth = ctx.measureText(badgeText).width + 40;
-                const badgeX = collageArea.x + collageArea.width / 2 - badgeWidth / 2;
-                const badgeY = footerY + 140;
-                const badgeHeight = 50;
+
                 
                 // Gradient for badge
                 const badgeGradient = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
