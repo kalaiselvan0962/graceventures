@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Expo • iOS Navigation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+         :root {
+            --ios-bg: #F2F2F7;
+            --ios-card: #FFFFFF;
+            --ios-card-dark: #1C1C1E;
+            --ios-blue: #007AFF;
+            --ios-green: #34C759;
+            --ios-indigo: #5856D6;
+            --ios-orange: #FF9500;
+            --ios-red: #FF3B30;
+            --ios-purple: #AF52DE;
+            --ios-gray1: #8E8E93;
+            --ios-gray2: #AEAEB2;
+            --ios-gray3: #C7C7CC;
+            --ios-gray4: #D1D1D6;
+            --ios-gray5: #E5E5EA;
+            --ios-gray6: #F2F2F7;
+            --ios-text: #000000;
+            --ios-text-secondary: #3C3C43;
+            --ios-text-tertiary: #8E8E93;
+            --ios-shadow: 0px 0px 20px rgba(0, 0, 0, 0.08);
+            --ios-shadow-large: 0px 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        @media (prefers-color-scheme: dark) {
+             :root {
+                --ios-bg: #000000;
+                --ios-card: #1C1C1E;
+                --ios-card-dark: #2C2C2E;
+                --ios-blue: #0A84FF;
+                --ios-green: #30D158;
+                --ios-indigo: #5E5CE6;
+                --ios-orange: #FF9F0A;
+                --ios-red: #FF453A;
+                --ios-purple: #BF5AF2;
+                --ios-gray1: #8E8E93;
+                --ios-gray2: #636366;
+                --ios-gray3: #48484A;
+                --ios-gray4: #3A3A3C;
+                --ios-gray5: #2C2C2E;
+                --ios-gray6: #1C1C1E;
+                --ios-text: #FFFFFF;
+                --ios-text-secondary: #EBEBF5;
+                --ios-text-tertiary: #8E8E93;
+                --ios-shadow: 0px 0px 20px rgba(0, 0, 0, 0.4);
+                --ios-shadow-large: 0px 10px 30px rgba(0, 0, 0, 0.5);
+            }
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', sans-serif;
+            background: var(--ios-bg);
+            color: var(--ios-text);
+            overflow: hidden;
+            height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* iOS Status Bar */
+        
+        .status-bar {
+            height: 44px;
+            background: var(--ios-card);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            border-bottom: 0.5px solid var(--ios-gray5);
+            position: relative;
+            z-index: 1000;
+        }
+        
+        .status-time {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        
+        .status-icons {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        
+        .status-icon {
+            font-size: 14px;
+        }
+        /* Header */
+        
+        .header {
+            background: var(--ios-card);
+            padding: 12px 20px;
+            border-bottom: 0.5px solid var(--ios-gray5);
+            position: relative;
+            z-index: 999;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, var(--ios-blue), var(--ios-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .header-subtitle {
+            font-size: 15px;
+            color: var(--ios-text-tertiary);
+            font-weight: 400;
+            margin-top: 2px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .header-btn {
+            width: 36px;
+            height: 36px;
+            background: var(--ios-gray6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            color: var(--ios-text);
+        }
+        
+        .header-btn:hover {
+            background: var(--ios-gray5);
+            transform: scale(1.05);
+        }
+        /* Main Container */
+        
+        .main-container {
+            display: flex;
+            height: calc(100vh - 120px);
+            position: relative;
+        }
+        /* Sidebar - iOS Style */
+        
+        .sidebar {
+            width: 360px;
+            background: var(--ios-card);
+            border-right: 0.5px solid var(--ios-gray5);
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+            z-index: 100;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ios-text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            padding-left: 10px;
+        }
+        /* Subject Cards - iOS Style */
+        
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .subject-card {
+            background: var(--ios-gray6);
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .subject-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--ios-shadow);
+            border-color: var(--ios-gray4);
+        }
+        
+        .subject-card.active {
+            background: rgba(10, 132, 255, 0.1);
+            border-color: var(--ios-blue);
+            box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
+        }
+        
+        .subject-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--ios-blue), var(--ios-indigo));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: white;
+        }
+        
+        .subject-card.english .subject-icon {
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+        }
+        
+        .subject-card.tamil .subject-icon {
+            background: linear-gradient(135deg, #FF3B30, #FF9500);
+        }
+        
+        .subject-card.science .subject-icon {
+            background: linear-gradient(135deg, #34C759, #30B0C7);
+        }
+        
+        .subject-card.social .subject-icon {
+            background: linear-gradient(135deg, #FF9500, #FFCC00);
+        }
+        
+        .subject-card.maths .subject-icon {
+            background: linear-gradient(135deg, #AF52DE, #FF2D55);
+        }
+        
+        .subject-card.computer .subject-icon {
+            background: linear-gradient(135deg, #32D74B, #64D2FF);
+        }
+        
+        .subject-name {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--ios-text);
+        }
+        
+        .subject-room {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ios-text-tertiary);
+        }
+        /* Current Location Card */
+        
+        .current-location-card {
+            background: var(--ios-card);
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 1px solid var(--ios-gray5);
+            box-shadow: var(--ios-shadow);
+        }
+        
+        .location-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .location-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, var(--ios-blue), var(--ios-indigo));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: white;
+        }
+        
+        .location-info h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .location-info p {
+            font-size: 15px;
+            color: var(--ios-text-tertiary);
+            font-weight: 400;
+        }
+        /* Stats Grid */
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: var(--ios-gray6);
+            border-radius: 12px;
+        }
+        
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .stat-value.distance {
+            color: var(--ios-green);
+        }
+        
+        .stat-value.floor {
+            color: var(--ios-blue);
+        }
+        
+        .stat-value.eta {
+            color: var(--ios-orange);
+        }
+        
+        .stat-value.room {
+            color: var(--ios-purple);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--ios-text-tertiary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        /* Navigation Controls */
+        
+        .nav-controls {
+            margin-top: 25px;
+        }
+        
+        .nav-button {
+            width: 100%;
+            padding: 18px;
+            background: var(--ios-blue);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            margin-bottom: 12px;
+        }
+        
+        .nav-button:hover {
+            background: var(--ios-blue);
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+        
+        .nav-button.secondary {
+            background: var(--ios-gray5);
+            color: var(--ios-text);
+        }
+        /* Map Container */
+        
+        .map-container {
+            flex: 1;
+            position: relative;
+            background: var(--ios-card-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        /* Map Wrapper - Centered */
+        
+        .map-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            height: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* U-Shaped School Map */
+        
+        .u-shaped-map {
+            position: relative;
+            width: 600px;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Building Structure */
+        
+        .building-outline {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 4px solid var(--ios-gray3);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: var(--ios-shadow-large);
+        }
+        
+        .building-u-shape {
+            position: absolute;
+            width: 80%;
+            height: 70%;
+            border: 3px solid var(--ios-gray2);
+            border-top: none;
+            border-radius: 0 0 30px 30px;
+        }
+        /* Rooms - iOS Style */
+        
+        .room {
+            position: absolute;
+            background: var(--ios-card);
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: var(--ios-shadow);
+            border: 2px solid transparent;
+            z-index: 10;
+        }
+        
+        .room:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: var(--ios-shadow-large);
+        }
+        
+        .room.active {
+            background: rgba(10, 132, 255, 0.15);
+            border-color: var(--ios-blue);
+            box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.2), var(--ios-shadow-large);
+            animation: iosPulse 2s infinite;
+        }
+        
+        @keyframes iosPulse {
+            0%,
+            100% {
+                box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.2), var(--ios-shadow-large);
+            }
+            50% {
+                box-shadow: 0 0 0 8px rgba(10, 132, 255, 0.1), var(--ios-shadow-large);
+            }
+        }
+        
+        .room-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .room-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ios-text);
+        }
+        
+        .room-number {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            background: var(--ios-red);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 2px solid var(--ios-card);
+        }
+        /* Room Positions */
+        
+        .room-english {
+            top: 20%;
+            left: 10%;
+            width: 120px;
+            height: 100px;
+        }
+        
+        .room-maths {
+            top: 20%;
+            left: 40%;
+            width: 120px;
+            height: 100px;
+        }
+        
+        .room-science {
+            top: 20%;
+            right: 10%;
+            width: 120px;
+            height: 100px;
+        }
+        
+        .room-computer {
+            bottom: 20%;
+            right: 10%;
+            width: 120px;
+            height: 100px;
+        }
+        
+        .room-social {
+            bottom: 20%;
+            left: 40%;
+            width: 120px;
+            height: 100px;
+        }
+        
+        .room-tamil {
+            bottom: 20%;
+            left: 10%;
+            width: 120px;
+            height: 100px;
+        }
+        /* Navigation Path */
+        
+        .nav-path {
+            position: absolute;
+            height: 6px;
+            background: linear-gradient(90deg, transparent 0%, var(--ios-green) 20%, var(--ios-green) 80%, transparent 100%);
+            border-radius: 3px;
+            transform-origin: left center;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+            filter: drop-shadow(0 0 10px var(--ios-green));
+        }
+        
+        .nav-path.active {
+            animation: drawPath 2s ease-in-out forwards;
+        }
+        
+        @keyframes drawPath {
+            0% {
+                opacity: 0;
+                transform: scaleX(0);
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 1;
+                transform: scaleX(1);
+            }
+        }
+        /* User Marker */
+        
+        .user-marker {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: var(--ios-blue);
+            border-radius: 20px;
+            border: 3px solid var(--ios-card);
+            box-shadow: var(--ios-shadow-large);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            transition: all 2s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        .user-marker::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--ios-blue);
+            animation: ripple 2s infinite;
+            z-index: -1;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+        /* Entrance Markers */
+        
+        .entrance {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: var(--ios-orange);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 20;
+            border: 3px solid var(--ios-card);
+            box-shadow: var(--ios-shadow);
+            transition: all 0.3s ease;
+        }
+        
+        .entrance:hover {
+            transform: scale(1.1);
+        }
+        
+        .entrance-1 {
+            top: 50%;
+            left: -25px;
+        }
+        
+        .entrance-2 {
+            top: 50%;
+            right: -25px;
+        }
+        
+        .entrance-label {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--ios-card);
+            color: var(--ios-text);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            box-shadow: var(--ios-shadow);
+            border: 1px solid var(--ios-gray5);
+        }
+        /* Map Controls - iOS Style */
+        
+        .map-controls {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 1000;
+        }
+        
+        .map-control-btn {
+            width: 50px;
+            height: 50px;
+            background: var(--ios-card);
+            border-radius: 14px;
+            border: 1px solid var(--ios-gray5);
+            color: var(--ios-text);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: var(--ios-shadow);
+            backdrop-filter: blur(20px);
+        }
+        
+        .map-control-btn:hover {
+            background: var(--ios-gray6);
+            transform: scale(1.1);
+        }
+        /* Loading Screen - iOS Style */
+        
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--ios-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--ios-blue), var(--ios-purple));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin-bottom: 30px;
+            animation: loadingPulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes loadingPulse {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+        
+        .loading-text {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--ios-text);
+            margin-bottom: 10px;
+        }
+        
+        .loading-subtext {
+            font-size: 15px;
+            color: var(--ios-text-tertiary);
+            text-align: center;
+            max-width: 300px;
+        }
+        /* Modal - iOS Style */
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal-content {
+            background: var(--ios-card);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--ios-shadow-large);
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            padding: 25px;
+            border-bottom: 0.5px solid var(--ios-gray5);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+        }
+        
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            background: var(--ios-gray6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s ease;
+        }
+        
+        .modal-close:hover {
+            background: var(--ios-gray5);
+        }
+        
+        .modal-body {
+            padding: 25px;
+        }
+        
+        .modal-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .modal-info-item {
+            background: var(--ios-gray6);
+            border-radius: 12px;
+            padding: 15px;
+        }
+        
+        .modal-info-label {
+            font-size: 13px;
+            color: var(--ios-text-tertiary);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        
+        .modal-info-value {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--ios-text);
+        }
+        /* Responsive Design */
+        
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 320px;
+            }
+            .u-shaped-map {
+                width: 500px;
+                height: 350px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                height: calc(100vh - 120px);
+            }
+            .sidebar {
+                width: 100%;
+                height: 300px;
+                border-right: none;
+                border-bottom: 0.5px solid var(--ios-gray5);
+                overflow-x: auto;
+            }
+            .subject-grid {
+                grid-template-columns: repeat(3, 1fr);
+                overflow-x: auto;
+            }
+            .map-container {
+                height: calc(100% - 300px);
+            }
+            .u-shaped-map {
+                width: 90%;
+                height: 90%;
+            }
+            .room {
+                width: 100px;
+                height: 80px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header-title {
+                font-size: 24px;
+            }
+            .subject-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .room {
+                width: 80px;
+                height: 70px;
+            }
+            .room-name {
+                font-size: 12px;
+            }
+            .map-controls {
+                bottom: 15px;
+                right: 15px;
+            }
+            .map-control-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+        }
+        /* Scrollbar Styling */
+        
+         ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: var(--ios-gray4);
+            border-radius: 3px;
+        }
+        
+         ::-webkit-scrollbar-thumb:hover {
+            background: var(--ios-gray3);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-logo">🏫</div>
+        <div class="loading-text">School Expo Navigation</div>
+        <div class="loading-subtext">Loading your campus guide...</div>
+    </div>
+
+    <!-- iOS Status Bar -->
+    <div class="status-bar">
+        <div class="status-time" id="currentTime">9:41</div>
+        <div class="status-icons">
+            <span class="status-icon">📶</span>
+            <span class="status-icon">📡</span>
+            <span class="status-icon">🔋</span>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <div class="header-title">School Expo</div>
+                <div class="header-subtitle">Interactive Navigation Guide</div>
+            </div>
+            <div class="header-actions">
+                <button class="header-btn" onclick="toggleTheme()">🌓</button>
+                <button class="header-btn" onclick="showHelp()">❓</button>
+                <button class="header-btn" onclick="resetNavigation()">🔄</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="section-title">Subject Exhibits</div>
+                <div class="subject-grid" id="subjectGrid"></div>
+            </div>
+
+            <div class="current-location-card">
+                <div class="location-header">
+                    <div class="location-icon" id="currentLocationIcon">📍</div>
+                    <div class="location-info">
+                        <h3 id="currentLocation">Select a Room</h3>
+                        <p id="locationStatus">Choose an exhibit to begin navigation</p>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value distance" id="statDistance">--</div>
+                        <div class="stat-label">Distance</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value floor" id="statFloor">1</div>
+                        <div class="stat-label">Floor</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value eta" id="statETA">--</div>
+                        <div class="stat-label">ETA</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value room" id="statRoom">--</div>
+                        <div class="stat-label">Room No</div>
+                    </div>
+                </div>
+
+                <div class="nav-controls">
+                    <button class="nav-button" onclick="startNavigation()" id="navButton">
+            <span>📍</span>
+            <span>Start Navigation</span>
+          </button>
+                    <button class="nav-button secondary" onclick="findQuickestRoute()">
+            <span>⚡</span>
+            <span>Quickest Route</span>
+          </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="map-container">
+            <div class="map-wrapper">
+                <!-- U-Shaped School Map -->
+                <div class="u-shaped-map">
+                    <div class="building-outline"></div>
+                    <div class="building-u-shape"></div>
+
+                    <!-- Rooms -->
+                    <div class="room room-english" id="roomEnglish" onclick="selectSubject('english')">
+                        <div class="room-icon">📚</div>
+                        <div class="room-name">English</div>
+                        <div class="room-number">20</div>
+                    </div>
+
+                    <div class="room room-maths" id="roomMaths" onclick="selectSubject('maths')">
+                        <div class="room-icon">📐</div>
+                        <div class="room-name">Maths</div>
+                        <div class="room-number">4</div>
+                    </div>
+
+                    <div class="room room-science" id="roomScience" onclick="selectSubject('science')">
+                        <div class="room-icon">🔬</div>
+                        <div class="room-name">Science</div>
+                        <div class="room-number">5</div>
+                    </div>
+
+                    <div class="room room-computer" id="roomComputer" onclick="selectSubject('computer')">
+                        <div class="room-icon">💻</div>
+                        <div class="room-name">Computer</div>
+                        <div class="room-number">22</div>
+                    </div>
+
+                    <div class="room room-social" id="roomSocial" onclick="selectSubject('social')">
+                        <div class="room-icon">🌍</div>
+                        <div class="room-name">Social</div>
+                        <div class="room-number">24</div>
+                    </div>
+
+                    <div class="room room-tamil" id="roomTamil" onclick="selectSubject('tamil')">
+                        <div class="room-icon">🪶</div>
+                        <div class="room-name">Tamil</div>
+                        <div class="room-number">21</div>
+                    </div>
+
+                    <!-- Navigation Path -->
+                    <div class="nav-path" id="navPath"></div>
+
+                    <!-- User Marker -->
+                    <div class="user-marker" id="userMarker" style="display: none;">
+                        👨‍👩‍👧
+                    </div>
+
+                    <!-- Entrance Gates -->
+                    <div class="entrance entrance-1" onclick="selectEntrance(1)">
+                        <div class="entrance-label">Parents Entry</div>
+                        🚪
+                    </div>
+
+                    <div class="entrance entrance-2" onclick="selectEntrance(2)">
+                        <div class="entrance-label">Main Entry</div>
+                        🚪
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Controls -->
+            <div class="map-controls">
+                <button class="map-control-btn" onclick="zoomIn()">+</button>
+                <button class="map-control-btn" onclick="zoomOut()">-</button>
+                <button class="map-control-btn" onclick="rotateLeft()">↶</button>
+                <button class="map-control-btn" onclick="rotateRight()">↷</button>
+                <button class="map-control-btn" onclick="resetMap()">⟳</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Room Modal -->
+    <div class="modal" id="roomModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Room Details</div>
+                <div class="modal-close" onclick="closeModal()">✕</div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-info-grid">
+                    <div class="modal-info-item">
+                        <div class="modal-info-label">Room Number</div>
+                        <div class="modal-info-value" id="modalRoomNumber">--</div>
+                    </div>
+                    <div class="modal-info-item">
+                        <div class="modal-info-label">Subject</div>
+                        <div class="modal-info-value" id="modalSubject">--</div>
+                    </div>
+                    <div class="modal-info-item">
+                        <div class="modal-info-label">Distance</div>
+                        <div class="modal-info-value" id="modalDistance">--</div>
+                    </div>
+                    <div class="modal-info-item">
+                        <div class="modal-info-label">ETA</div>
+                        <div class="modal-info-value" id="modalETA">--</div>
+                    </div>
+                    <div class="modal-info-item">
+                        <div class="modal-info-label">Teacher</div>
+                        <div class="modal-info-value" id="modalTeacher">--</div>
+                    </div>
+                    <div class="modal-info-item">
+                        <div class="modal-info-label">Students</div>
+                        <div class="modal-info-value" id="modalStudents">--</div>
+                    </div>
+                </div>
+                <button class="nav-button" onclick="navigateToModalRoom()" style="width: 100%;">
+          <span>📍</span>
+          <span>Navigate to this Room</span>
+        </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Subject data
+        const subjects = {
+            english: {
+                name: 'English Expo',
+                floor: 1,
+                room: '20',
+                icon: '📚',
+                color: '#007AFF',
+                distance: 120,
+                eta: '2 min',
+                students: '25',
+                teacher: 'Ms. Smith',
+                coordinates: {
+                    x: 100,
+                    y: 100
+                }
+            },
+            tamil: {
+                name: 'Tamil Expo',
+                floor: 1,
+                room: '21',
+                icon: '🪶',
+                color: '#FF3B30',
+                distance: 350,
+                eta: '5 min',
+                students: '18',
+                teacher: 'Mr. Kumar',
+                coordinates: {
+                    x: 100,
+                    y: 300
+                }
+            },
+            science: {
+                name: 'Science Expo',
+                floor: 1,
+                room: '5',
+                icon: '🔬',
+                color: '#34C759',
+                distance: 250,
+                eta: '3 min',
+                students: '32',
+                teacher: 'Dr. Brown',
+                coordinates: {
+                    x: 400,
+                    y: 100
+                }
+            },
+            social: {
+                name: 'Social Expo',
+                floor: 1,
+                room: '24',
+                icon: '🌍',
+                color: '#FF9500',
+                distance: 280,
+                eta: '4 min',
+                students: '22',
+                teacher: 'Ms. Garcia',
+                coordinates: {
+                    x: 250,
+                    y: 300
+                }
+            },
+            maths: {
+                name: 'Maths Expo',
+                floor: 1,
+                room: '4',
+                icon: '📐',
+                color: '#AF52DE',
+                distance: 180,
+                eta: '2.5 min',
+                students: '28',
+                teacher: 'Mr. Johnson',
+                coordinates: {
+                    x: 250,
+                    y: 100
+                }
+            },
+            computer: {
+                name: 'Computer Expo',
+                floor: 1,
+                room: '22',
+                icon: '💻',
+                color: '#32D74B',
+                distance: 300,
+                eta: '4 min',
+                students: '35',
+                teacher: 'Ms. Davis',
+                coordinates: {
+                    x: 400,
+                    y: 300
+                }
+            }
+        };
+
+        // State variables
+        let currentSubject = null;
+        let currentEntrance = 1;
+        let currentMapZoom = 1;
+        let currentRotation = 0;
+        let isNavigating = false;
+
+        // Initialize application
+        function init() {
+            // Update time
+            updateTime();
+            setInterval(updateTime, 60000);
+
+            // Generate subject cards
+            generateSubjectCards();
+
+            // Hide loading screen
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                }, 500);
+            }, 1500);
+
+            // Set initial entrance
+            selectEntrance(1);
+        }
+
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: false
+            }).replace(/^(\d{1,2}):(\d{2})/, (match, h, m) => {
+                const hour = parseInt(h);
+                return `${hour}:${m}`;
+            });
+
+            document.getElementById('currentTime').textContent = timeString;
+        }
+
+        // Generate subject cards
+        function generateSubjectCards() {
+            const grid = document.getElementById('subjectGrid');
+            const subjectOrder = ['english', 'tamil', 'science', 'social', 'maths', 'computer'];
+
+            subjectOrder.forEach(subjectId => {
+                const subject = subjects[subjectId];
+                const card = document.createElement('div');
+                card.className = `subject-card ${subjectId}`;
+                card.id = `card-${subjectId}`;
+                card.onclick = () => selectSubject(subjectId);
+
+                card.innerHTML = `
+          <div class="subject-icon">${subject.icon}</div>
+          <div class="subject-name">${subject.name.split(' ')[0]}</div>
+          <div class="subject-room">Room ${subject.room}</div>
+        `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Select subject
+        function selectSubject(subjectId) {
+            // Update active states
+            document.querySelectorAll('.subject-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelectorAll('.room').forEach(room => {
+                room.classList.remove('active');
+            });
+
+            // Set active states
+            document.getElementById(`card-${subjectId}`).classList.add('active');
+            document.getElementById(`room${subjectId.charAt(0).toUpperCase() + subjectId.slice(1)}`).classList.add('active');
+
+            // Update current subject
+            currentSubject = subjects[subjectId];
+
+            // Update info panel
+            updateInfoPanel(subjectId);
+        }
+
+        // Update info panel
+        function updateInfoPanel(subjectId) {
+            const subject = subjects[subjectId];
+
+            document.getElementById('currentLocationIcon').textContent = subject.icon;
+            document.getElementById('currentLocation').textContent = subject.name;
+            document.getElementById('locationStatus').textContent = `Room ${subject.room} • Floor ${subject.floor}`;
+
+            document.getElementById('statDistance').textContent = `${subject.distance}m`;
+            document.getElementById('statFloor').textContent = subject.floor;
+            document.getElementById('statETA').textContent = subject.eta;
+            document.getElementById('statRoom').textContent = subject.room;
+
+            // Update navigation button
+            document.getElementById('navButton').innerHTML = `
+        <span>📍</span>
+        <span>Navigate to ${subject.name.split(' ')[0]}</span>
+      `;
+        }
+
+        // Select entrance
+        function selectEntrance(entranceNum) {
+            currentEntrance = entranceNum;
+
+            // Update entrance visual feedback
+            document.querySelectorAll('.entrance').forEach((entrance, index) => {
+                if (index === entranceNum - 1) {
+                    entrance.style.transform = 'scale(1.2)';
+                    entrance.style.background = 'var(--ios-green)';
+                } else {
+                    entrance.style.transform = 'scale(1)';
+                    entrance.style.background = 'var(--ios-orange)';
+                }
+            });
+        }
+
+        // Start navigation
+        function startNavigation() {
+            if (!currentSubject || isNavigating) return;
+
+            isNavigating = true;
+
+            // Get start and end points
+            const startX = currentEntrance === 1 ? 50 : 550;
+            const startY = 200;
+            const endX = currentSubject.coordinates.x;
+            const endY = currentSubject.coordinates.y;
+
+            // Calculate path
+            const path = document.getElementById('navPath');
+            const dx = endX - startX;
+            const dy = endY - startY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+            // Set path
+            path.style.left = `${startX}px`;
+            path.style.top = `${startY}px`;
+            path.style.width = `${distance}px`;
+            path.style.transform = `rotate(${angle}deg)`;
+
+            // Animate path
+            path.classList.remove('active');
+            setTimeout(() => {
+                path.classList.add('active');
+            }, 100);
+
+            // Position user marker
+            const marker = document.getElementById('userMarker');
+            marker.style.left = `${startX}px`;
+            marker.style.top = `${startY}px`;
+            marker.style.display = 'flex';
+
+            // Animate marker along path
+            setTimeout(() => {
+                marker.style.left = `${endX}px`;
+                marker.style.top = `${endY}px`;
+
+                // Show arrival animation
+                setTimeout(() => {
+                    showArrivalAnimation();
+                    isNavigating = false;
+                }, 2000);
+            }, 500);
+
+            // Update status
+            document.getElementById('locationStatus').textContent = `Navigating to Room ${currentSubject.room}...`;
+            document.getElementById('locationStatus').style.color = 'var(--ios-green)';
+        }
+
+        // Show arrival animation
+        function showArrivalAnimation() {
+            if (!currentSubject) return;
+
+            // Pulse animation on room
+            const roomId = `room${currentSubject.name.split(' ')[0].charAt(0).toUpperCase() + currentSubject.name.split(' ')[0].slice(1).toLowerCase()}`;
+            const room = document.getElementById(roomId);
+
+            const originalAnimation = room.style.animation;
+            room.style.animation = 'iosPulse 0.5s 3';
+
+            setTimeout(() => {
+                room.style.animation = originalAnimation;
+            }, 1500);
+
+            // Show success message
+            document.getElementById('locationStatus').textContent = `🎉 Arrived at ${currentSubject.name}!`;
+            document.getElementById('locationStatus').style.color = 'var(--ios-green)';
+
+            // Show iOS-style haptic feedback
+            if ('vibrate' in navigator) {
+                navigator.vibrate([50, 50, 50]);
+            }
+        }
+
+        // Find quickest route
+        function findQuickestRoute() {
+            alert(`🚀 Recommended Route:
+      
+1. Start at Entrance ${currentEntrance}
+2. Walk to English Expo (Room 20) - 2 min
+3. Proceed to Maths Expo (Room 4) - 1.5 min
+4. Continue to Science Expo (Room 5) - 1.5 min
+5. Turn to Computer Expo (Room 22) - 1 min
+6. Visit Social Expo (Room 24) - 1 min
+7. End at Tamil Expo (Room 21) - 1 min
+
+Total: 8 minutes walk`);
+        }
+
+        // Show room info modal
+        function showRoomInfo(subjectId) {
+            const subject = subjects[subjectId];
+
+            // Update modal content
+            document.getElementById('modalTitle').textContent = subject.name;
+            document.getElementById('modalRoomNumber').textContent = `Room ${subject.room}`;
+            document.getElementById('modalSubject').textContent = subject.name;
+            document.getElementById('modalDistance').textContent = `${subject.distance}m`;
+            document.getElementById('modalETA').textContent = subject.eta;
+            document.getElementById('modalTeacher').textContent = subject.teacher;
+            document.getElementById('modalStudents').textContent = subject.students;
+
+            // Set current subject
+            currentSubject = subject;
+
+            // Show modal
+            document.getElementById('roomModal').classList.add('active');
+
+            // Update UI
+            selectSubject(subjectId);
+        }
+
+        // Navigate to modal room
+        function navigateToModalRoom() {
+            closeModal();
+            startNavigation();
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('roomModal').classList.remove('active');
+        }
+
+        // Map controls
+        function zoomIn() {
+            currentMapZoom = Math.min(2, currentMapZoom + 0.1);
+            updateMapTransform();
+        }
+
+        function zoomOut() {
+            currentMapZoom = Math.max(0.5, currentMapZoom - 0.1);
+            updateMapTransform();
+        }
+
+        function rotateLeft() {
+            currentRotation += 10;
+            updateMapTransform();
+        }
+
+        function rotateRight() {
+            currentRotation -= 10;
+            updateMapTransform();
+        }
+
+        function resetMap() {
+            currentMapZoom = 1;
+            currentRotation = 0;
+            updateMapTransform();
+        }
+
+        function updateMapTransform() {
+            const map = document.querySelector('.u-shaped-map');
+            map.style.transform = `
+        scale(${currentMapZoom})
+        rotate(${currentRotation}deg)
+      `;
+        }
+
+        // Reset navigation
+        function resetNavigation() {
+            // Reset states
+            currentSubject = null;
+            isNavigating = false;
+
+            // Reset UI
+            document.querySelectorAll('.subject-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelectorAll('.room').forEach(room => {
+                room.classList.remove('active');
+            });
+
+            // Reset path and marker
+            document.getElementById('navPath').classList.remove('active');
+            document.getElementById('userMarker').style.display = 'none';
+
+            // Reset info panel
+            document.getElementById('currentLocationIcon').textContent = '📍';
+            document.getElementById('currentLocation').textContent = 'Select a Room';
+            document.getElementById('locationStatus').textContent = 'Choose an exhibit to begin navigation';
+            document.getElementById('locationStatus').style.color = '';
+
+            document.getElementById('statDistance').textContent = '--';
+            document.getElementById('statRoom').textContent = '--';
+            document.getElementById('statETA').textContent = '--';
+
+            // Reset map
+            resetMap();
+
+            // Show iOS-style haptic feedback
+            if ('vibrate' in navigator) {
+                navigator.vibrate(100);
+            }
+        }
+
+        // Toggle theme
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+
+            // Save preference
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Show help
+        function showHelp() {
+            alert(`📱 School Expo Navigation Help:
+      
+• Tap any room on the map to select it
+• Use the buttons in the sidebar to navigate
+• Entrance 1 is for parents
+• Follow the green path to your destination
+• Use map controls to zoom and rotate
+• Tap 🔄 to reset your navigation`);
+        }
+
+        // Initialize dark mode based on preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+
+        // Room click handlers
+        document.getElementById('roomEnglish').onclick = () => showRoomInfo('english');
+        document.getElementById('roomTamil').onclick = () => showRoomInfo('tamil');
+        document.getElementById('roomScience').onclick = () => showRoomInfo('science');
+        document.getElementById('roomSocial').onclick = () => showRoomInfo('social');
+        document.getElementById('roomMaths').onclick = () => showRoomInfo('maths');
+        document.getElementById('roomComputer').onclick = () => showRoomInfo('computer');
+
+        // Initialize on load
+        window.onload = init;
+    </script>
+</body>
+
+</html>
