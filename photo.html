@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo Collage Capture</title>
+    <title>PhotoCollageCapture</title>
     <style>
         * {
             margin: 0;
@@ -148,6 +148,80 @@
             box-shadow: none;
         }
         
+        .template-selector {
+            width: 100%;
+            margin: 15px 0;
+        }
+        
+        .template-selector h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .template-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .template-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid #bdc3c7;
+            transition: all 0.3s ease;
+        }
+        
+        .template-option:hover {
+            transform: scale(1.05);
+            border-color: #3498db;
+        }
+        
+        .template-option.active {
+            border-color: #2ecc71;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+        }
+        
+        .template-preview {
+            width: 100%;
+            height: 100%;
+            background: #f8f9fa;
+            display: grid;
+        }
+        
+        .template-1 {
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 2px;
+        }
+        
+        .template-2 {
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 2fr 1fr 1fr;
+        }
+        
+        .template-2 .preview-cell:nth-child(1) {
+            grid-column: span 2;
+        }
+        
+        .template-3 {
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+        }
+        
+        .template-3 .preview-cell:nth-child(1) {
+            grid-row: span 2;
+        }
+        
+        .preview-cell {
+            background: #3498db;
+            opacity: 0.7;
+        }
+        
         .status-indicator {
             display: flex;
             align-items: center;
@@ -223,21 +297,21 @@
         .collage-container {
             flex: 1;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            gap: 10px;
+            gap: 5px;
             aspect-ratio: 1/1;
             max-height: 400px;
+            position: relative;
         }
         
         .collage-cell {
             background-color: #f8f9fa;
-            border-radius: 8px;
+            border-radius: 4px;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
             border: 2px dashed #bdc3c7;
+            position: relative;
         }
         
         .collage-cell.filled {
@@ -285,6 +359,37 @@
         .photo-indicator.captured {
             background-color: #2ecc71;
             color: white;
+        }
+        
+        .collage-footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .collage-credit {
+            color: #2c3e50;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        .created-by {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .wizklub-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            margin: 0 5px;
         }
         
         .instructions {
@@ -381,6 +486,36 @@
                     <div class="countdown-display" id="countdown">5</div>
                 </div>
                 
+                <div class="template-selector">
+                    <h4>Select Collage Template</h4>
+                    <div class="template-options">
+                        <div class="template-option active" data-template="grid" id="template-grid">
+                            <div class="template-preview template-1">
+                                <div class="preview-cell"></div>
+                                <div class="preview-cell"></div>
+                                <div class="preview-cell"></div>
+                                <div class="preview-cell"></div>
+                            </div>
+                        </div>
+                        <div class="template-option" data-template="featured" id="template-featured">
+                            <div class="template-preview template-2">
+                                <div class="preview-cell"></div>
+                                <div class="preview-cell"></div>
+                                <div class="preview-cell"></div>
+                                <div class="preview-cell"></div>
+                            </div>
+                        </div>
+                        <div class="template-option" data-template="sidebar" id="template-sidebar">
+                            <div class="template-preview template-3">
+                                <div class="preview-cell"></div>
+                                <div class="preview-cell"></div>
+                                <div class="preview-cell"></div>
+                                <div class="preview-cell"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="controls">
                     <button id="start-btn">Start Photo Capture</button>
                     
@@ -410,7 +545,8 @@
             
             <section class="collage-section">
                 <h2 class="section-title">Photo Collage</h2>
-                <div class="collage-container">
+                <div class="collage-container" id="collage-container">
+                    <!-- Grid template (default) -->
                     <div class="collage-cell" id="cell-1">
                         <span class="cell-label">Photo 1</span>
                         <img class="collage-img" id="collage-img-1" style="display: none;">
@@ -428,6 +564,12 @@
                         <img class="collage-img" id="collage-img-4" style="display: none;">
                     </div>
                 </div>
+                
+                <div class="collage-footer">
+                    <div class="collage-credit">✨ Creative Photo Collage ✨</div>
+                    <div class="created-by">Created with ❤️ by <span class="wizklub-badge">Wizklub</span> Students</div>
+                </div>
+                
                 <p id="collage-status" style="text-align: center; margin-top: 15px; color: #7f8c8d;">
                     Collage will appear here after capturing photos
                 </p>
@@ -439,25 +581,25 @@
             <div class="steps">
                 <div class="step">
                     <div class="step-number">1</div>
-                    <p class="step-text">Click "Start Photo Capture" to begin the process. Allow camera access when prompted.</p>
+                    <p class="step-text">Select a collage template from the options above the capture button.</p>
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
-                    <p class="step-text">The system will automatically take 4 photos with a 5-second gap between each.</p>
+                    <p class="step-text">Click "Start Photo Capture" to begin. Allow camera access when prompted.</p>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
-                    <p class="step-text">Watch the countdown and position yourself for each photo.</p>
+                    <p class="step-text">The system will automatically take 4 photos with a 5-second gap between each.</p>
                 </div>
                 <div class="step">
                     <div class="step-number">4</div>
-                    <p class="step-text">After all photos are captured, the collage will be created automatically.</p>
+                    <p class="step-text">After all photos are captured, the collage will be created in your selected template.</p>
                 </div>
             </div>
         </section>
         
         <footer>
-            <p>Photo Collage Capture System | HTML, CSS & JavaScript</p>
+            <p>Photo Collage Capture System | HTML, CSS & JavaScript | Created by Wizklub Students</p>
         </footer>
     </div>
 
@@ -471,6 +613,7 @@
         const statusText = document.getElementById('status-text');
         const progressFill = document.getElementById('progress-fill');
         const progressText = document.getElementById('progress-text');
+        const collageContainer = document.getElementById('collage-container');
         const collageCells = [
             document.getElementById('cell-1'),
             document.getElementById('cell-2'),
@@ -491,12 +634,47 @@
         ];
         const collageStatus = document.getElementById('collage-status');
         
+        // Template elements
+        const templateOptions = document.querySelectorAll('.template-option');
+        const templateGrid = document.getElementById('template-grid');
+        const templateFeatured = document.getElementById('template-featured');
+        const templateSidebar = document.getElementById('template-sidebar');
+        
         // State variables
         let stream = null;
         let isCapturing = false;
         let currentPhoto = 0;
         let countdownInterval = null;
         let capturedPhotos = [];
+        let selectedTemplate = 'grid';
+        
+        // Template configurations
+        const templates = {
+            grid: {
+                name: 'Grid Layout',
+                css: `
+                    grid-template-columns: 1fr 1fr;
+                    grid-template-rows: 1fr 1fr;
+                `,
+                order: [0, 1, 2, 3]
+            },
+            featured: {
+                name: 'Featured Layout',
+                css: `
+                    grid-template-columns: 1fr 1fr;
+                    grid-template-rows: 2fr 1fr 1fr;
+                `,
+                order: [0, 1, 2, 3]
+            },
+            sidebar: {
+                name: 'Sidebar Layout',
+                css: `
+                    grid-template-columns: 2fr 1fr 1fr;
+                    grid-template-rows: 1fr 1fr;
+                `,
+                order: [0, 1, 2, 3]
+            }
+        };
         
         // Initialize camera
         async function initCamera() {
@@ -546,8 +724,39 @@
             resetCollage();
             resetPhotoIndicators();
             
+            // Apply selected template
+            applyTemplate(selectedTemplate);
+            
             // Start capturing first photo
             captureNextPhoto();
+        }
+        
+        // Apply selected template to collage container
+        function applyTemplate(templateName) {
+            const template = templates[templateName];
+            
+            // Apply CSS grid layout
+            collageContainer.style.cssText = template.css;
+            
+            // Reorder cells based on template
+            const cells = Array.from(collageContainer.children);
+            const reorderedCells = template.order.map(index => cells[index]);
+            
+            // Clear and reappend in new order
+            collageContainer.innerHTML = '';
+            reorderedCells.forEach(cell => {
+                collageContainer.appendChild(cell);
+            });
+            
+            // Update active template UI
+            templateOptions.forEach(option => {
+                option.classList.remove('active');
+                if (option.dataset.template === templateName) {
+                    option.classList.add('active');
+                }
+            });
+            
+            console.log(`Applied template: ${template.name}`);
         }
         
         // Capture the next photo in sequence
@@ -604,6 +813,10 @@
             const context = canvas.getContext('2d');
             context.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
             
+            // Add a subtle filter for fun
+            context.filter = 'brightness(1.05) contrast(1.05)';
+            context.drawImage(canvas, 0, 0);
+            
             // Convert to data URL
             const photoData = canvas.toDataURL('image/jpeg');
             
@@ -622,8 +835,10 @@
         
         // Update collage cell with captured photo
         function updateCollageCell(index, photoData) {
-            const cell = collageCells[index];
-            const img = collageImgs[index];
+            // Get the cell in current template order
+            const cells = Array.from(collageContainer.children);
+            const cell = cells[index];
+            const img = cell.querySelector('.collage-img');
             
             // Update image source
             img.src = photoData;
@@ -638,11 +853,19 @@
         
         // Reset collage to initial state
         function resetCollage() {
-            for (let i = 0; i < 4; i++) {
-                collageCells[i].classList.remove('filled');
-                collageImgs[i].style.display = 'none';
-                collageCells[i].querySelector('.cell-label').style.display = 'block';
-            }
+            const cells = Array.from(collageContainer.children);
+            cells.forEach(cell => {
+                cell.classList.remove('filled');
+                const img = cell.querySelector('.collage-img');
+                if (img) {
+                    img.style.display = 'none';
+                    img.src = '';
+                }
+                const label = cell.querySelector('.cell-label');
+                if (label) {
+                    label.style.display = 'block';
+                }
+            });
         }
         
         // Reset photo indicators
@@ -667,6 +890,11 @@
             statusText.textContent = 'Capture complete!';
             collageStatus.textContent = 'Collage created successfully!';
             
+            // Show celebration message
+            setTimeout(() => {
+                collageStatus.innerHTML = '<span style="color:#2ecc71; font-weight:bold;">🎉 Collage Complete! Download by right-clicking on any image.</span>';
+            }, 1000);
+            
             // Reset progress bar
             setTimeout(() => {
                 progressFill.style.width = '0%';
@@ -677,6 +905,22 @@
         
         // Event Listeners
         startBtn.addEventListener('click', startCapture);
+        
+        // Template selection
+        templateOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                selectedTemplate = option.dataset.template;
+                applyTemplate(selectedTemplate);
+                
+                // Reset collage if photos were already captured
+                if (capturedPhotos.length > 0) {
+                    // Reapply captured photos to new template
+                    capturedPhotos.forEach((photoData, index) => {
+                        updateCollageCell(index, photoData);
+                    });
+                }
+            });
+        });
         
         // Initialize camera on page load
         window.addEventListener('DOMContentLoaded', initCamera);
