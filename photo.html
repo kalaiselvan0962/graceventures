@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+    
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Photo</title>
-        
-     <style>
+    <style>
     * {
         margin: 0;
         padding: 0;
@@ -206,7 +206,7 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
     }
     
-   .countdown-display {
+    .countdown-display {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -229,7 +229,8 @@
         inset 0 0 20px rgba(255, 255, 255, 0.3);
     border: 2px solid rgba(79, 172, 254, 0.5);
     animation: pulseGlow 1s ease-in-out infinite alternate;
-} 
+}
+    
     @keyframes pulseGlow {
         from { box-shadow: 0 0 40px rgba(79, 172, 254, 0.6); }
         to { box-shadow: 0 0 80px rgba(79, 172, 254, 1); }
@@ -1863,14 +1864,20 @@
                 ctx.fillStyle = '#2c3e50';
                 ctx.font = 'bold 36px "Segoe UI", sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('✨ Wizklub Students ✨', collageArea.x + collageArea.width / 2, footerY + 60);
+                ctx.fillText('✨ Creative Photo Collage ✨', collageArea.x + collageArea.width / 2, footerY + 60);
                 
                 // Draw attribution
                 ctx.fillStyle = '#7f8c8d';
                 ctx.font = '28px "Segoe UI", sans-serif';
-                ctx.fillText('Created with ❤️', collageArea.x + collageArea.width / 2, footerY + 110);
+                ctx.fillText('Created with ❤️ by', collageArea.x + collageArea.width / 2, footerY + 110);
                 
-
+                // Draw Wizklub badge
+                const badgeText = 'Wizklub Students';
+                ctx.fillStyle = '#FF6B6B';
+                const badgeWidth = ctx.measureText(badgeText).width + 40;
+                const badgeX = collageArea.x + collageArea.width / 2 - badgeWidth / 2;
+                const badgeY = footerY + 140;
+                const badgeHeight = 50;
                 
                 // Gradient for badge
                 const badgeGradient = ctx.createLinearGradient(badgeX, badgeY, badgeX, badgeY + badgeHeight);
@@ -2164,35 +2171,5 @@
             }
         });
     </script>
-
-    <script>
-    // Create floating particles
-    function createParticles() {
-        const particlesContainer = document.createElement('div');
-        particlesContainer.className = 'floating-particles';
-        document.body.appendChild(particlesContainer);
-        
-        for (let i = 0; i < 20; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            
-            const size = Math.random() * 10 + 5;
-            particle.style.width = `${size}px`;
-            particle.style.height = `${size}px`;
-            
-            const startX = Math.random() * 100;
-            particle.style.left = `${startX}vw`;
-            
-            const duration = Math.random() * 20 + 10;
-            const delay = Math.random() * 5;
-            particle.style.animation = `float ${duration}s linear ${delay}s infinite`;
-            
-            particlesContainer.appendChild(particle);
-        }
-    }
-    
-    // Create particles when page loads
-    window.addEventListener('load', createParticles);
-</script>
 </body>
 </html>
