@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>School Expo • iOS Navigation</title>
     <style>
         * {
@@ -35,6 +35,11 @@
             --ios-text-tertiary: #8E8E93;
             --ios-shadow: 0px 0px 20px rgba(0, 0, 0, 0.08);
             --ios-shadow-large: 0px 10px 30px rgba(0, 0, 0, 0.12);
+            --safe-area-inset-top: env(safe-area-inset-top, 0px);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-area-inset-left: env(safe-area-inset-left, 0px);
+            --safe-area-inset-right: env(safe-area-inset-right, 0px);
+            --sidebar-width: 360px;
         }
         
         @media (prefers-color-scheme: dark) {
@@ -69,40 +74,43 @@
             overflow: hidden;
             height: 100vh;
             -webkit-tap-highlight-color: transparent;
+            padding-top: var(--safe-area-inset-top);
+            padding-bottom: var(--safe-area-inset-bottom);
         }
         /* iOS Status Bar */
         
         .status-bar {
-            height: 44px;
+            height: clamp(44px, 10vh, 60px);
+            min-height: 44px;
             background: var(--ios-card);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 20px;
+            padding: 0 max(16px, var(--safe-area-inset-left));
             border-bottom: 0.5px solid var(--ios-gray5);
             position: relative;
             z-index: 1000;
         }
         
         .status-time {
-            font-size: 15px;
+            font-size: clamp(14px, 3vw, 16px);
             font-weight: 600;
         }
         
         .status-icons {
             display: flex;
-            gap: 5px;
+            gap: clamp(3px, 1vw, 5px);
             align-items: center;
         }
         
         .status-icon {
-            font-size: 14px;
+            font-size: clamp(12px, 2.5vw, 14px);
         }
         /* Header */
         
         .header {
             background: var(--ios-card);
-            padding: 12px 20px;
+            padding: clamp(8px, 2vh, 12px) clamp(16px, 4vw, 20px);
             border-bottom: 0.5px solid var(--ios-gray5);
             position: relative;
             z-index: 999;
@@ -110,12 +118,14 @@
         
         .header-content {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
+            gap: 10px;
         }
         
         .header-title {
-            font-size: 28px;
+            font-size: clamp(22px, 5vw, 28px);
             font-weight: 700;
             letter-spacing: -0.5px;
             background: linear-gradient(90deg, var(--ios-blue), var(--ios-purple));
@@ -125,7 +135,7 @@
         }
         
         .header-subtitle {
-            font-size: 15px;
+            font-size: clamp(13px, 3vw, 15px);
             color: var(--ios-text-tertiary);
             font-weight: 400;
             margin-top: 2px;
@@ -133,23 +143,24 @@
         
         .header-actions {
             display: flex;
-            gap: 15px;
+            gap: clamp(8px, 2vw, 15px);
             align-items: center;
         }
         
         .header-btn {
-            width: 36px;
-            height: 36px;
+            width: clamp(32px, 8vw, 36px);
+            height: clamp(32px, 8vw, 36px);
             background: var(--ios-gray6);
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: clamp(16px, 4vw, 18px);
             cursor: pointer;
             transition: all 0.2s ease;
             border: none;
             color: var(--ios-text);
+            flex-shrink: 0;
         }
         
         .header-btn:hover {
@@ -160,46 +171,90 @@
         
         .main-container {
             display: flex;
-            height: calc(100vh - 120px);
+            height: calc(100vh - clamp(120px, 22vh, 140px));
             position: relative;
+            width: 100%;
+        }
+        /* Sidebar Toggle Button */
+        
+        .sidebar-toggle {
+            position: fixed;
+            top: 120px;
+            left: 20px;
+            width: 44px;
+            height: 44px;
+            background: var(--ios-card);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: var(--ios-shadow);
+            border: 1px solid var(--ios-gray5);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        .sidebar-toggle:hover {
+            background: var(--ios-gray6);
+            transform: scale(1.1);
+        }
+        
+        .sidebar-toggle.hidden {
+            left: 380px;
         }
         /* Sidebar - iOS Style */
         
         .sidebar {
-            width: 360px;
+            width: var(--sidebar-width);
             background: var(--ios-card);
             border-right: 0.5px solid var(--ios-gray5);
-            padding: 20px;
+            padding: clamp(16px, 3vw, 20px);
             overflow-y: auto;
             position: relative;
             z-index: 100;
+            flex-shrink: 0;
+            transform: translateX(0);
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            height: 100%;
+        }
+        
+        .sidebar.hidden {
+            transform: translateX(-100%);
+            display: none;
+        }
+        
+        .sidebar-visible {
+            transform: translateX(0) !important;
+            display: block !important;
         }
         
         .sidebar-section {
-            margin-bottom: 30px;
+            margin-bottom: clamp(20px, 4vh, 30px);
         }
         
         .section-title {
-            font-size: 13px;
+            font-size: clamp(11px, 2vw, 13px);
             font-weight: 600;
             color: var(--ios-text-tertiary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 15px;
+            margin-bottom: clamp(12px, 3vh, 15px);
             padding-left: 10px;
         }
         /* Subject Cards - iOS Style */
         
         .subject-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: clamp(10px, 2vw, 15px);
         }
         
         .subject-card {
             background: var(--ios-gray6);
-            border-radius: 16px;
-            padding: 20px;
+            border-radius: clamp(12px, 3vw, 16px);
+            padding: clamp(15px, 3vw, 20px);
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             border: 1px solid transparent;
@@ -220,15 +275,15 @@
         }
         
         .subject-icon {
-            width: 48px;
-            height: 48px;
+            width: clamp(40px, 10vw, 48px);
+            height: clamp(40px, 10vw, 48px);
             background: linear-gradient(135deg, var(--ios-blue), var(--ios-indigo));
-            border-radius: 12px;
+            border-radius: clamp(10px, 2vw, 12px);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            margin-bottom: 15px;
+            font-size: clamp(20px, 5vw, 24px);
+            margin-bottom: clamp(12px, 3vh, 15px);
             color: white;
         }
         
@@ -257,14 +312,15 @@
         }
         
         .subject-name {
-            font-size: 17px;
+            font-size: clamp(15px, 3vw, 17px);
             font-weight: 600;
             margin-bottom: 5px;
             color: var(--ios-text);
+            word-break: break-word;
         }
         
         .subject-room {
-            font-size: 13px;
+            font-size: clamp(11px, 2vw, 13px);
             font-weight: 500;
             color: var(--ios-text-tertiary);
         }
@@ -272,9 +328,9 @@
         
         .current-location-card {
             background: var(--ios-card);
-            border-radius: 16px;
-            padding: 25px;
-            margin-top: 20px;
+            border-radius: clamp(14px, 3vw, 16px);
+            padding: clamp(18px, 4vw, 25px);
+            margin-top: clamp(15px, 3vh, 20px);
             border: 1px solid var(--ios-gray5);
             box-shadow: var(--ios-shadow);
         }
@@ -282,30 +338,31 @@
         .location-header {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: clamp(10px, 3vw, 15px);
+            margin-bottom: clamp(15px, 4vh, 20px);
         }
         
         .location-icon {
-            width: 52px;
-            height: 52px;
+            width: clamp(44px, 10vw, 52px);
+            height: clamp(44px, 10vw, 52px);
             background: linear-gradient(135deg, var(--ios-blue), var(--ios-indigo));
-            border-radius: 14px;
+            border-radius: clamp(12px, 3vw, 14px);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 26px;
+            font-size: clamp(22px, 5vw, 26px);
             color: white;
+            flex-shrink: 0;
         }
         
         .location-info h3 {
-            font-size: 20px;
+            font-size: clamp(18px, 4vw, 20px);
             font-weight: 700;
             margin-bottom: 4px;
         }
         
         .location-info p {
-            font-size: 15px;
+            font-size: clamp(13px, 3vw, 15px);
             color: var(--ios-text-tertiary);
             font-weight: 400;
         }
@@ -313,20 +370,20 @@
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+            gap: clamp(8px, 2vw, 12px);
+            margin-top: clamp(15px, 3vh, 20px);
         }
         
         .stat-item {
             text-align: center;
-            padding: 15px;
+            padding: clamp(12px, 3vw, 15px);
             background: var(--ios-gray6);
-            border-radius: 12px;
+            border-radius: clamp(10px, 2vw, 12px);
         }
         
         .stat-value {
-            font-size: 22px;
+            font-size: clamp(18px, 4vw, 22px);
             font-weight: 700;
             margin-bottom: 4px;
         }
@@ -348,7 +405,7 @@
         }
         
         .stat-label {
-            font-size: 12px;
+            font-size: clamp(10px, 2vw, 12px);
             color: var(--ios-text-tertiary);
             font-weight: 500;
             text-transform: uppercase;
@@ -357,17 +414,17 @@
         /* Navigation Controls */
         
         .nav-controls {
-            margin-top: 25px;
+            margin-top: clamp(20px, 4vh, 25px);
         }
         
         .nav-button {
             width: 100%;
-            padding: 18px;
+            padding: clamp(16px, 4vw, 18px);
             background: var(--ios-blue);
             border: none;
-            border-radius: 14px;
+            border-radius: clamp(12px, 3vw, 14px);
             color: white;
-            font-size: 17px;
+            font-size: clamp(15px, 3vw, 17px);
             font-weight: 600;
             cursor: pointer;
             display: flex;
@@ -375,7 +432,12 @@
             justify-content: center;
             gap: 10px;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            margin-bottom: 12px;
+            margin-bottom: clamp(8px, 2vh, 12px);
+            flex-wrap: wrap;
+        }
+        
+        .nav-button span {
+            white-space: nowrap;
         }
         
         .nav-button:hover {
@@ -398,6 +460,10 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            min-width: 0;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            width: 100%;
+            height: 100%;
         }
         /* Map Wrapper - Centered */
         
@@ -406,21 +472,24 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 90%;
-            height: 90%;
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
+            touch-action: pan-x pan-y;
         }
         /* U-Shaped School Map */
         
         .u-shaped-map {
             position: relative;
-            width: 600px;
-            height: 400px;
+            width: min(600px, 90%);
+            height: min(400px, 90%);
             display: flex;
             align-items: center;
             justify-content: center;
+            transform-origin: center;
+            transition: all 0.3s ease;
         }
         /* Building Structure */
         
@@ -428,8 +497,8 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            border: 4px solid var(--ios-gray3);
-            border-radius: 30px;
+            border: max(2px, 0.5vw) solid var(--ios-gray3);
+            border-radius: clamp(20px, 5vw, 30px);
             background: rgba(255, 255, 255, 0.05);
             box-shadow: var(--ios-shadow-large);
         }
@@ -438,16 +507,16 @@
             position: absolute;
             width: 80%;
             height: 70%;
-            border: 3px solid var(--ios-gray2);
+            border: max(2px, 0.4vw) solid var(--ios-gray2);
             border-top: none;
-            border-radius: 0 0 30px 30px;
+            border-radius: 0 0 clamp(20px, 5vw, 30px) clamp(20px, 5vw, 30px);
         }
         /* Rooms - iOS Style */
         
         .room {
             position: absolute;
             background: var(--ios-card);
-            border-radius: 14px;
+            border-radius: clamp(12px, 3vw, 14px);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -455,8 +524,10 @@
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             box-shadow: var(--ios-shadow);
-            border: 2px solid transparent;
+            border: max(1px, 0.3vw) solid transparent;
             z-index: 10;
+            padding: 5px;
+            box-sizing: border-box;
         }
         
         .room:hover {
@@ -482,76 +553,81 @@
         }
         
         .room-icon {
-            font-size: 24px;
-            margin-bottom: 8px;
+            font-size: clamp(18px, 4vw, 24px);
+            margin-bottom: clamp(4px, 1vw, 8px);
         }
         
         .room-name {
-            font-size: 14px;
+            font-size: clamp(12px, 2.5vw, 14px);
             font-weight: 600;
             color: var(--ios-text);
+            text-align: center;
+            word-break: break-word;
+            line-height: 1.2;
         }
         
         .room-number {
             position: absolute;
-            top: -12px;
-            right: -12px;
+            top: -10px;
+            right: -10px;
             background: var(--ios-red);
             color: white;
-            font-size: 12px;
+            font-size: clamp(10px, 2vw, 12px);
             font-weight: 700;
-            padding: 4px 10px;
+            padding: clamp(3px, 1vw, 4px) clamp(6px, 1.5vw, 10px);
             border-radius: 20px;
             border: 2px solid var(--ios-card);
+            min-width: 25px;
+            text-align: center;
         }
         /* Room Positions */
         
         .room-english {
-            top: 20%;
-            left: 10%;
-            width: 120px;
-            height: 100px;
+            top: 10%;
+            left: 5%;
+            width: clamp(90px, 20vw, 120px);
+            height: clamp(70px, 25vh, 100px);
         }
         
         .room-maths {
-            top: 20%;
-            left: 40%;
-            width: 120px;
-            height: 100px;
+            top: 10%;
+            left: 35%;
+            width: clamp(90px, 20vw, 120px);
+            height: clamp(70px, 25vh, 100px);
         }
         
         .room-science {
-            top: 20%;
-            right: 10%;
-            width: 120px;
-            height: 100px;
+            top: 10%;
+            right: 5%;
+            width: clamp(90px, 20vw, 120px);
+            height: clamp(70px, 25vh, 100px);
         }
         
         .room-computer {
-            bottom: 20%;
-            right: 10%;
-            width: 120px;
-            height: 100px;
+            bottom: 10%;
+            right: 5%;
+            width: clamp(90px, 20vw, 120px);
+            height: clamp(70px, 25vh, 100px);
         }
         
         .room-social {
-            bottom: 20%;
-            left: 40%;
-            width: 120px;
-            height: 100px;
+            bottom: 10%;
+            left: 35%;
+            width: clamp(90px, 20vw, 120px);
+            height: clamp(70px, 25vh, 100px);
         }
         
         .room-tamil {
-            bottom: 20%;
-            left: 10%;
-            width: 120px;
-            height: 100px;
+            bottom: 10%;
+            left: 5%;
+            width: clamp(90px, 20vw, 120px);
+            height: clamp(70px, 25vh, 100px);
         }
         /* Navigation Path */
         
         .nav-path {
             position: absolute;
-            height: 6px;
+            height: clamp(4px, 1vw, 6px);
             background: linear-gradient(90deg, transparent 0%, var(--ios-green) 20%, var(--ios-green) 80%, transparent 100%);
             border-radius: 3px;
             transform-origin: left center;
@@ -582,11 +658,11 @@
         
         .user-marker {
             position: absolute;
-            width: 40px;
-            height: 40px;
+            width: clamp(30px, 8vw, 40px);
+            height: clamp(30px, 8vw, 40px);
             background: var(--ios-blue);
             border-radius: 20px;
-            border: 3px solid var(--ios-card);
+            border: max(2px, 0.5vw) solid var(--ios-card);
             box-shadow: var(--ios-shadow-large);
             transform: translate(-50%, -50%);
             pointer-events: none;
@@ -595,7 +671,7 @@
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 20px;
+            font-size: clamp(16px, 4vw, 20px);
             transition: all 2s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
         
@@ -624,18 +700,18 @@
         
         .entrance {
             position: absolute;
-            width: 50px;
-            height: 50px;
+            width: clamp(40px, 10vw, 50px);
+            height: clamp(40px, 10vw, 50px);
             background: var(--ios-orange);
-            border-radius: 12px;
+            border-radius: clamp(10px, 2vw, 12px);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 20px;
+            font-size: clamp(16px, 4vw, 20px);
             cursor: pointer;
             z-index: 20;
-            border: 3px solid var(--ios-card);
+            border: max(2px, 0.5vw) solid var(--ios-card);
             box-shadow: var(--ios-shadow);
             transition: all 0.3s ease;
         }
@@ -646,24 +722,24 @@
         
         .entrance-1 {
             top: 50%;
-            left: -25px;
+            left: clamp(-20px, -5vw, -25px);
         }
         
         .entrance-2 {
             top: 50%;
-            right: -25px;
+            right: clamp(-20px, -5vw, -25px);
         }
         
         .entrance-label {
             position: absolute;
-            top: -30px;
+            top: -25px;
             left: 50%;
             transform: translateX(-50%);
             background: var(--ios-card);
             color: var(--ios-text);
-            padding: 6px 12px;
-            border-radius: 10px;
-            font-size: 12px;
+            padding: clamp(4px, 1vw, 6px) clamp(8px, 2vw, 12px);
+            border-radius: clamp(8px, 2vw, 10px);
+            font-size: clamp(10px, 2vw, 12px);
             font-weight: 600;
             white-space: nowrap;
             box-shadow: var(--ios-shadow);
@@ -673,22 +749,22 @@
         
         .map-controls {
             position: absolute;
-            bottom: 30px;
-            right: 30px;
+            bottom: clamp(15px, 3vh, 30px);
+            right: clamp(15px, 3vw, 30px);
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: clamp(10px, 2vh, 15px);
             z-index: 1000;
         }
         
         .map-control-btn {
-            width: 50px;
-            height: 50px;
+            width: clamp(40px, 10vw, 50px);
+            height: clamp(40px, 10vw, 50px);
             background: var(--ios-card);
-            border-radius: 14px;
+            border-radius: clamp(12px, 3vw, 14px);
             border: 1px solid var(--ios-gray5);
             color: var(--ios-text);
-            font-size: 20px;
+            font-size: clamp(16px, 4vw, 20px);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -699,6 +775,37 @@
         }
         
         .map-control-btn:hover {
+            background: var(--ios-gray6);
+            transform: scale(1.1);
+        }
+        /* Quick Access Bar */
+        
+        .quick-access {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .quick-access-btn {
+            width: 44px;
+            height: 44px;
+            background: var(--ios-card);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: var(--ios-shadow);
+            border: 1px solid var(--ios-gray5);
+            transition: all 0.3s ease;
+        }
+        
+        .quick-access-btn:hover {
             background: var(--ios-gray6);
             transform: scale(1.1);
         }
@@ -720,15 +827,15 @@
         }
         
         .loading-logo {
-            width: 80px;
-            height: 80px;
+            width: clamp(60px, 15vw, 80px);
+            height: clamp(60px, 15vw, 80px);
             background: linear-gradient(135deg, var(--ios-blue), var(--ios-purple));
-            border-radius: 20px;
+            border-radius: clamp(16px, 4vw, 20px);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
-            margin-bottom: 30px;
+            font-size: clamp(28px, 7vw, 36px);
+            margin-bottom: clamp(20px, 5vh, 30px);
             animation: loadingPulse 1.5s ease-in-out infinite;
         }
         
@@ -743,17 +850,18 @@
         }
         
         .loading-text {
-            font-size: 17px;
+            font-size: clamp(15px, 3vw, 17px);
             font-weight: 600;
             color: var(--ios-text);
-            margin-bottom: 10px;
+            margin-bottom: clamp(8px, 2vh, 10px);
         }
         
         .loading-subtext {
-            font-size: 15px;
+            font-size: clamp(13px, 3vw, 15px);
             color: var(--ios-text-tertiary);
             text-align: center;
-            max-width: 300px;
+            max-width: min(300px, 80vw);
+            padding: 0 20px;
         }
         /* Modal - iOS Style */
         
@@ -771,6 +879,7 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s ease;
+            padding: var(--safe-area-inset-top) var(--safe-area-inset-right) var(--safe-area-inset-bottom) var(--safe-area-inset-left);
         }
         
         .modal.active {
@@ -780,9 +889,9 @@
         
         .modal-content {
             background: var(--ios-card);
-            border-radius: 20px;
+            border-radius: clamp(16px, 4vw, 20px);
             width: 90%;
-            max-width: 400px;
+            max-width: min(400px, 95vw);
             max-height: 80vh;
             overflow-y: auto;
             box-shadow: var(--ios-shadow-large);
@@ -795,7 +904,7 @@
         }
         
         .modal-header {
-            padding: 25px;
+            padding: clamp(20px, 5vw, 25px);
             border-bottom: 0.5px solid var(--ios-gray5);
             display: flex;
             align-items: center;
@@ -803,20 +912,20 @@
         }
         
         .modal-title {
-            font-size: 22px;
+            font-size: clamp(18px, 4vw, 22px);
             font-weight: 700;
         }
         
         .modal-close {
-            width: 32px;
-            height: 32px;
+            width: clamp(28px, 7vw, 32px);
+            height: clamp(28px, 7vw, 32px);
             background: var(--ios-gray6);
-            border-radius: 10px;
+            border-radius: clamp(8px, 2vw, 10px);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 18px;
+            font-size: clamp(16px, 4vw, 18px);
             transition: all 0.2s ease;
         }
         
@@ -825,81 +934,144 @@
         }
         
         .modal-body {
-            padding: 25px;
+            padding: clamp(20px, 5vw, 25px);
         }
         
         .modal-info-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: clamp(10px, 3vw, 15px);
+            margin-bottom: clamp(20px, 5vh, 25px);
         }
         
         .modal-info-item {
             background: var(--ios-gray6);
-            border-radius: 12px;
-            padding: 15px;
+            border-radius: clamp(10px, 2vw, 12px);
+            padding: clamp(12px, 3vw, 15px);
         }
         
         .modal-info-label {
-            font-size: 13px;
+            font-size: clamp(11px, 2.5vw, 13px);
             color: var(--ios-text-tertiary);
             margin-bottom: 6px;
             font-weight: 500;
         }
         
         .modal-info-value {
-            font-size: 17px;
+            font-size: clamp(15px, 3vw, 17px);
             font-weight: 600;
             color: var(--ios-text);
         }
-        /* Responsive Design */
+        /* Touch-friendly improvements */
         
-        @media (max-width: 1200px) {
+        @media (hover: none) and (pointer: coarse) {
+            .header-btn:hover,
+            .subject-card:hover,
+            .room:hover,
+            .map-control-btn:hover,
+            .nav-button:hover,
+            .sidebar-toggle:hover,
+            .quick-access-btn:hover {
+                transform: none;
+            }
+            .subject-card:active,
+            .room:active {
+                transform: scale(0.98);
+            }
+        }
+        /* Orientation-specific adjustments */
+        
+        @media (orientation: portrait) {
+            .main-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: clamp(300px, 40vh, 400px);
+                border-right: none;
+                border-bottom: 0.5px solid var(--ios-gray5);
+            }
+            .map-container {
+                height: calc(60vh - 100px);
+            }
+            .u-shaped-map {
+                width: 95%;
+                height: 95%;
+            }
+            .sidebar-toggle {
+                top: 10px;
+                left: 10px;
+            }
+            .quick-access {
+                top: 10px;
+                right: 10px;
+                flex-direction: row;
+            }
+        }
+        
+        @media (orientation: landscape) and (max-height: 600px) {
+            .main-container {
+                height: calc(100vh - 100px);
+            }
+            .sidebar {
+                width: clamp(250px, 35vw, 320px);
+            }
+            .subject-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .subject-card {
+                padding: 12px;
+            }
+            .subject-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 20px;
+            }
+        }
+        /* Tablet Optimizations */
+        
+        @media (min-width: 768px) and (max-width: 1024px) {
             .sidebar {
                 width: 320px;
+            }
+            .subject-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
             .u-shaped-map {
                 width: 500px;
                 height: 350px;
             }
         }
+        /* Mobile Optimizations */
         
-        @media (max-width: 768px) {
-            .main-container {
+        @media (max-width: 767px) {
+            .status-bar {
+                padding: 0 12px;
+            }
+            .header-content {
                 flex-direction: column;
-                height: calc(100vh - 120px);
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .header-actions {
+                align-self: flex-end;
             }
             .sidebar {
-                width: 100%;
-                height: 300px;
-                border-right: none;
-                border-bottom: 0.5px solid var(--ios-gray5);
-                overflow-x: auto;
-            }
-            .subject-grid {
-                grid-template-columns: repeat(3, 1fr);
-                overflow-x: auto;
-            }
-            .map-container {
-                height: calc(100% - 300px);
-            }
-            .u-shaped-map {
-                width: 90%;
-                height: 90%;
-            }
-            .room {
-                width: 100px;
-                height: 80px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .header-title {
-                font-size: 24px;
+                padding: 12px;
+                width: 280px;
             }
             .subject-grid {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .subject-card {
+                padding: 12px;
+            }
+            .subject-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 20px;
+                margin-bottom: 10px;
             }
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -912,12 +1084,131 @@
                 font-size: 12px;
             }
             .map-controls {
-                bottom: 15px;
-                right: 15px;
+                bottom: 10px;
+                right: 10px;
             }
             .map-control-btn {
-                width: 40px;
-                height: 40px;
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+            .nav-button {
+                padding: 14px;
+            }
+            .sidebar-toggle {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+                top: 10px;
+                left: 10px;
+            }
+            .quick-access-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+            }
+        }
+        /* Small Mobile Screens */
+        
+        @media (max-width: 480px) {
+            .header-title {
+                font-size: 20px;
+            }
+            .header-subtitle {
+                font-size: 12px;
+            }
+            .header-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 14px;
+            }
+            .subject-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .subject-card {
+                padding: 10px;
+            }
+            .subject-name {
+                font-size: 14px;
+            }
+            .subject-room {
+                font-size: 11px;
+            }
+            .location-info h3 {
+                font-size: 16px;
+            }
+            .location-info p {
+                font-size: 12px;
+            }
+            .room {
+                width: 70px;
+                height: 60px;
+            }
+            .room-icon {
+                font-size: 16px;
+                margin-bottom: 4px;
+            }
+            .room-name {
+                font-size: 11px;
+            }
+            .room-number {
+                font-size: 10px;
+                padding: 2px 6px;
+                top: -8px;
+                right: -8px;
+            }
+            .sidebar-toggle {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+            .quick-access-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+        }
+        /* Large Screens */
+        
+        @media (min-width: 1440px) {
+            .sidebar {
+                width: 400px;
+            }
+            .subject-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+            .u-shaped-map {
+                width: 700px;
+                height: 500px;
+            }
+            .room {
+                width: 140px;
+                height: 120px;
+            }
+        }
+        /* For landscape phones */
+        
+        @media (orientation: landscape) and (max-height: 500px) {
+            .sidebar {
+                overflow-y: auto;
+                height: 100%;
+            }
+            .subject-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .current-location-card {
+                padding: 15px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+            .stat-item {
+                padding: 10px;
+            }
+            .stat-value {
                 font-size: 16px;
             }
         }
@@ -943,7 +1234,6 @@
 </head>
 
 <body>
-
     <!-- Loading Screen -->
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-logo">🏫</div>
@@ -978,9 +1268,21 @@
 
     <!-- Main Container -->
     <div class="main-container">
+        <!-- Sidebar Toggle Button -->
+        <div class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">📚</div>
+
+        <!-- Quick Access Bar -->
+        <div class="quick-access" id="quickAccess">
+            <div class="quick-access-btn" onclick="showQuickSelect()">
+                🎯
+            </div>
+            <div class="quick-access-btn" onclick="showLocationInfo()">
+                ℹ️
+            </div>
+        </div>
 
         <!-- Sidebar -->
-        <div class="sidebar">
+        <div class="sidebar hidden" id="sidebar">
             <div class="sidebar-section">
                 <div class="section-title">Subject Exhibits</div>
                 <div class="subject-grid" id="subjectGrid"></div>
@@ -1016,22 +1318,22 @@
 
                 <div class="nav-controls">
                     <button class="nav-button" onclick="startNavigation()" id="navButton">
-            <span>📍</span>
-            <span>Start Navigation</span>
-          </button>
+                        <span>📍</span>
+                        <span>Start Navigation</span>
+                    </button>
                     <button class="nav-button secondary" onclick="findQuickestRoute()">
-            <span>⚡</span>
-            <span>Quickest Route</span>
-          </button>
+                        <span>⚡</span>
+                        <span>Quickest Route</span>
+                    </button>
                 </div>
             </div>
         </div>
 
         <!-- Map Container -->
-        <div class="map-container">
+        <div class="map-container" id="mapContainer">
             <div class="map-wrapper">
                 <!-- U-Shaped School Map -->
-                <div class="u-shaped-map">
+                <div class="u-shaped-map" id="uShapedMap">
                     <div class="building-outline"></div>
                     <div class="building-u-shape"></div>
 
@@ -1139,9 +1441,57 @@
                     </div>
                 </div>
                 <button class="nav-button" onclick="navigateToModalRoom()" style="width: 100%;">
-          <span>📍</span>
-          <span>Navigate to this Room</span>
-        </button>
+                    <span>📍</span>
+                    <span>Navigate to this Room</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Select Modal -->
+    <div class="modal" id="quickSelectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Quick Select</div>
+                <div class="modal-close" onclick="closeQuickSelect()">✕</div>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                    <button class="subject-card" onclick="selectSubjectFromModal('english')" style="padding: 15px;">
+                        <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #007AFF, #5856D6); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; margin-bottom: 10px;">📚</div>
+                        <div style="font-weight: 600;">English</div>
+                        <div style="font-size: 12px; color: var(--ios-text-tertiary);">Room 20</div>
+                    </button>
+                    <button class="subject-card" onclick="selectSubjectFromModal('tamil')" style="padding: 15px;">
+                        <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #FF3B30, #FF9500); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; margin-bottom: 10px;">🪶</div>
+                        <div style="font-weight: 600;">Tamil</div>
+                        <div style="font-size: 12px; color: var(--ios-text-tertiary);">Room 21</div>
+                    </button>
+                    <button class="subject-card" onclick="selectSubjectFromModal('science')" style="padding: 15px;">
+                        <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #34C759, #30B0C7); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; margin-bottom: 10px;">🔬</div>
+                        <div style="font-weight: 600;">Science</div>
+                        <div style="font-size: 12px; color: var(--ios-text-tertiary);">Room 5</div>
+                    </button>
+                    <button class="subject-card" onclick="selectSubjectFromModal('social')" style="padding: 15px;">
+                        <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #FF9500, #FFCC00); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; margin-bottom: 10px;">🌍</div>
+                        <div style="font-weight: 600;">Social</div>
+                        <div style="font-size: 12px; color: var(--ios-text-tertiary);">Room 24</div>
+                    </button>
+                    <button class="subject-card" onclick="selectSubjectFromModal('maths')" style="padding: 15px;">
+                        <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #AF52DE, #FF2D55); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; margin-bottom: 10px;">📐</div>
+                        <div style="font-weight: 600;">Maths</div>
+                        <div style="font-size: 12px; color: var(--ios-text-tertiary);">Room 4</div>
+                    </button>
+                    <button class="subject-card" onclick="selectSubjectFromModal('computer')" style="padding: 15px;">
+                        <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #32D74B, #64D2FF); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; margin-bottom: 10px;">💻</div>
+                        <div style="font-weight: 600;">Computer</div>
+                        <div style="font-size: 12px; color: var(--ios-text-tertiary);">Room 22</div>
+                    </button>
+                </div>
+                <button class="nav-button secondary" onclick="closeQuickSelect()" style="width: 100%; margin-top: 20px;">
+                    <span>←</span>
+                    <span>Back</span>
+                </button>
             </div>
         </div>
     </div>
@@ -1247,6 +1597,9 @@
         let currentMapZoom = 1;
         let currentRotation = 0;
         let isNavigating = false;
+        let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        let isTouchDevice = 'ontouchstart' in window;
+        let sidebarVisible = false;
 
         // Initialize application
         function init() {
@@ -1267,6 +1620,67 @@
 
             // Set initial entrance
             selectEntrance(1);
+
+            // Hide sidebar by default
+            setTimeout(() => {
+                toggleSidebar(false);
+            }, 100);
+
+            // Adjust map size
+            setTimeout(adjustMapSize, 100);
+        }
+
+        // Toggle sidebar visibility
+        function toggleSidebar(show) {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const mapContainer = document.getElementById('mapContainer');
+
+            if (show === undefined) {
+                sidebarVisible = !sidebarVisible;
+            } else {
+                sidebarVisible = show;
+            }
+
+            if (sidebarVisible) {
+                sidebar.classList.remove('hidden');
+                sidebarToggle.classList.add('hidden');
+                sidebarToggle.innerHTML = '←';
+                // Move map container when sidebar is visible
+                mapContainer.style.marginLeft = '0';
+            } else {
+                sidebar.classList.add('hidden');
+                sidebarToggle.classList.remove('hidden');
+                sidebarToggle.innerHTML = '📚';
+                // Reset map container position when sidebar is hidden
+                mapContainer.style.marginLeft = '0';
+                mapContainer.style.width = '100%';
+            }
+
+            // Adjust map size after sidebar toggle
+            setTimeout(adjustMapSize, 300);
+        }
+
+        // Adjust map size based on sidebar visibility
+        function adjustMapSize() {
+            const uShapedMap = document.getElementById('uShapedMap');
+            const mapContainer = document.getElementById('mapContainer');
+            const sidebar = document.getElementById('sidebar');
+
+            if (sidebarVisible && window.innerWidth > 768) {
+                // When sidebar is visible, map takes remaining space
+                mapContainer.style.width = `calc(100% - ${sidebar.offsetWidth}px)`;
+                mapContainer.style.marginLeft = `${sidebar.offsetWidth}px`;
+                uShapedMap.style.width = 'min(500px, 80%)';
+            } else {
+                // When sidebar is hidden, map takes full width
+                mapContainer.style.width = '100%';
+                mapContainer.style.marginLeft = '0';
+                uShapedMap.style.width = 'min(600px, 90%)';
+            }
+
+            // Adjust map height
+            uShapedMap.style.height = 'min(400px, 90%)';
         }
 
         // Update current time
@@ -1294,13 +1708,21 @@
                 const card = document.createElement('div');
                 card.className = `subject-card ${subjectId}`;
                 card.id = `card-${subjectId}`;
-                card.onclick = () => selectSubject(subjectId);
+                card.onclick = () => {
+                    selectSubject(subjectId);
+                    // Auto-hide sidebar on mobile after selection
+                    if (window.innerWidth < 768) {
+                        setTimeout(() => {
+                            toggleSidebar(false);
+                        }, 300);
+                    }
+                };
 
                 card.innerHTML = `
-          <div class="subject-icon">${subject.icon}</div>
-          <div class="subject-name">${subject.name.split(' ')[0]}</div>
-          <div class="subject-room">Room ${subject.room}</div>
-        `;
+                    <div class="subject-icon">${subject.icon}</div>
+                    <div class="subject-name">${subject.name.split(' ')[0]}</div>
+                    <div class="subject-room">Room ${subject.room}</div>
+                `;
 
                 grid.appendChild(card);
             });
@@ -1318,13 +1740,20 @@
 
             // Set active states
             document.getElementById(`card-${subjectId}`).classList.add('active');
-            document.getElementById(`room${subjectId.charAt(0).toUpperCase() + subjectId.slice(1)}`).classList.add('active');
+            const roomId = subjectId.charAt(0).toUpperCase() + subjectId.slice(1);
+            document.getElementById(`room${roomId}`).classList.add('active');
 
             // Update current subject
             currentSubject = subjects[subjectId];
 
             // Update info panel
             updateInfoPanel(subjectId);
+        }
+
+        // Select subject from modal
+        function selectSubjectFromModal(subjectId) {
+            selectSubject(subjectId);
+            closeQuickSelect();
         }
 
         // Update info panel
@@ -1341,10 +1770,11 @@
             document.getElementById('statRoom').textContent = subject.room;
 
             // Update navigation button
+            const buttonText = window.innerWidth < 480 ? 'Navigate' : `Navigate to ${subject.name.split(' ')[0]}`;
             document.getElementById('navButton').innerHTML = `
-        <span>📍</span>
-        <span>Navigate to ${subject.name.split(' ')[0]}</span>
-      `;
+                <span>📍</span>
+                <span>${buttonText}</span>
+            `;
         }
 
         // Select entrance
@@ -1369,11 +1799,20 @@
 
             isNavigating = true;
 
-            // Get start and end points
-            const startX = currentEntrance === 1 ? 50 : 550;
-            const startY = 200;
-            const endX = currentSubject.coordinates.x;
-            const endY = currentSubject.coordinates.y;
+            // Hide sidebar when starting navigation on mobile
+            if (window.innerWidth < 768) {
+                toggleSidebar(false);
+            }
+
+            // Get start and end points based on map size
+            const mapElement = document.querySelector('.u-shaped-map');
+            const mapWidth = mapElement.offsetWidth;
+            const mapHeight = mapElement.offsetHeight;
+
+            const startX = currentEntrance === 1 ? 50 : mapWidth - 50;
+            const startY = mapHeight / 2;
+            const endX = (currentSubject.coordinates.x / 600) * mapWidth;
+            const endY = (currentSubject.coordinates.y / 400) * mapHeight;
 
             // Calculate path
             const path = document.getElementById('navPath');
@@ -1437,14 +1876,14 @@
             document.getElementById('locationStatus').style.color = 'var(--ios-green)';
 
             // Show iOS-style haptic feedback
-            if ('vibrate' in navigator) {
+            if ('vibrate' in navigator && isMobile) {
                 navigator.vibrate([50, 50, 50]);
             }
         }
 
         // Find quickest route
         function findQuickestRoute() {
-            alert(`🚀 Recommended Route:
+            const message = `🚀 Recommended Route:
       
 1. Start at Entrance ${currentEntrance}
 2. Walk to English Expo (Room 20) - 2 min
@@ -1454,7 +1893,33 @@
 6. Visit Social Expo (Room 24) - 1 min
 7. End at Tamil Expo (Room 21) - 1 min
 
-Total: 8 minutes walk`);
+Total: 8 minutes walk`;
+
+            if (isMobile) {
+                alert(message);
+            } else {
+                alert(message);
+            }
+        }
+
+        // Show quick select modal
+        function showQuickSelect() {
+            document.getElementById('quickSelectModal').classList.add('active');
+        }
+
+        // Close quick select modal
+        function closeQuickSelect() {
+            document.getElementById('quickSelectModal').classList.remove('active');
+        }
+
+        // Show location info
+        function showLocationInfo() {
+            if (!currentSubject) {
+                alert("Please select a room first!");
+                toggleSidebar(true);
+                return;
+            }
+            showRoomInfo(Object.keys(subjects).find(key => subjects[key] === currentSubject));
         }
 
         // Show room info modal
@@ -1521,9 +1986,9 @@ Total: 8 minutes walk`);
         function updateMapTransform() {
             const map = document.querySelector('.u-shaped-map');
             map.style.transform = `
-        scale(${currentMapZoom})
-        rotate(${currentRotation}deg)
-      `;
+                scale(${currentMapZoom})
+                rotate(${currentRotation}deg)
+            `;
         }
 
         // Reset navigation
@@ -1557,8 +2022,11 @@ Total: 8 minutes walk`);
             // Reset map
             resetMap();
 
+            // Show sidebar for selection
+            toggleSidebar(true);
+
             // Show iOS-style haptic feedback
-            if ('vibrate' in navigator) {
+            if ('vibrate' in navigator && isMobile) {
                 navigator.vibrate(100);
             }
         }
@@ -1575,14 +2043,23 @@ Total: 8 minutes walk`);
 
         // Show help
         function showHelp() {
-            alert(`📱 School Expo Navigation Help:
+            const helpMessage = `📱 School Expo Navigation Help:
       
+• Click the 📚 button to show/hide subject list
 • Tap any room on the map to select it
 • Use the buttons in the sidebar to navigate
 • Entrance 1 is for parents
 • Follow the green path to your destination
 • Use map controls to zoom and rotate
-• Tap 🔄 to reset your navigation`);
+• Tap 🔄 to reset your navigation
+• Use 🎯 button for quick room selection
+• Use ℹ️ button for room details`;
+
+            if (isMobile) {
+                alert(helpMessage);
+            } else {
+                alert(helpMessage);
+            }
         }
 
         // Initialize dark mode based on preference
@@ -1594,12 +2071,18 @@ Total: 8 minutes walk`);
         }
 
         // Room click handlers
-        document.getElementById('roomEnglish').onclick = () => showRoomInfo('english');
-        document.getElementById('roomTamil').onclick = () => showRoomInfo('tamil');
-        document.getElementById('roomScience').onclick = () => showRoomInfo('science');
-        document.getElementById('roomSocial').onclick = () => showRoomInfo('social');
-        document.getElementById('roomMaths').onclick = () => showRoomInfo('maths');
-        document.getElementById('roomComputer').onclick = () => showRoomInfo('computer');
+        document.getElementById('roomEnglish').onclick = () => selectSubject('english');
+        document.getElementById('roomTamil').onclick = () => selectSubject('tamil');
+        document.getElementById('roomScience').onclick = () => selectSubject('science');
+        document.getElementById('roomSocial').onclick = () => selectSubject('social');
+        document.getElementById('roomMaths').onclick = () => selectSubject('maths');
+        document.getElementById('roomComputer').onclick = () => selectSubject('computer');
+
+        // Window resize handler
+        window.addEventListener('resize', adjustMapSize);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(adjustMapSize, 100);
+        });
 
         // Initialize on load
         window.onload = init;
