@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBC News Headline Scraper</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #bb1919 0%, #a51515 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            color: white;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 25px;
+            background-color: #f8f8f8;
+            border-bottom: 1px solid #eee;
+        }
+        
+        button {
+            background-color: #bb1919;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            background-color: #a51515;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+        
+        .results, .info {
+            padding: 25px;
+        }
+        
+        .results {
+            flex: 3;
+            min-width: 300px;
+        }
+        
+        .info {
+            flex: 2;
+            min-width: 300px;
+            background-color: #f9f9f9;
+            border-left: 1px solid #eee;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #bb1919;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .headlines-list {
+            list-style-type: none;
+        }
+        
+        .headlines-list li {
+            padding: 15px;
+            margin-bottom: 12px;
+            background-color: white;
+            border-left: 4px solid #bb1919;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+        
+        .headlines-list li:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .headline-index {
+            display: inline-block;
+            width: 26px;
+            height: 26px;
+            background-color: #bb1919;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 26px;
+            margin-right: 12px;
+            font-weight: bold;
+        }
+        
+        .info-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #555;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 1.1rem;
+            color: #333;
+        }
+        
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .loader.active {
+            display: block;
+        }
+        
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #bb1919;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background-color: #ffeaea;
+            color: #d32f2f;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid #d32f2f;
+            display: none;
+        }
+        
+        .error-message.active {
+            display: block;
+        }
+        
+        .disclaimer {
+            font-size: 0.9rem;
+            color: #666;
+            padding: 15px;
+            background-color: #f0f0f0;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+        
+        .success-message {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid #2e7d32;
+            display: none;
+        }
+        
+        .success-message.active {
+            display: block;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .info {
+                border-left: none;
+                border-top: 1px solid #eee;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-newspaper"></i>
+            </div>
+            <h1>BBC News Headline Scraper</h1>
+            <p class="subtitle">Extract and display the latest headlines from BBC News website</p>
+        </header>
+        
+        <div class="controls">
+            <button id="scrapeBtn">
+                <i class="fas fa-cloud-download-alt"></i> Fetch BBC News Headlines
+            </button>
+            <button id="clearBtn">
+                <i class="fas fa-broom"></i> Clear Results
+            </button>
+        </div>
+        
+        <div class="success-message" id="successMessage">
+            <i class="fas fa-check-circle"></i> Successfully fetched headlines from BBC News!
+        </div>
+        
+        <div class="loader" id="loader">
+            <div class="spinner"></div>
+            <p>Fetching latest headlines from BBC News...</p>
+            <p class="disclaimer">Note: This directly fetches data from BBC News website. If you get a CORS error, you may need to run this through a CORS proxy or a backend server.</p>
+        </div>
+        
+        <div class="error-message" id="errorMessage">
+            <strong><i class="fas fa-exclamation-triangle"></i> Error:</strong> <span id="errorText">Unable to fetch headlines at this time. Please try again later.</span>
+        </div>
+        
+        <div class="content">
+            <div class="results">
+                <h2><i class="fas fa-headline"></i> Top Headlines</h2>
+                <ul class="headlines-list" id="headlinesList">
+                    <!-- Headlines will be inserted here -->
+                    <li class="placeholder">Click "Fetch BBC News Headlines" to load the latest news</li>
+                </ul>
+            </div>
+            
+            <div class="info">
+                <h2><i class="fas fa-info-circle"></i> Page Information</h2>
+                <div class="info-item">
+                    <span class="info-label">Website Title:</span>
+                    <span class="info-value" id="websiteTitle">BBC News</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Headlines Found:</span>
+                    <span class="info-value" id="headlinesCount">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Last Updated:</span>
+                    <span class="info-value" id="lastUpdated">Not fetched yet</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Data Source:</span>
+                    <span class="info-value">https://www.bbc.com/news</span>
+                </div>
+                
+                <div class="disclaimer">
+                    <p><strong>How this works:</strong> This application fetches the actual BBC News homepage HTML, parses it with JavaScript, and extracts the headlines. If you encounter CORS issues, you may need to run this from a local server or use a browser extension to disable CORS restrictions.</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>This is a front-end web scraping demonstration. BBC News is a registered trademark of the British Broadcasting Corporation.</p>
+            <p id="corsStatus">CORS Status: Unknown - Try fetching headlines to check</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const scrapeBtn = document.getElementById('scrapeBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const loader = document.getElementById('loader');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            const headlinesList = document.getElementById('headlinesList');
+            const websiteTitle = document.getElementById('websiteTitle');
+            const headlinesCount = document.getElementById('headlinesCount');
+            const lastUpdated = document.getElementById('lastUpdated');
+            const errorText = document.getElementById('errorText');
+            const corsStatus = document.getElementById('corsStatus');
+            
+            // BBC News URL
+            const bbcUrl = "https://www.bbc.com/news";
+            
+            // Function to fetch actual BBC News data
+            async function fetchBBCHeadlines() {
+                // Show loader, hide error and success messages
+                loader.classList.add('active');
+                errorMessage.classList.remove('active');
+                successMessage.classList.remove('active');
+                scrapeBtn.disabled = true;
+                
+                try {
+                    // Try to fetch the BBC News page directly
+                    console.log(`Fetching data from: ${bbcUrl}`);
+                    
+                    // Using fetch to get the HTML content
+                    const response = await fetch(bbcUrl, {
+                        method: 'GET',
+                        mode: 'cors', // This will likely fail due to CORS restrictions
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    
+                    const html = await response.text();
+                    console.log("Successfully fetched HTML content");
+                    
+                    // Parse the HTML
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // Extract data
+                    const pageTitle = doc.title;
+                    
+                    // Try to find headlines - BBC News uses various selectors
+                    let headlines = [];
+                    
+                    // Try multiple selectors to find headlines (BBC changes their structure often)
+                    const selectors = [
+                        'h2', 
+                        'h3', 
+                        '.gs-c-promo-heading__title', 
+                        '.sc-4fedabc7-3',
+                        '[data-testid="card-headline"]',
+                        '.lx-stream-post__header-text',
+                        '.ssrcss-1m7xhjk-PromoHeadline'
+                    ];
+                    
+                    for (const selector of selectors) {
+                        const elements = doc.querySelectorAll(selector);
+                        if (elements.length > 0) {
+                            console.log(`Found ${elements.length} elements with selector: ${selector}`);
+                            elements.forEach(el => {
+                                const text = el.textContent.trim();
+                                if (text && text.length > 10 && !headlines.includes(text)) {
+                                    headlines.push(text);
+                                }
+                            });
+                            
+                            if (headlines.length >= 5) {
+                                break; // We have enough headlines
+                            }
+                        }
+                    }
+                    
+                    // If we still don't have enough headlines, try a more generic approach
+                    if (headlines.length < 5) {
+                        const allHeadings = doc.querySelectorAll('h1, h2, h3, h4');
+                        allHeadings.forEach(el => {
+                            const text = el.textContent.trim();
+                            if (text && text.length > 10 && !headlines.includes(text)) {
+                                headlines.push(text);
+                            }
+                        });
+                    }
+                    
+                    // Remove duplicates and limit to 15 headlines
+                    headlines = [...new Set(headlines)].slice(0, 15);
+                    
+                    if (headlines.length === 0) {
+                        throw new Error("No headlines found on the page. The website structure may have changed.");
+                    }
+                    
+                    // Display the results
+                    displayHeadlines({
+                        title: pageTitle,
+                        headlines: headlines,
+                        timestamp: new Date().toLocaleString()
+                    });
+                    
+                    // Update CORS status
+                    corsStatus.textContent = "CORS Status: Success - Direct fetch worked!";
+                    corsStatus.style.color = "#2e7d32";
+                    
+                    // Show success message
+                    successMessage.classList.add('active');
+                    
+                } catch (error) {
+                    console.error("Error fetching BBC News:", error);
+                    
+                    // Update CORS status
+                    corsStatus.textContent = `CORS Status: Failed - ${error.message}`;
+                    corsStatus.style.color = "#d32f2f";
+                    
+                    // Show error message
+                    showError(`Failed to fetch headlines: ${error.message}. This is likely due to CORS restrictions. You may need to: 
+                    1. Run this page from a local server (not file:// protocol)
+                    2. Use a CORS proxy (see alternative method below)
+                    3. Use a browser extension to disable CORS`);
+                    
+                    // Try alternative method with CORS proxy
+                    tryAlternativeMethod();
+                } finally {
+                    // Hide loader
+                    loader.classList.remove('active');
+                    scrapeBtn.disabled = false;
+                }
+            }
+            
+            // Alternative method using CORS proxy (as a fallback)
+            async function tryAlternativeMethod() {
+                console.log("Trying alternative method with CORS proxy...");
+                
+                // Note: CORS proxies can be unreliable and may break
+                // This is just a demonstration - in production, use your own proxy server
+                const corsProxies = [
+                    "https://api.allorigins.win/raw?url=",
+                    "https://corsproxy.io/?",
+                    "https://api.codetabs.com/v1/proxy?quest="
+                ];
+                
+                for (const proxy of corsProxies) {
+                    try {
+                        const proxyUrl = proxy + encodeURIComponent(bbcUrl);
+                        console.log(`Trying proxy: ${proxy}`);
+                        
+                        const response = await fetch(proxyUrl, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'text/html'
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            const html = await response.text();
+                            console.log(`Success with proxy: ${proxy}`);
+                            
+                            // Parse and extract data
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const pageTitle = doc.title;
+                            
+                            // Extract headlines
+                            let headlines = [];
+                            const allHeadings = doc.querySelectorAll('h1, h2, h3, h4, h5, [class*="headline"], [class*="title"]');
+                            
+                            allHeadings.forEach(el => {
+                                const text = el.textContent.trim();
+                                if (text && text.length > 10 && !headlines.includes(text)) {
+                                    headlines.push(text);
+                                }
+                            });
+                            
+                            headlines = [...new Set(headlines)].slice(0, 10);
+                            
+                            if (headlines.length > 0) {
+                                displayHeadlines({
+                                    title: pageTitle,
+                                    headlines: headlines,
+                                    timestamp: new Date().toLocaleString()
+                                });
+                                
+                                corsStatus.textContent = `CORS Status: Success via proxy`;
+                                corsStatus.style.color = "#2e7d32";
+                                successMessage.classList.add('active');
+                                errorMessage.classList.remove('active');
+                                
+                                // Update the error message to show we used a proxy
+                                errorText.textContent = "Direct fetch failed due to CORS, but we successfully retrieved data using a proxy!";
+                                return;
+                            }
+                        }
+                    } catch (proxyError) {
+                        console.log(`Proxy failed: ${proxy}`, proxyError);
+                        continue; // Try next proxy
+                    }
+                }
+                
+                // If all proxies failed, use mock data as last resort
+                console.log("All proxies failed, using mock data");
+                useMockDataAsFallback();
+            }
+            
+            // Fallback to mock data
+            function useMockDataAsFallback() {
+                const mockHeadlines = [
+                    "UK government announces new climate change targets",
+                    "Tech giant reports record profits amid market surge",
+                    "Scientists discover new species in deep ocean trench",
+                    "Global summit addresses economic inequality",
+                    "Breakthrough in renewable energy storage technology",
+                    "Sports team clinch championship in dramatic finale",
+                    "Film festival showcases emerging directors",
+                    "Healthcare reforms proposed to address staffing crisis",
+                    "Space agency reveals images from distant planet",
+                    "Art exhibition breaks attendance records"
+                ];
+                
+                displayHeadlines({
+                    title: "BBC News - Home (Mock Data - CORS Restricted)",
+                    headlines: mockHeadlines,
+                    timestamp: new Date().toLocaleString() + " (Mock data - CORS issue)"
+                });
+                
+                corsStatus.textContent = "CORS Status: Failed - Using mock data as fallback";
+                corsStatus.style.color = "#ff9800";
+                successMessage.textContent = "Using mock data due to CORS restrictions. To see real data, run this through a local server or CORS proxy.";
+                successMessage.classList.add('active');
+            }
+            
+            // Function to display headlines
+            function displayHeadlines(data) {
+                // Update page title
+                websiteTitle.textContent = data.title;
+                
+                // Clear current headlines
+                headlinesList.innerHTML = '';
+                
+                // Display headlines
+                const headlinesToShow = data.headlines.slice(0, 10);
+                
+                if (headlinesToShow.length === 0) {
+                    const li = document.createElement('li');
+                    li.textContent = "No headlines found. The website structure may have changed.";
+                    headlinesList.appendChild(li);
+                } else {
+                    headlinesToShow.forEach((headline, index) => {
+                        const li = document.createElement('li');
+                        
+                        const indexSpan = document.createElement('span');
+                        indexSpan.className = 'headline-index';
+                        indexSpan.textContent = index + 1;
+                        
+                        const textSpan = document.createElement('span');
+                        textSpan.textContent = headline;
+                        
+                        li.appendChild(indexSpan);
+                        li.appendChild(textSpan);
+                        headlinesList.appendChild(li);
+                    });
+                }
+                
+                // Update info panel
+                headlinesCount.textContent = headlinesToShow.length;
+                lastUpdated.textContent = data.timestamp;
+            }
+            
+            // Function to show error message
+            function showError(message) {
+                errorText.textContent = message;
+                errorMessage.classList.add('active');
+            }
+            
+            // Function to clear results
+            function clearResults() {
+                headlinesList.innerHTML = '<li class="placeholder">Click "Fetch BBC News Headlines" to load the latest news</li>';
+                websiteTitle.textContent = 'BBC News';
+                headlinesCount.textContent = '0';
+                lastUpdated.textContent = 'Not fetched yet';
+                errorMessage.classList.remove('active');
+                successMessage.classList.remove('active');
+                corsStatus.textContent = 'CORS Status: Unknown - Try fetching headlines to check';
+                corsStatus.style.color = '#666';
+            }
+            
+            // Event listeners
+            scrapeBtn.addEventListener('click', fetchBBCHeadlines);
+            clearBtn.addEventListener('click', clearResults);
+            
+            // Initialize with a message about CORS
+            corsStatus.textContent = 'CORS Status: Unknown - Try fetching headlines to check. Note: Direct fetch may fail due to CORS restrictions.';
+            corsStatus.style.color = '#666';
+        });
+    </script>
+</body>
+</html>
