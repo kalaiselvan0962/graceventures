@@ -167,6 +167,82 @@
             background: var(--ios-gray5);
             transform: scale(1.05);
         }
+        
+        /* Redirect Button Styles */
+        /* Redirect Button Styles */
+.redirect-button-container {
+    text-align: center;
+    padding: 16px 20px;
+    background: var(--ios-card);
+    border-bottom: 0.5px solid var(--ios-gray5);
+}
+
+.redirect-btn {
+    background: linear-gradient(135deg, #8A2BE2, #9400D3);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    width: 100%;
+    max-width: 300px;
+}
+
+.redirect-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(138, 43, 226, 0.4);
+    background: linear-gradient(135deg, #9400D3, #8A2BE2);
+}
+
+.redirect-btn:active {
+    transform: translateY(0);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .redirect-btn {
+        background: linear-gradient(135deg, #9B30FF, #8A2BE2);
+        box-shadow: 0 4px 15px rgba(155, 48, 255, 0.4);
+    }
+    
+    .redirect-btn:hover {
+        background: linear-gradient(135deg, #8A2BE2, #9B30FF);
+        box-shadow: 0 8px 20px rgba(155, 48, 255, 0.5);
+    }
+}
+
+/* Responsive styles for redirect button */
+@media (max-width: 767px) {
+    .redirect-button-container {
+        padding: 12px 16px;
+    }
+    
+    .redirect-btn {
+        padding: 12px 20px;
+        font-size: 15px;
+        max-width: 280px;
+    }
+}
+
+@media (max-width: 480px) {
+    .redirect-btn {
+        padding: 11px 18px;
+        font-size: 14px;
+        max-width: 260px;
+    }
+    
+    .redirect-btn span {
+        font-size: 14px;
+    }
+}
         /* Main Container */
         
         .main-container {
@@ -979,6 +1055,30 @@
                 transform: scale(0.98);
             }
         }
+        /* Responsive styles for redirect button */
+        @media (max-width: 767px) {
+            .redirect-button-container {
+                padding: 12px 16px;
+            }
+            
+            .redirect-btn {
+                padding: 12px 20px;
+                font-size: 15px;
+                max-width: 280px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .redirect-btn {
+                padding: 11px 18px;
+                font-size: 14px;
+                max-width: 260px;
+            }
+            
+            .redirect-btn span {
+                font-size: 14px;
+            }
+        }
         /* Orientation-specific adjustments */
         
         @media (orientation: portrait) {
@@ -1264,6 +1364,14 @@
                 <button class="header-btn" onclick="resetNavigation()">🔄</button>
             </div>
         </div>
+    </div>
+
+    <!-- Redirect Button -->
+    <div class="redirect-button-container">
+        <button id="redirectButton" class="redirect-btn">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>Meet the Creators</span>
+        </button>
     </div>
 
     <!-- Main Container -->
@@ -1628,6 +1736,32 @@
 
             // Adjust map size
             setTimeout(adjustMapSize, 100);
+            
+            // Initialize redirect button
+            initializeRedirectButton();
+        }
+
+        // Initialize redirect button
+        function initializeRedirectButton() {
+            const redirectButton = document.getElementById('redirectButton');
+            
+            redirectButton.addEventListener('click', function() {
+                // Add iOS-style haptic feedback
+                if ('vibrate' in navigator && isMobile) {
+                    navigator.vibrate([30, 50, 30]);
+                }
+                
+                // Show loading state
+                const originalText = this.innerHTML;
+                this.innerHTML = '<span>Redirecting...</span>';
+                this.disabled = true;
+                
+                // Simulate redirection with a small delay for UX
+                setTimeout(() => {
+                    // Change this URL to your actual Patents Expo page
+                    window.location.href = "https://vinothaselvam.github.io/UI_Portfolio/project.html";
+                }, 800);
+            });
         }
 
         // Toggle sidebar visibility
@@ -2053,7 +2187,8 @@ Total: 8 minutes walk`;
 • Use map controls to zoom and rotate
 • Tap 🔄 to reset your navigation
 • Use 🎯 button for quick room selection
-• Use ℹ️ button for room details`;
+• Use ℹ️ button for room details
+• Click the orange button to go to Patents Expo`;
 
             if (isMobile) {
                 alert(helpMessage);
