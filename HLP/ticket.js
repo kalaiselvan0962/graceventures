@@ -623,7 +623,12 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Validate required fields
             const requiredFields = form.querySelectorAll('[required]');
             let isValid = true;
-
+            // Add this right before the validation loop:
+// Exclude issue field from validation (make it optional)
+            const issueInput = getElement('issue');
+            if (issueInput) {
+                 issueInput.required = false; // Remove required attribute
+            }
             requiredFields.forEach(field => {
                 if (!field.value.trim()) {
                     isValid = false;
@@ -736,4 +741,5 @@ document.addEventListener('DOMContentLoaded', async function() {
             });
         });
     }
+
 });
