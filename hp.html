@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Sorting Hat · Fully Working 3D Experience</title>
+    <title>The Sorting Hat · 3D Experience with Sound</title>
     <!-- Harry Potter fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
     <style>
@@ -237,24 +237,67 @@
             display: none !important;
         }
 
-        /* Loading state */
-        #loading {
-            color: #f7eed9;
-            font-size: 1.5rem;
-            padding: 2rem;
+        /* Audio permission banner */
+        #audio-permission-banner {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(184, 138, 75, 0.95);
+            backdrop-filter: blur(10px);
+            border: 3px solid #f5e1b0;
+            border-radius: 60px;
+            padding: 15px 30px;
+            z-index: 100;
+            color: #281c0e;
+            font-size: 1.3rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            white-space: nowrap;
+            pointer-events: auto;
         }
 
-        .error-message {
-            color: #ff6b6b;
+        #enable-audio-btn {
+            background: #2a3a2a;
+            border: 2px solid #f5e1b0;
+            color: #f7efd6;
             font-size: 1.2rem;
-            margin: 1rem 0;
-            padding: 1rem;
-            background: rgba(255,0,0,0.1);
-            border-radius: 30px;
+            padding: 10px 25px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-family: 'Cinzel Decorative', serif;
+            transition: all 0.2s;
+        }
+
+        #enable-audio-btn:hover {
+            background: #3a4f3a;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .question-text { font-size: 1.8rem; }
+            .option-btn { font-size: 1.2rem; padding: 15px 5px; }
+            #audio-permission-banner { 
+                font-size: 1rem; 
+                padding: 10px 20px;
+                white-space: normal;
+                width: 90%;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Audio Permission Banner (shown on tablets) -->
+    <div id="audio-permission-banner" class="hidden">
+        <span>🔊 Tap to enable the Sorting Hat's voice</span>
+        <button id="enable-audio-btn">ENABLE MAGIC</button>
+    </div>
+
     <!-- 3D Canvas Container -->
     <div id="canvas-container"></div>
 
@@ -287,6 +330,9 @@
         </div>
     </div>
 
+    <!-- Hidden audio element for initialization -->
+    <audio id="audio-init" style="display: none;"></audio>
+
     <!-- Import Three.js -->
     <script type="importmap">
         {
@@ -297,6 +343,65 @@
     </script>
 
     <script type="module">
+        // ==================== AUDIO INITIALIZATION ====================
+        // This must happen BEFORE any audio playback
+        let audioEnabled = false;
+        const audioBanner = document.getElementById('audio-permission-banner');
+        const enableAudioBtn = document.getElementById('enable-audio-btn');
+        const audioInit = document.getElementById('audio-init');
+        
+        // Check if we're on a mobile/tablet device
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // Show banner on mobile devices
+        if (isMobile) {
+            audioBanner.classList.remove('hidden');
+        }
+
+        // Function to enable audio
+        function enableAudio() {
+            if (audioEnabled) return;
+            
+            // Create a silent audio context to unlock audio on iOS
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) {
+                const audioCtx = new AudioContext();
+                audioCtx.resume().then(() => {
+                    console.log('Audio context resumed');
+                });
+            }
+            
+            // Play and immediately pause a silent audio element
+            audioInit.src = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABIAD///////////////////////////////////////////8AAAA8TEFNRTMuMTAwAc0AAAAAAAAAABSAJAiCQcgMgABIAIAAAGkgUw0AAABmgAAA0A==';
+            audioInit.play().then(() => {
+                audioInit.pause();
+                audioInit.currentTime = 0;
+                audioEnabled = true;
+                audioBanner.classList.add('hidden');
+                console.log('Audio enabled');
+                
+                // Now we can speak the first question
+                if (typeof speak === 'function') {
+                    speak('The sorting hat is ready. Let the ceremony begin!');
+                }
+            }).catch(e => {
+                console.log('Audio enable error:', e);
+                // Still mark as enabled to try speech synthesis
+                audioEnabled = true;
+                audioBanner.classList.add('hidden');
+            });
+        }
+
+        // Event listeners for enabling audio
+        enableAudioBtn.addEventListener('click', enableAudio);
+        
+        // Also enable on any click on the main panel (user interaction)
+        document.getElementById('quiz-panel').addEventListener('click', function enableOnClick() {
+            if (!audioEnabled && isMobile) {
+                enableAudio();
+            }
+        });
+
         // ==================== 3D SCENE ====================
         import * as THREE from 'three';
         import { OrbitControls } from 'https://unpkg.com/three@0.128.0/examples/jsm/controls/OrbitControls.js';
@@ -529,10 +634,17 @@
             recognition.lang = 'en-US';
         }
 
-        // Speak function (deep, magical voice)
+        // Speak function (deep, magical voice) with mobile handling
         function speak(text, callback) {
             if (!window.speechSynthesis) {
                 console.log('Speech synthesis not supported');
+                if (callback) callback();
+                return;
+            }
+
+            // On mobile, wait for audio to be enabled
+            if (isMobile && !audioEnabled) {
+                voiceStatus.textContent = '🔊 Tap "ENABLE MAGIC" to hear the Sorting Hat';
                 if (callback) callback();
                 return;
             }
@@ -553,7 +665,8 @@
                 v.name.includes('Daniel') || 
                 v.name.includes('UK') || 
                 v.name.includes('Alex') ||
-                v.name.includes('Male')
+                v.name.includes('Male') ||
+                v.name.includes('Google UK')
             );
             if (deepVoice) utterance.voice = deepVoice;
             
@@ -561,7 +674,8 @@
                 if (callback) callback();
             };
             
-            utterance.onerror = () => {
+            utterance.onerror = (e) => {
+                console.log('Speech error:', e);
                 if (callback) callback();
             };
             
@@ -590,8 +704,12 @@
                     optionsContainer.appendChild(button);
                 });
 
-                // Speak the question
-                speak(q.q);
+                // Speak the question (if audio is enabled or not mobile)
+                if (!isMobile || audioEnabled) {
+                    speak(q.q);
+                } else {
+                    voiceStatus.textContent = '🔊 Tap "ENABLE MAGIC" above to hear the Sorting Hat';
+                }
                 
                 voiceStatus.textContent = 'Click the mic button to speak your answer';
             } else {
@@ -737,6 +855,13 @@
         if (window.speechSynthesis) {
             window.speechSynthesis.getVoices();
         }
+
+        // Handle visibility change to prevent speech issues
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                window.speechSynthesis?.cancel();
+            }
+        });
     </script>
 </body>
 </html>
