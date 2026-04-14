@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>For Boo ❤️ — April 14</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400&family=Great+Vibes&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ─────────────────────────────────────────
+       CSS VARIABLES & RESET
+    ───────────────────────────────────────── */
+        
+         :root {
+            --purple-deep: #0e0618;
+            --purple-dark: #1e0d3a;
+            --purple-mid: #4a1e7a;
+            --purple-soft: #8e44ad;
+            --purple-light: #c39bd3;
+            --purple-pale: #ede0f7;
+            --blush: #f5b8c4;
+            --rose: #e8637a;
+            --amber: #f0a57a;
+            --cream: #fdf6f0;
+            --text-main: #2c1a3e;
+            --text-soft: #6b4f7a;
+            --text-muted: #9a76b0;
+            --gold: #d4a853;
+        }
+        
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            background: var(--purple-deep);
+            color: var(--purple-pale);
+            font-family: 'Jost', sans-serif;
+            font-weight: 300;
+            overflow-x: hidden;
+        }
+        /* ─────────────────────────────────────────
+       STARFIELD CANVAS
+    ───────────────────────────────────────── */
+        
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        /* ─────────────────────────────────────────
+       FLOATING PARTICLES CONTAINER
+    ───────────────────────────────────────── */
+        
+        #particles-container {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: floatUp linear infinite;
+            opacity: 0;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(110vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.4;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1.5);
+                opacity: 0;
+            }
+        }
+        /* ─────────────────────────────────────────
+       MUSIC BUTTON
+    ───────────────────────────────────────── */
+        
+        #music-btn {
+            position: fixed;
+            top: 1.4rem;
+            right: 1.6rem;
+            z-index: 999;
+            background: rgba(74, 30, 122, 0.4);
+            border: 1px solid rgba(195, 155, 211, 0.3);
+            color: var(--purple-pale);
+            font-family: 'Jost', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            padding: 0.55rem 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+        
+        #music-btn:hover {
+            background: rgba(142, 68, 173, 0.55);
+            border-color: var(--purple-light);
+            transform: scale(1.04);
+        }
+        
+        #music-btn .note {
+            font-size: 1rem;
+        }
+        /* ─────────────────────────────────────────
+       HERO SECTION
+    ───────────────────────────────────────── */
+        
+        #hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem 1.5rem;
+            z-index: 2;
+            overflow: hidden;
+        }
+        /* Radial glow behind hero */
+        
+        #hero::before {
+            content: '';
+            position: absolute;
+            width: 700px;
+            height: 700px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(142, 68, 173, 0.38) 0%, rgba(14, 6, 24, 0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: orbPulse 7s ease-in-out infinite;
+            pointer-events: none;
+        }
+        /* Second soft warm orb */
+        
+        #hero::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(232, 99, 122, 0.15) 0%, transparent 70%);
+            top: 58%;
+            left: 55%;
+            transform: translate(-50%, -50%);
+            animation: orbPulse 9s ease-in-out infinite 2s;
+            pointer-events: none;
+        }
+        
+        @keyframes orbPulse {
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 1;
+            }
+        }
+        
+        .hero-date {
+            font-family: 'Jost', sans-serif;
+            font-size: 0.68rem;
+            letter-spacing: 0.38em;
+            text-transform: uppercase;
+            color: var(--purple-light);
+            margin-bottom: 1.8rem;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 0.4s;
+        }
+        
+        .hero-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: clamp(4.5rem, 13vw, 9rem);
+            color: #fff;
+            line-height: 1;
+            text-shadow: 0 0 60px rgba(195, 155, 211, 0.55), 0 0 130px rgba(142, 68, 173, 0.3);
+            opacity: 0;
+            animation: fadeUp 1.2s ease forwards 0.7s;
+        }
+        
+        .hero-sub {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1rem, 3vw, 1.55rem);
+            font-style: italic;
+            color: var(--blush);
+            margin-top: 1rem;
+            letter-spacing: 0.04em;
+            opacity: 0;
+            animation: fadeUp 1.1s ease forwards 1.1s;
+        }
+        
+        .hero-haiku {
+            margin-top: 3.2rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(0.92rem, 2.6vw, 1.18rem);
+            color: rgba(195, 155, 211, 0.82);
+            font-style: italic;
+            line-height: 2.2;
+            opacity: 0;
+            animation: fadeUp 1.1s ease forwards 1.5s;
+        }
+        
+        .hero-haiku span {
+            display: block;
+        }
+        /* Scroll indicator */
+        
+        .scroll-cue {
+            position: absolute;
+            bottom: 2.2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.45rem;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 2.2s;
+        }
+        
+        .scroll-cue p {
+            font-size: 0.6rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        
+        .scroll-line {
+            width: 1px;
+            height: 44px;
+            background: linear-gradient(to bottom, var(--purple-soft), transparent);
+            animation: linePulse 2.2s ease-in-out infinite;
+        }
+        
+        @keyframes linePulse {
+            0%,
+            100% {
+                opacity: 0.25;
+                transform: scaleY(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scaleY(1.25);
+            }
+        }
+        /* ─────────────────────────────────────────
+       GENERIC SECTION WRAPPER
+    ───────────────────────────────────────── */
+        
+        section {
+            position: relative;
+            z-index: 2;
+            padding: 7rem 1.5rem;
+        }
+        
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+        
+        .container-w {
+            max-width: 1120px;
+            margin: 0 auto;
+        }
+        
+        .section-label {
+            font-family: 'Jost', sans-serif;
+            font-size: 0.63rem;
+            letter-spacing: 0.42em;
+            text-transform: uppercase;
+            color: var(--purple-soft);
+            display: block;
+            margin-bottom: 1.1rem;
+        }
+        
+        .section-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.9rem, 5.5vw, 3.2rem);
+            font-weight: 400;
+            color: #fff;
+            line-height: 1.2;
+            margin-bottom: 2.2rem;
+        }
+        
+        .section-heading em {
+            font-style: italic;
+            color: var(--blush);
+        }
+        
+        .divider {
+            width: 56px;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--purple-soft), transparent);
+            margin: 0 auto 3rem;
+        }
+        /* ─── Reveal on scroll ─── */
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.85s ease, transform 0.85s ease;
+        }
+        
+        .reveal.visible {
+            opacity: 1;
+            transform: none;
+        }
+        
+        .reveal-d1 {
+            transition-delay: 0.12s;
+        }
+        
+        .reveal-d2 {
+            transition-delay: 0.24s;
+        }
+        
+        .reveal-d3 {
+            transition-delay: 0.36s;
+        }
+        
+        .reveal-d4 {
+            transition-delay: 0.5s;
+        }
+        /* ─────────────────────────────────────────
+       STORY SECTION
+    ───────────────────────────────────────── */
+        
+        #story {
+            background: linear-gradient(180deg, rgba(14, 6, 24, 0) 0%, rgba(30, 13, 58, 0.28) 50%, rgba(14, 6, 24, 0) 100%);
+        }
+        
+        .story-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.06rem, 2.6vw, 1.3rem);
+            line-height: 2.1;
+            color: var(--purple-pale);
+            font-weight: 300;
+        }
+        
+        .story-text p {
+            margin-bottom: 1.8rem;
+        }
+        
+        .story-text .highlight {
+            color: var(--blush);
+            font-style: italic;
+        }
+        
+        .story-text .red-dress {
+            background: linear-gradient(135deg, var(--rose), var(--amber));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 500;
+        }
+        /* Haiku pull-quote */
+        
+        .haiku-card {
+            border-left: 2px solid rgba(142, 68, 173, 0.6);
+            padding: 1.5rem 2rem;
+            margin: 2.8rem 0;
+            background: rgba(74, 30, 122, 0.1);
+            border-radius: 0 14px 14px 0;
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: clamp(0.97rem, 2.3vw, 1.18rem);
+            color: var(--purple-light);
+            line-height: 2.4;
+        }
+        
+        .haiku-card span {
+            display: block;
+        }
+        
+        .haiku-label {
+            font-family: 'Jost', sans-serif;
+            font-size: 0.58rem;
+            letter-spacing: 0.32em;
+            text-transform: uppercase;
+            color: var(--purple-soft);
+            margin-bottom: 0.9rem;
+            font-style: normal;
+            display: block;
+        }
+        /* ─────────────────────────────────────────
+       TIMELINE SECTION
+    ───────────────────────────────────────── */
+        
+        #timeline {
+            background: rgba(14, 6, 24, 0.5);
+        }
+        
+        .timeline-wrap {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            margin-top: 0.5rem;
+        }
+        
+        .timeline-wrap::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, rgba(142, 68, 173, 0.6) 15%, rgba(142, 68, 173, 0.6) 85%, transparent);
+            transform: translateX(-50%);
+        }
+        
+        .tl-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 3rem;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+        
+        .tl-item:nth-child(odd) {
+            flex-direction: row;
+        }
+        
+        .tl-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+        
+        .tl-content {
+            width: calc(50% - 3rem);
+        }
+        
+        .tl-item:nth-child(odd) .tl-content {
+            text-align: right;
+        }
+        
+        .tl-item:nth-child(even) .tl-content {
+            text-align: left;
+        }
+        
+        .tl-dot {
+            position: absolute;
+            left: 50%;
+            top: 0.5rem;
+            transform: translateX(-50%);
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: var(--purple-mid);
+            border: 2px solid var(--purple-light);
+            box-shadow: 0 0 16px rgba(142, 68, 173, 0.7);
+            flex-shrink: 0;
+        }
+        
+        .tl-time {
+            font-family: 'Jost', sans-serif;
+            font-size: 0.6rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--purple-soft);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .tl-icon {
+            font-size: 1.7rem;
+            display: block;
+            margin-bottom: 0.4rem;
+        }
+        
+        .tl-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.1rem, 2.8vw, 1.55rem);
+            color: #fff;
+            margin-bottom: 0.6rem;
+        }
+        
+        .tl-desc {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(0.9rem, 2.1vw, 1.07rem);
+            color: var(--purple-light);
+            line-height: 1.85;
+        }
+        
+        .tl-haiku {
+            margin-top: 0.9rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 0.9rem;
+            color: var(--blush);
+            line-height: 2;
+            opacity: 0.82;
+        }
+        
+        .tl-haiku span {
+            display: block;
+        }
+        
+        @media (max-width: 640px) {
+            .timeline-wrap::before {
+                left: 14px;
+            }
+            .tl-item,
+            .tl-item:nth-child(even) {
+                flex-direction: column;
+                padding-left: 38px;
+            }
+            .tl-dot {
+                left: 14px;
+            }
+            .tl-content {
+                width: 100%;
+            }
+            .tl-item:nth-child(odd) .tl-content,
+            .tl-item:nth-child(even) .tl-content {
+                text-align: left;
+            }
+        }
+        /* ─────────────────────────────────────────
+       HAIKU GRID SECTION
+    ───────────────────────────────────────── */
+        
+        .haiku-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 1.4rem;
+            margin-top: 3rem;
+        }
+        
+        .haiku-tile {
+            background: rgba(74, 30, 122, 0.13);
+            border: 1px solid rgba(142, 68, 173, 0.22);
+            border-radius: 18px;
+            padding: 2rem 1.6rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: clamp(0.9rem, 2vw, 1.07rem);
+            color: var(--purple-light);
+            line-height: 2.3;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .haiku-tile::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top left, rgba(142, 68, 173, 0.12), transparent 65%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        
+        .haiku-tile:hover::before {
+            opacity: 1;
+        }
+        
+        .haiku-tile:hover {
+            border-color: rgba(195, 155, 211, 0.45);
+            transform: translateY(-5px);
+            box-shadow: 0 14px 44px rgba(74, 30, 122, 0.35);
+        }
+        
+        .haiku-tile span {
+            display: block;
+        }
+        
+        .haiku-number {
+            font-family: 'Jost', sans-serif;
+            font-size: 0.56rem;
+            letter-spacing: 0.32em;
+            text-transform: uppercase;
+            color: var(--purple-soft);
+            font-style: normal;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        /* ─────────────────────────────────────────
+       PHOTO GALLERY SECTION
+    ───────────────────────────────────────── */
+        
+        #gallery {
+            padding-top: 5rem;
+            padding-bottom: 7rem;
+        }
+        
+        .gallery-intro {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(0.97rem, 2.3vw, 1.13rem);
+            color: var(--purple-light);
+            font-style: italic;
+            margin-bottom: 3rem;
+            line-height: 1.9;
+        }
+        
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 0.75rem;
+        }
+        /* Varied grid placements for artistic layout */
+        
+        .photo-slot:nth-child(1) {
+            grid-column: span 7;
+            grid-row: span 2;
+            min-height: 380px;
+        }
+        
+        .photo-slot:nth-child(2) {
+            grid-column: span 5;
+        }
+        
+        .photo-slot:nth-child(3) {
+            grid-column: span 5;
+        }
+        
+        .photo-slot:nth-child(4) {
+            grid-column: span 4;
+        }
+        
+        .photo-slot:nth-child(5) {
+            grid-column: span 4;
+        }
+        
+        .photo-slot:nth-child(6) {
+            grid-column: span 4;
+        }
+        
+        .photo-slot {
+            position: relative;
+            border-radius: 14px;
+            overflow: hidden;
+            background: rgba(74, 30, 122, 0.2);
+            border: 1px solid rgba(142, 68, 173, 0.2);
+            aspect-ratio: 4/3;
+            cursor: pointer;
+            transition: transform 0.42s ease, box-shadow 0.42s ease;
+        }
+        
+        .photo-slot:nth-child(1) {
+            aspect-ratio: unset;
+        }
+        
+        .photo-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.55s ease, filter 0.45s ease;
+            filter: saturate(0.88) brightness(0.92);
+        }
+        /* Purple tint overlay */
+        
+        .photo-slot::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(74, 30, 122, 0.3), rgba(14, 6, 24, 0.08));
+            transition: opacity 0.4s;
+            border-radius: 14px;
+        }
+        
+        .photo-slot:hover {
+            transform: scale(1.025);
+            box-shadow: 0 18px 55px rgba(74, 30, 122, 0.45);
+        }
+        
+        .photo-slot:hover img {
+            transform: scale(1.07);
+            filter: saturate(1.05) brightness(1.02);
+        }
+        
+        .photo-slot:hover::after {
+            opacity: 0;
+        }
+        /* Placeholder when no image loaded */
+        
+        .photo-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.7rem;
+            color: var(--purple-soft);
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 0.92rem;
+            z-index: 1;
+        }
+        
+        .photo-placeholder .ph-icon {
+            font-size: 2rem;
+            opacity: 0.55;
+        }
+        
+        .photo-placeholder .ph-label {
+            font-size: 0.62rem;
+            letter-spacing: 0.18em;
+            font-style: normal;
+            font-family: 'Jost', sans-serif;
+            text-transform: uppercase;
+            opacity: 0.55;
+        }
+        /* Caption slide up on hover */
+        
+        .photo-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem 1.1rem;
+            background: linear-gradient(to top, rgba(14, 6, 24, 0.88), transparent);
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 0.87rem;
+            color: var(--purple-pale);
+            transform: translateY(100%);
+            transition: transform 0.32s ease;
+            z-index: 3;
+        }
+        
+        .photo-slot:hover .photo-caption {
+            transform: none;
+        }
+        
+        @media (max-width: 640px) {
+            .photo-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.5rem;
+            }
+            .photo-slot {
+                grid-column: span 1 !important;
+                grid-row: span 1 !important;
+                aspect-ratio: 4/3 !important;
+                min-height: unset !important;
+            }
+        }
+        /* ─────────────────────────────────────────
+       CLOSING SECTION
+    ───────────────────────────────────────── */
+        
+        #closing {
+            text-align: center;
+            padding-bottom: 5rem;
+        }
+        
+        .petal-row {
+            display: flex;
+            justify-content: center;
+            gap: 0.35rem;
+            margin: 2.5rem 0;
+            opacity: 0.45;
+            font-size: 0.9rem;
+        }
+        
+        .closing-quote {
+            font-family: 'Great Vibes', cursive;
+            font-size: clamp(2.4rem, 7vw, 4.5rem);
+            color: #fff;
+            line-height: 1.4;
+            text-shadow: 0 0 45px rgba(195, 155, 211, 0.4);
+            margin-bottom: 2rem;
+        }
+        
+        .closing-body {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.02rem, 2.6vw, 1.22rem);
+            color: var(--purple-light);
+            line-height: 2.1;
+            max-width: 600px;
+            margin: 0 auto 2.5rem;
+            font-style: italic;
+        }
+        
+        .closing-haiku {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: clamp(1rem, 2.6vw, 1.2rem);
+            color: var(--blush);
+            line-height: 2.4;
+            margin: 2.5rem auto;
+        }
+        
+        .closing-haiku span {
+            display: block;
+        }
+        
+        .closing-heart {
+            font-size: 1.6rem;
+            animation: heartBeat 2.4s ease-in-out infinite;
+            display: inline-block;
+            margin-top: 1.2rem;
+        }
+        
+        @keyframes heartBeat {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            25% {
+                transform: scale(1.22);
+            }
+            45% {
+                transform: scale(1);
+            }
+            65% {
+                transform: scale(1.16);
+            }
+        }
+        /* ─────────────────────────────────────────
+       FOOTER
+    ───────────────────────────────────────── */
+        
+        footer {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 2.5rem 1.5rem 4rem;
+            border-top: 1px solid rgba(142, 68, 173, 0.15);
+        }
+        
+        .footer-float {
+            font-family: 'Great Vibes', cursive;
+            font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+            color: var(--purple-light);
+            animation: floatText 4.5s ease-in-out infinite;
+            display: inline-block;
+        }
+        
+        @keyframes floatText {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        .footer-meta {
+            margin-top: 1.1rem;
+            font-size: 0.6rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        /* ─────────────────────────────────────────
+       GENERIC KEYFRAMES
+    ───────────────────────────────────────── */
+        
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(22px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* ─────────────────────────────────────────
+       LIGHTBOX
+    ───────────────────────────────────────── */
+        
+        #lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(8, 3, 18, 0.94);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(14px);
+        }
+        
+        #lightbox.active {
+            display: flex;
+            animation: lbFadeIn 0.3s ease;
+        }
+        
+        @keyframes lbFadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        #lightbox img {
+            max-width: 90vw;
+            max-height: 85vh;
+            object-fit: contain;
+            border-radius: 14px;
+            box-shadow: 0 0 90px rgba(142, 68, 173, 0.35);
+        }
+        
+        #lightbox-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.8rem;
+            color: var(--purple-pale);
+            font-size: 2.2rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            line-height: 1;
+            opacity: 0.65;
+            transition: opacity 0.2s;
+        }
+        
+        #lightbox-close:hover {
+            opacity: 1;
+        }
+        /* ─────────────────────────────────────────
+       SCROLLBAR
+    ───────────────────────────────────────── */
+        
+         ::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: var(--purple-deep);
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: var(--purple-mid);
+            border-radius: 10px;
+        }
+        
+         ::selection {
+            background: rgba(142, 68, 173, 0.38);
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ░░ STARFIELD ░░ -->
+    <canvas id="stars-canvas"></canvas>
+
+    <!-- ░░ PARTICLES ░░ -->
+    <div id="particles-container"></div>
+
+    <!-- ░░ MUSIC BUTTON ░░ -->
+    <button id="music-btn" aria-label="Toggle background music">
+    <span class="note">♪</span>
+    <span id="music-label">Play Music</span>
+  </button>
+
+    <!-- Hidden audio — replace src with your chosen soft instrumental -->
+    <audio id="bg-music" loop>
+    <!-- <source src="your-music.mp3" type="audio/mpeg"> -->
+  </audio>
+
+    <!-- ════════════════════════════════════
+       § 1  HERO
+  ════════════════════════════════════ -->
+    <section id="hero">
+        <p class="hero-date">April 14, 2025 &nbsp;·&nbsp; Besant Nagar &nbsp;·&nbsp; A Day That Stays</p>
+
+        <h1 class="hero-title">For Boo ❤️</h1>
+
+        <p class="hero-sub">"April 14 — A Memory I Still Hold"</p>
+
+        <div class="hero-haiku">
+            <span>You wore red that day,</span>
+            <span>the sea learned your name before</span>
+            <span>I dared to speak it.</span>
+        </div>
+
+        <div class="scroll-cue">
+            <p>Scroll</p>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+
+    <!-- ════════════════════════════════════
+       § 2  STORY
+  ════════════════════════════════════ -->
+    <section id="story">
+        <div class="container">
+            <span class="section-label reveal">The Story</span>
+            <h2 class="section-heading reveal reveal-d1">
+                That afternoon by the<br/><em>edge of the sea.</em>
+            </h2>
+            <div class="divider reveal reveal-d2"></div>
+
+            <div class="story-text">
+                <p class="reveal reveal-d2">
+                    Every year, April 14 arrives quietly — but it never arrives empty. It carries the warmth of that afternoon with it. The way the sky looked: soft and unhurried, stretched pale above Besant Nagar Beach. The sand still golden from a generous sun. And you,
+                    Boo — standing at the shore in
+                    <span class="red-dress">that red dress</span>, the breeze lifting the edges of it like the day was trying to hold you a little longer too.
+                </p>
+
+                <div class="haiku-card reveal reveal-d2">
+                    <span class="haiku-label">— i —</span>
+                    <span>Wind off the warm sea,</span>
+                    <span>your red dress a quiet flame —</span>
+                    <span>I forgot to breathe.</span>
+                </div>
+
+                <p class="reveal reveal-d2">
+                    We walked without a map and without any hurry. The church nearby — with its worn stone walls and their particular hush — felt like somewhere time had agreed to slow down for us. We stood inside for a while, <span class="highlight">not saying very much, because some moments
+          don't need words. They just need presence.</span> And you were so fully, beautifully present.
+                </p>
+
+                <p class="reveal reveal-d3">
+                    I don't think I understood that afternoon the way I understand it now. Sometimes distance is the only lens that shows you what you had. Today, a year later, I hold it carefully — like something made of light and thread — grateful that it happened, even
+                    if it cannot happen again.
+                </p>
+
+                <div class="haiku-card reveal reveal-d3">
+                    <span class="haiku-label">— ii —</span>
+                    <span>Church bells, soft and slow,</span>
+                    <span>your laughter between the stones —</span>
+                    <span>God must have listened.</span>
+                </div>
+
+                <p class="reveal reveal-d3">
+                    Missing you isn't loud. It doesn't announce itself. It arrives in small, specific things — the smell of salt air, the colour red catching the corner of my eye, a quiet afternoon that feels too quiet.
+                    <span class="highlight">You are not gone from me the way people think.
+          You live in a different part of my day now — the softer part,
+          the part that keeps the light on.</span>
+                </p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ════════════════════════════════════
+       § 3  TIMELINE
+  ════════════════════════════════════ -->
+    <section id="timeline">
+        <div class="container">
+            <span class="section-label reveal" style="text-align:center;display:block;">The Day, Unfolded</span>
+            <h2 class="section-heading reveal reveal-d1" style="text-align:center;">
+                Every hour of that<br/><em>April afternoon.</em>
+            </h2>
+            <div class="divider reveal reveal-d2"></div>
+
+            <div class="timeline-wrap">
+
+                <div class="tl-item reveal">
+                    <div class="tl-content">
+                        <span class="tl-time">Morning · Setting Out</span>
+                        <span class="tl-icon">🌸</span>
+                        <p class="tl-title">The Journey Begins</p>
+                        <p class="tl-desc">
+                            The city was already warm. We left before the afternoon could crowd itself with noise, finding our way toward the coast like it was the most natural direction in the world.
+                        </p>
+                        <div class="tl-haiku">
+                            <span>Two shadows on dust,</span>
+                            <span>the city shrinking behind us —</span>
+                            <span>sea calls, we follow.</span>
+                        </div>
+                    </div>
+                    <div class="tl-dot"></div>
+                </div>
+
+                <div class="tl-item reveal reveal-d1">
+                    <div class="tl-dot"></div>
+                    <div class="tl-content">
+                        <span class="tl-time">Midday · Besant Nagar Beach</span>
+                        <span class="tl-icon">🌊</span>
+                        <p class="tl-title">The Shore, and You</p>
+                        <p class="tl-desc">
+                            Waves arriving like small announcements. You stood at the edge where water meets sand — that in-between place — and the red of your dress against all that blue was something I will never stop seeing.
+                        </p>
+                        <div class="tl-haiku">
+                            <span>Shore swallows our feet,</span>
+                            <span>the sea takes and gives it back —</span>
+                            <span>like all things we love.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tl-item reveal reveal-d2">
+                    <div class="tl-content">
+                        <span class="tl-time">Afternoon · The Church</span>
+                        <span class="tl-icon">⛪</span>
+                        <p class="tl-title">Stillness in the Stone</p>
+                        <p class="tl-desc">
+                            We slipped inside the old church near the beach, away from the brightness and the heat. Cool stone walls, muted light through coloured glass, and the kind of quiet you carry out with you long afterward.
+                        </p>
+                        <div class="tl-haiku">
+                            <span>Coloured light, old stone,</span>
+                            <span>your voice a folded prayer there —</span>
+                            <span>I still hold that hush.</span>
+                        </div>
+                    </div>
+                    <div class="tl-dot"></div>
+                </div>
+
+                <div class="tl-item reveal reveal-d3">
+                    <div class="tl-dot"></div>
+                    <div class="tl-content">
+                        <span class="tl-time">Late Afternoon · The Golden Hour</span>
+                        <span class="tl-icon">🌅</span>
+                        <p class="tl-title">The Moment Before Goodbye</p>
+                        <p class="tl-desc">
+                            The sun had softened into amber. We didn't rush. We let the day be what it wanted to be — unhurried and whole. I think we both knew, somewhere underneath the laughter, that this particular afternoon was something rare.
+                        </p>
+                        <div class="tl-haiku">
+                            <span>Golden light went slow,</span>
+                            <span>as if the sun too hated</span>
+                            <span>to leave you behind.</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ════════════════════════════════════
+       § 4  HAIKU GALLERY
+  ════════════════════════════════════ -->
+    <section id="haikus">
+        <div class="container">
+            <span class="section-label reveal" style="text-align:center;display:block;">Heart Poems</span>
+            <h2 class="section-heading reveal reveal-d1" style="text-align:center;">
+                Small words for<br/><em>a large feeling.</em>
+            </h2>
+            <div class="divider reveal reveal-d2"></div>
+
+            <div class="haiku-grid">
+
+                <div class="haiku-tile reveal">
+                    <span class="haiku-number">Haiku I</span>
+                    <span>You smiled at the sea,</span>
+                    <span>and the sea forgot its tide</span>
+                    <span>just to watch you back.</span>
+                </div>
+
+                <div class="haiku-tile reveal reveal-d1">
+                    <span class="haiku-number">Haiku II</span>
+                    <span>Missing you is not</span>
+                    <span>loud grief — just quiet Tuesday</span>
+                    <span>mornings without you.</span>
+                </div>
+
+                <div class="haiku-tile reveal reveal-d2">
+                    <span class="haiku-number">Haiku III</span>
+                    <span>I kept no photos —</span>
+                    <span>only the shape of your laugh</span>
+                    <span>against the salt air.</span>
+                </div>
+
+                <div class="haiku-tile reveal">
+                    <span class="haiku-number">Haiku IV</span>
+                    <span>Red dress, warm wind, blue —</span>
+                    <span>some colours need no name; they</span>
+                    <span>just softly mean "Boo."</span>
+                </div>
+
+                <div class="haiku-tile reveal reveal-d1">
+                    <span class="haiku-number">Haiku V</span>
+                    <span>In every April,</span>
+                    <span>the fourteenth arrives like you —</span>
+                    <span>soft and unannounced.</span>
+                </div>
+
+                <div class="haiku-tile reveal reveal-d2">
+                    <span class="haiku-number">Haiku VI</span>
+                    <span>We are no longer,</span>
+                    <span>but that afternoon still is —</span>
+                    <span>somewhere, always warm.</span>
+                </div>
+
+                <div class="haiku-tile reveal">
+                    <span class="haiku-number">Haiku VII</span>
+                    <span>Gratitude and grief</span>
+                    <span>look alike — when someone leaves</span>
+                    <span>you better than before.</span>
+                </div>
+
+                <div class="haiku-tile reveal reveal-d1">
+                    <span class="haiku-number">Haiku VIII</span>
+                    <span>Old church, young hearts, still</span>
+                    <span>water inside the stone walls —</span>
+                    <span>time made a home there.</span>
+                </div>
+
+                <div class="haiku-tile reveal reveal-d2">
+                    <span class="haiku-number">Haiku IX</span>
+                    <span>I don't say your name</span>
+                    <span>aloud anymore — it rests</span>
+                    <span>too soft in my chest.</span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ════════════════════════════════════
+       § 5  PHOTO GALLERY
+  ════════════════════════════════════ -->
+    <section id="gallery">
+        <div class="container-w">
+            <span class="section-label reveal" style="text-align:center;display:block;">Frames of April</span>
+            <h2 class="section-heading reveal reveal-d1" style="text-align:center;">
+                The moments we<br/><em>didn't need to photograph.</em>
+            </h2>
+            <div class="divider reveal reveal-d2"></div>
+
+            <p class="gallery-intro reveal reveal-d2" style="text-align:center;">
+                These frames wait for your memories. Replace each placeholder with a photograph from that day — every image is a door back to that afternoon.
+            </p>
+
+            <div class="photo-grid reveal reveal-d3">
+
+                <!-- Slot 1 — large hero -->
+                <div class="photo-slot">
+                    <!-- Replace src="" with your image path -->
+                    <img src="boo1.jpg" alt="Besant Nagar Beach · April 14, 2025" loading="lazy" />
+                    <div class="photo-placeholder">
+                        <span class="ph-icon">🌊</span>
+                        <span>The Shore</span>
+                        <span class="ph-label">Replace with your photo</span>
+                    </div>
+                    <div class="photo-caption">Besant Nagar Beach · The shore we stood on</div>
+                </div>
+
+                <!-- Slot 2 -->
+                <div class="photo-slot">
+                    <img src="boo2.jpg" alt="You in the red dress" loading="lazy" />
+                    <div class="photo-placeholder">
+                        <span class="ph-icon">🌺</span>
+                        <span>Red Dress</span>
+                        <span class="ph-label">Replace with your photo</span>
+                    </div>
+                    <div class="photo-caption">That red dress against the blue of everything</div>
+                </div>
+
+                <!-- Slot 3 -->
+                <div class="photo-slot">
+                    <img src="boo3.jpg" alt="The church near Besant Nagar" loading="lazy" />
+                    <div class="photo-placeholder">
+                        <span class="ph-icon">⛪</span>
+                        <span>The Church</span>
+                        <span class="ph-label">Replace with your photo</span>
+                    </div>
+                    <div class="photo-caption">The church that held our quiet</div>
+                </div>
+
+                <!-- Slot 4 -->
+                <div class="photo-slot">
+                    <img src="boo4.jpg" alt="Walking along the shore" loading="lazy" />
+                    <div class="photo-placeholder">
+                        <span class="ph-icon">👣</span>
+                        <span>Walking Together</span>
+                        <span class="ph-label">Replace with your photo</span>
+                    </div>
+                    <div class="photo-caption">Footprints the tide tried hard to keep</div>
+                </div>
+
+                <!-- Slot 5 -->
+                <div class="photo-slot">
+                    <img src="boo5.jpg" alt="Golden hour at the beach" loading="lazy" />
+                    <div class="photo-placeholder">
+                        <span class="ph-icon">🌅</span>
+                        <span>Golden Hour</span>
+                        <span class="ph-label">Replace with your photo</span>
+                    </div>
+                    <div class="photo-caption">The hour when the sun went amber</div>
+                </div>
+
+                <!-- Slot 6 -->
+                <div class="photo-slot">
+                    <img src="boo6.jpg" alt="A quiet shared moment" loading="lazy" />
+                    <div class="photo-placeholder">
+                        <span class="ph-icon">🌸</span>
+                        <span>A Quiet Moment</span>
+                        <span class="ph-label">Replace with your photo</span>
+                    </div>
+                    <div class="photo-caption">The moments that needed no words</div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ════════════════════════════════════
+       § 6  CLOSING
+  ════════════════════════════════════ -->
+    <section id="closing">
+        <div class="container" style="text-align:center;">
+
+            <div class="petal-row reveal">🌸 · · · · · · · · · · · 🌸</div>
+
+            <p class="closing-quote reveal reveal-d1">
+                "Some people leave,<br/>but the memories never do."
+            </p>
+
+            <div class="divider reveal reveal-d2" style="margin:2.2rem auto;"></div>
+
+            <p class="closing-body reveal reveal-d2">
+                Boo, I am not writing this to reach you. I am writing it because some things deserve to be kept carefully — not locked away, but placed somewhere warm and lit. That April afternoon is one of them. You are one of them.
+                <br/><br/> Thank you for that day by the sea. Thank you for the church, for the laughter, for the red dress and the silence that felt like company. Thank you for being someone worth missing this gently.
+            </p>
+
+            <div class="closing-haiku reveal reveal-d3">
+                <span>Not goodbye — just this:</span>
+                <span>a page kept open for you,</span>
+                <span>wherever you are.</span>
+            </div>
+
+            <div class="petal-row reveal reveal-d3">· · · ❤️ · · ·</div>
+
+            <span class="closing-heart reveal reveal-d4">❤️</span>
+
+        </div>
+    </section>
+
+
+    <!-- ░░ FOOTER ░░ -->
+    <footer>
+        <p class="footer-float">I still remember you, Boo.</p>
+        <p class="footer-meta">
+            April 14, 2025 &nbsp;·&nbsp; Besant Nagar Beach &amp; the Church Nearby &nbsp;·&nbsp; A Day Held Forever
+        </p>
+    </footer>
+
+
+    <!-- ░░ LIGHTBOX ░░ -->
+    <div id="lightbox" role="dialog" aria-modal="true">
+        <button id="lightbox-close" aria-label="Close image">&times;</button>
+        <img id="lightbox-img" src="" alt="Memory photograph" />
+    </div>
+
+
+    <!-- ══════════════════════════════════
+       JAVASCRIPT
+  ══════════════════════════════════ -->
+    <script>
+        /* ── 1. STARFIELD ─────────────────────────────────── */
+        (() => {
+            const canvas = document.getElementById('stars-canvas');
+            const ctx = canvas.getContext('2d');
+            let stars = [],
+                W, H;
+
+            const resize = () => {
+                W = canvas.width = window.innerWidth;
+                H = canvas.height = window.innerHeight;
+                initStars();
+            };
+
+            const initStars = () => {
+                stars = [];
+                const n = Math.floor(W * H / 4800);
+                for (let i = 0; i < n; i++) {
+                    stars.push({
+                        x: Math.random() * W,
+                        y: Math.random() * H,
+                        r: Math.random() * 1.2 + 0.2,
+                        sp: Math.random() * 0.005 + 0.001,
+                        ph: Math.random() * Math.PI * 2
+                    });
+                }
+            };
+
+            const draw = t => {
+                ctx.clearRect(0, 0, W, H);
+                stars.forEach(s => {
+                    const a = 0.25 + 0.75 * Math.abs(Math.sin(s.ph + t * s.sp * 0.001));
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(195,155,211,${a * 0.85})`;
+                    ctx.fill();
+                });
+                requestAnimationFrame(draw);
+            };
+
+            window.addEventListener('resize', resize);
+            resize();
+            requestAnimationFrame(draw);
+        })();
+
+        /* ── 2. FLOATING PARTICLES ────────────────────────── */
+        (() => {
+            const container = document.getElementById('particles-container');
+            const palettes = [
+                'rgba(142,68,173,',
+                'rgba(195,155,211,',
+                'rgba(232,99,122,',
+                'rgba(240,165,122,',
+                'rgba(245,184,196,'
+            ];
+
+            const spawn = () => {
+                const el = document.createElement('div');
+                el.classList.add('particle');
+                const sz = Math.random() * 5 + 2;
+                const col = palettes[Math.floor(Math.random() * palettes.length)];
+                const dur = Math.random() * 14 + 8;
+                const dl = Math.random() * 4;
+                Object.assign(el.style, {
+                    width: sz + 'px',
+                    height: sz + 'px',
+                    left: Math.random() * 100 + 'vw',
+                    background: col + (Math.random() * 0.5 + 0.15) + ')',
+                    animationDuration: dur + 's',
+                    animationDelay: dl + 's'
+                });
+                container.appendChild(el);
+                setTimeout(() => el.remove(), (dur + dl) * 1000 + 200);
+            };
+
+            for (let i = 0; i < 18; i++) spawn();
+            setInterval(spawn, 1100);
+        })();
+
+        /* ── 3. SCROLL REVEAL ─────────────────────────────── */
+        (() => {
+            const els = document.querySelectorAll('.reveal');
+            const obs = new IntersectionObserver(entries => {
+                entries.forEach(e => {
+                    if (e.isIntersecting) {
+                        e.target.classList.add('visible');
+                        obs.unobserve(e.target);
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+            els.forEach(el => obs.observe(el));
+        })();
+
+        /* ── 4. PHOTO SLOT — hide img if src empty ────────── */
+        document.querySelectorAll('.photo-slot img').forEach(img => {
+            if (!img.getAttribute('src')) {
+                img.style.display = 'none';
+            } else {
+                const ph = img.nextElementSibling;
+                img.addEventListener('load', () => {
+                    if (ph) ph.style.display = 'none';
+                });
+                img.addEventListener('error', () => {
+                    img.style.display = 'none';
+                });
+            }
+        });
+
+        /* ── 5. LIGHTBOX ──────────────────────────────────── */
+        (() => {
+            const lb = document.getElementById('lightbox');
+            const lbImg = document.getElementById('lightbox-img');
+            const lbClose = document.getElementById('lightbox-close');
+
+            document.querySelectorAll('.photo-slot').forEach(slot => {
+                slot.addEventListener('click', () => {
+                    const img = slot.querySelector('img');
+                    if (img && img.src && img.style.display !== 'none') {
+                        lbImg.src = img.src;
+                        lb.classList.add('active');
+                    }
+                });
+            });
+            lbClose.addEventListener('click', () => lb.classList.remove('active'));
+            lb.addEventListener('click', e => {
+                if (e.target === lb) lb.classList.remove('active');
+            });
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') lb.classList.remove('active');
+            });
+        })();
+
+        /* ── 6. MUSIC TOGGLE (Web Audio API soft drone) ───── */
+        (() => {
+            const btn = document.getElementById('music-btn');
+            const label = document.getElementById('music-label');
+            const audio = document.getElementById('bg-music');
+            let playing = false;
+            let ctx, gainNode;
+
+            const startDrone = () => {
+                ctx = new(window.AudioContext || window.webkitAudioContext)();
+                gainNode = ctx.createGain();
+                gainNode.gain.setValueAtTime(0, ctx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 2.5);
+                gainNode.connect(ctx.destination);
+
+                // Gentle harmonic chord (A minor feel)
+                [
+                    [220, 0.55],
+                    [261.63, 0.38],
+                    [329.63, 0.28],
+                    [440, 0.18],
+                    [523.25, 0.1]
+                ].forEach(([freq, vol]) => {
+                    const osc = ctx.createOscillator();
+                    const gn = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    gn.gain.value = vol;
+                    osc.connect(gn);
+                    gn.connect(gainNode);
+                    osc.start();
+                });
+            };
+
+            const stopDrone = () => {
+                if (!gainNode) return;
+                gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 2);
+                setTimeout(() => {
+                    try {
+                        ctx.close();
+                    } catch (e) {}
+                    ctx = null;
+                    gainNode = null;
+                }, 2100);
+            };
+
+            btn.addEventListener('click', () => {
+                playing = !playing;
+                if (playing) {
+                    const hasSrc = audio.querySelector('source');
+                    if (hasSrc) {
+                        audio.play().catch(() => startDrone());
+                    } else {
+                        startDrone();
+                    }
+                    label.textContent = 'Pause Music';
+                    btn.querySelector('.note').textContent = '♬';
+                } else {
+                    if (audio.querySelector('source')) {
+                        audio.pause();
+                    } else {
+                        stopDrone();
+                    }
+                    label.textContent = 'Play Music';
+                    btn.querySelector('.note').textContent = '♪';
+                }
+            });
+        })();
+    </script>
+
+</body>
+
+</html>
