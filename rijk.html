@@ -1,1 +1,703 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>HerSafe | Empowering Women's Safety</title>
+  <!-- Google Fonts & simple CSS reset -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 (free icons) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fefaf7;
+      color: #2d2a2a;
+      scroll-behavior: smooth;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    /* header / navigation */
+    header {
+      background: #ffffffdd;
+      backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+      position: sticky;
+      top: 0;
+      width: 100%;
+      z-index: 100;
+      border-bottom: 1px solid #ffded5;
+    }
+
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 0;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #c4452c, #e25c3a);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .logo i {
+      background: none;
+      color: #e25c3a;
+      margin-right: 6px;
+      font-size: 1.7rem;
+      -webkit-background-clip: unset;
+      background-clip: unset;
+      color: #e25c3a;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-weight: 500;
+      color: #3c2a24;
+      transition: 0.2s;
+      font-size: 1rem;
+    }
+
+    .nav-links a:hover {
+      color: #e25c3a;
+    }
+
+    /* buttons */
+    .btn-primary {
+      background: #e25c3a;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 8px rgba(226, 92, 58, 0.2);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary:hover {
+      background: #c4452c;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(226, 92, 58, 0.3);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid #e25c3a;
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-weight: 600;
+      color: #e25c3a;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+
+    .btn-outline:hover {
+      background: #e25c3a10;
+      transform: scale(0.98);
+    }
+
+    /* hero */
+    .hero {
+      padding: 70px 0 60px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 40px;
+      justify-content: space-between;
+    }
+
+    .hero-content {
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .hero-content h1 {
+      font-size: 3.2rem;
+      font-weight: 800;
+      line-height: 1.2;
+      background: linear-gradient(135deg, #2b1e1a, #c4452c);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 20px;
+    }
+
+    .hero-content p {
+      font-size: 1.2rem;
+      color: #5c4b44;
+      margin-bottom: 32px;
+      max-width: 550px;
+    }
+
+    .hero-image {
+      flex: 1;
+      text-align: center;
+    }
+
+    .hero-image i {
+      font-size: 16rem;
+      color: #ffccbc;
+      filter: drop-shadow(0 12px 18px rgba(0,0,0,0.1));
+    }
+
+    /* emergency banner */
+    .emergency-bar {
+      background: #1e1917;
+      border-radius: 60px;
+      padding: 20px 30px;
+      margin: 20px 0 40px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    .emergency-bar h3 {
+      color: #ffaa8c;
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .emergency-numbers {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 25px;
+    }
+
+    .emergency-numbers div {
+      background: #2e2622;
+      padding: 8px 20px;
+      border-radius: 50px;
+      color: white;
+      font-weight: 600;
+    }
+
+    .emergency-numbers i {
+      margin-right: 8px;
+      color: #ff8866;
+    }
+
+    /* cards section */
+    .section-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 50px 0 20px 0;
+      position: relative;
+      display: inline-block;
+    }
+
+    .section-title:after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: #e25c3a;
+      border-radius: 4px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 32px;
+      margin: 40px 0 20px;
+    }
+
+    .safety-card {
+      background: white;
+      border-radius: 28px;
+      padding: 28px 20px;
+      transition: all 0.25s ease;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.02);
+      border: 1px solid #ffe4db;
+      text-align: center;
+    }
+
+    .safety-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 30px rgba(226, 92, 58, 0.08);
+      border-color: #ffcdbc;
+    }
+
+    .card-icon {
+      font-size: 2.8rem;
+      background: #fff1ec;
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 60px;
+      margin: 0 auto 20px;
+      color: #e25c3a;
+    }
+
+    .safety-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 12px;
+    }
+
+    .safety-card p {
+      color: #5a4942;
+    }
+
+    /* tips list */
+    .tips-list {
+      background: #fff7f3;
+      border-radius: 48px;
+      padding: 40px;
+      margin: 40px 0;
+      border: 1px solid #ffded0;
+    }
+
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 28px;
+      margin-top: 20px;
+    }
+
+    .tip-item {
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+    }
+
+    .tip-number {
+      background: #e25c3a;
+      width: 36px;
+      height: 36px;
+      border-radius: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .tip-text h4 {
+      margin-bottom: 6px;
+    }
+
+    /* resources / helpline grid */
+    .helpline-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: space-between;
+      background: #ffffffd9;
+      border-radius: 32px;
+      padding: 30px;
+      margin: 30px 0 50px;
+      border: 1px solid #ffebe2;
+    }
+
+    .helpline-item {
+      flex: 1;
+      min-width: 180px;
+      text-align: center;
+      padding: 12px;
+    }
+
+    .helpline-item i {
+      font-size: 2rem;
+      color: #e25c3a;
+      margin-bottom: 10px;
+    }
+
+    .helpline-item h4 {
+      font-weight: 700;
+    }
+
+    /* footer */
+    footer {
+      background: #1e1917;
+      color: #efdbd3;
+      padding: 48px 0 30px;
+      margin-top: 60px;
+      border-radius: 32px 32px 0 0;
+    }
+
+    .footer-content {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 30px;
+    }
+
+    .footer-col p {
+      max-width: 260px;
+      margin-top: 12px;
+      font-size: 0.9rem;
+    }
+
+    .footer-col h4 {
+      color: white;
+      margin-bottom: 18px;
+    }
+
+    .social-icons a {
+      color: #efdbd3;
+      margin-right: 18px;
+      font-size: 1.4rem;
+      transition: 0.2s;
+    }
+
+    .social-icons a:hover {
+      color: #e25c3a;
+    }
+
+    .copyright {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #3e2e28;
+      font-size: 0.8rem;
+    }
+
+    /* responsive */
+    @media (max-width: 800px) {
+      .container {
+        padding: 0 24px;
+      }
+      .hero-content h1 {
+        font-size: 2.4rem;
+      }
+      .nav-bar {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .emergency-bar {
+        flex-direction: column;
+        text-align: center;
+      }
+      .tips-list {
+        padding: 28px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .hero-image i {
+        font-size: 10rem;
+      }
+      .btn-primary, .btn-outline {
+        padding: 8px 20px;
+      }
+    }
+
+    button {
+      background: none;
+      border: none;
+    }
+
+    a {
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="nav-bar">
+      <div class="logo">
+        <i class="fas fa-shield-heart"></i> HerSafe
+      </div>
+      <ul class="nav-links">
+        <li><a href="#">Home</a></li>
+        <li><a href="#safety-tools">Safety Tools</a></li>
+        <li><a href="#tips">Safety Tips</a></li>
+        <li><a href="#helpline">Helpline</a></li>
+      </ul>
+      <div>
+        <button class="btn-outline" id="emergencyModalBtn"><i class="fas fa-phone-alt"></i> Emergency SOS</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <!-- Hero Section -->
+    <div class="hero">
+      <div class="hero-content">
+        <h1>Safety is not a privilege, <br>it's a right.</h1>
+        <p>Empowering women with real-time tools, awareness, and community support. Stay aware, stay confident, stay safe.</p>
+        <button class="btn-primary" id="learnMoreBtn"><i class="fas fa-arrow-right"></i> Explore Safety Guide</button>
+      </div>
+      <div class="hero-image">
+        <i class="fas fa-female"></i>
+      </div>
+    </div>
+
+    <!-- Emergency bar - quick numbers -->
+    <div class="emergency-bar">
+      <h3><i class="fas fa-exclamation-triangle"></i> 24/7 Emergency Helplines</h3>
+      <div class="emergency-numbers">
+        <div><i class="fas fa-phone"></i> National Helpline: 112</div>
+        <div><i class="fas fa-venus"></i> Women Helpline: 1091</div>
+        <div><i class="fas fa-gavel"></i> Police: 100</div>
+      </div>
+    </div>
+
+    <!-- Safety Features Section -->
+    <div id="safety-tools">
+      <h2 class="section-title">Safety First Tools</h2>
+      <div class="cards-grid">
+        <div class="safety-card">
+          <div class="card-icon"><i class="fas fa-location-dot"></i></div>
+          <h3>Live Location Share</h3>
+          <p>Instantly share your live location with trusted contacts via SMS. (Demo: alert sent to console)</p>
+          <button class="btn-outline" id="shareLocationBtn" style="margin-top: 16px;"><i class="fas fa-share-alt"></i> Simulate Share</button>
+        </div>
+        <div class="safety-card">
+          <div class="card-icon"><i class="fas fa-bell"></i></div>
+          <h3>Panic Button (SOS)</h3>
+          <p>One-tap emergency alert to predefined contacts & nearest authorities.</p>
+          <button class="btn-primary" id="sosAlertBtn" style="margin-top: 16px; background:#d14b2c;"><i class="fas fa-hand-fist"></i> Trigger SOS (Demo)</button>
+        </div>
+        <div class="safety-card">
+          <div class="card-icon"><i class="fas fa-microphone-alt"></i></div>
+          <h3>Voice-Activated Alert</h3>
+          <p>Detects keywords like "help me" — trigger immediate assistance (simulated).</p>
+          <button class="btn-outline" id="voiceDemoBtn" style="margin-top: 16px;"><i class="fas fa-microphone"></i> Test Voice Alert</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- safety tips section -->
+    <div id="tips">
+      <h2 class="section-title">Essential Safety Tips</h2>
+      <div class="tips-list">
+        <div class="tips-grid">
+          <div class="tip-item">
+            <div class="tip-number">1</div>
+            <div class="tip-text"><h4>Stay Aware</h4><p>Avoid distractions like earphones while walking alone, especially at night.</p></div>
+          </div>
+          <div class="tip-item">
+            <div class="tip-number">2</div>
+            <div class="tip-text"><h4>Share Your Route</h4><p>Always inform a friend/family about your travel route and expected arrival time.</p></div>
+          </div>
+          <div class="tip-item">
+            <div class="tip-number">3</div>
+            <div class="tip-text"><h4>Trust Your Instincts</h4><p>If a situation feels unsafe, leave immediately and seek help without hesitation.</p></div>
+          </div>
+          <div class="tip-item">
+            <div class="tip-number">4</div>
+            <div class="tip-text"><h4>Self-Defense Basics</h4><p>Carry a safety whistle or pepper spray (where legal) & learn basic escape moves.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Helpline & resources -->
+    <div id="helpline">
+      <h2 class="section-title">Support & Resources</h2>
+      <div class="helpline-grid">
+        <div class="helpline-item">
+          <i class="fas fa-heart"></i>
+          <h4>Women in Distress</h4>
+          <p>181 (Domestic Abuse)</p>
+          <small>24/7 Counselling</small>
+        </div>
+        <div class="helpline-item">
+          <i class="fas fa-hands-helping"></i>
+          <h4>Legal Aid</h4>
+          <p>1516 / National Legal Helpline</p>
+        </div>
+        <div class="helpline-item">
+          <i class="fas fa-ambulance"></i>
+          <h4>Medical Emergency</h4>
+          <p>108 / 102</p>
+        </div>
+        <div class="helpline-item">
+          <i class="fas fa-globe"></i>
+          <h4>Nari Shakti App</h4>
+          <p>Centralized women safety portal</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- extra awareness banner -->
+    <div style="background: linear-gradient(115deg, #ffefe8 0%, #ffe0d6 100%); border-radius: 32px; padding: 30px; margin: 20px 0 30px; text-align: center;">
+      <i class="fas fa-hands-clapping" style="font-size: 2rem; color:#e25c3a;"></i>
+      <h3 style="margin: 12px 0;">You are never alone. #StandTogether</h3>
+      <p style="max-width: 600px; margin: 0 auto;">If you or someone you know is facing harassment, reach out to the nearest women's cell or call our national helpline.</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-col">
+        <div class="logo" style="color: #ffd2c2; background: none; -webkit-background-clip: unset; background-clip: unset;">HerSafe <i class="fas fa-shield-alt"></i></div>
+        <p>Creating safer environments through technology, awareness, and community action.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <p><a href="#" style="color:#ffbcab;">Safety Guide</a></p>
+        <p><a href="#" style="color:#ffbcab;">Self-defense workshops</a></p>
+        <p><a href="#" style="color:#ffbcab;">Report an incident</a></p>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <div class="social-icons">
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+        <p style="margin-top: 15px;"><i class="fas fa-envelope"></i> support@hersafe.org</p>
+      </div>
+    </div>
+    <div class="copyright">
+      &copy; 2026 HerSafe — Empowering every woman to live fearlessly. All safety resources are for informational purposes.
+    </div>
+  </div>
+</footer>
+
+<!-- Simple Modal for SOS / demo info -->
+<div id="sosModal" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000;">
+  <div style="background: white; max-width: 400px; margin: 20px; padding: 30px; border-radius: 40px; text-align: center; box-shadow: 0 30px 40px rgba(0,0,0,0.3);">
+    <i class="fas fa-bell" style="font-size: 3rem; color:#e25c3a;"></i>
+    <h3 style="margin: 16px 0 8px;">Emergency Alert (DEMO)</h3>
+    <p id="modalMessage">This is a simulated SOS alert. In a real scenario, authorities & emergency contacts would be notified with your location.</p>
+    <button class="btn-primary" id="closeModalBtn" style="margin-top: 20px; background:#3a2a24;">Close</button>
+  </div>
+</div>
+
+<script>
+  // Helper to show modal with custom message
+  const modal = document.getElementById('sosModal');
+  const modalMessage = document.getElementById('modalMessage');
+
+  function showModal(message) {
+    modalMessage.innerText = message;
+    modal.style.display = 'flex';
+  }
+
+  document.getElementById('closeModalBtn').addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+  window.addEventListener('click', (e) => {
+    if (e.target === modal) modal.style.display = 'none';
+  });
+
+  // SOS button (main panic)
+  const sosBtn = document.getElementById('sosAlertBtn');
+  if(sosBtn) {
+    sosBtn.addEventListener('click', () => {
+      showModal("🚨 SIMULATED SOS ALERT 🚨\n\nYour current location would be shared with nearby police and emergency contacts. In a real emergency, please call 112 or 100 immediately. Stay safe!");
+      // Also play a little beep simulation? just console
+      console.log("[SOS TRIGGERED] Location shared virtually.");
+    });
+  }
+
+  // share location demo
+  const shareLocationBtn = document.getElementById('shareLocationBtn');
+  if(shareLocationBtn) {
+    shareLocationBtn.addEventListener('click', () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          showModal(`📍 Demo location shared! (Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)})\n\nIn real scenario, this would be sent to your guardians.`);
+        }, () => {
+          showModal("⚠️ Location access denied. Please enable GPS to use location share feature in real life.");
+        });
+      } else {
+        showModal("Geolocation not supported by your browser, but safety features remain accessible via emergency numbers.");
+      }
+    });
+  }
+
+  // Voice demo: simulates keyword detection
+  const voiceDemoBtn = document.getElementById('voiceDemoBtn');
+  if(voiceDemoBtn) {
+    voiceDemoBtn.addEventListener('click', () => {
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.start();
+        showModal("🎤 Listening... Say 'help me' or 'SOS' (simulation demo).");
+        recognition.onresult = (event) => {
+          const spoken = event.results[0][0].transcript.toLowerCase();
+          if (spoken.includes('help') || spoken.includes('sos') || spoken.includes('danger')) {
+            showModal(`🚨 Voice command recognized: "${spoken}". Triggering emergency alert. (Simulated)`);
+          } else {
+            showModal(`You said: "${spoken}". No emergency keyword detected. Stay safe!`);
+          }
+        };
+        recognition.onerror = () => {
+          showModal("Microphone access needed for voice alert feature. Use manual SOS instead.");
+        };
+      } else {
+        showModal("Voice recognition is not supported on this browser. Use emergency contacts or panic button.");
+      }
+    });
+  }
+
+  // learn more button: scroll to safety tips
+  const learnBtn = document.getElementById('learnMoreBtn');
+  if(learnBtn) {
+    learnBtn.addEventListener('click', () => {
+      document.getElementById('tips').scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+
+  // emergency modal btn in header (shows global helpline)
+  const emergencyModalBtn = document.getElementById('emergencyModalBtn');
+  if(emergencyModalBtn) {
+    emergencyModalBtn.addEventListener('click', () => {
+      showModal("📞 IMMEDIATE HELP: \nNational Women Helpline: 1091\nPolice: 100\nEmergency: 112\nDomestic Abuse: 181\n\nStay calm and reach out immediately.");
+    });
+  }
+
+  // Additional safety: prefill some demo notifications
+  console.log("HerSafe — Women's Safety Website Loaded. Stay vigilant!");
+</script>
+</body>
+</html>
