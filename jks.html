@@ -5,8 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>J K S H A R E</title>
-    <!-- LottieFiles Player -->
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <style>
         :root {
             --bg: #0a0a14;
@@ -22,6 +20,34 @@
             --radius-sm: 12px;
             --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
             --font-sans: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
+
+            --field-bg: rgba(10, 10, 20, 0.5);
+            --field-border: rgba(255, 255, 255, 0.08);
+            --field-text: #f0f0f8;
+            --code-bg: rgba(0, 0, 0, 0.35);
+            --code-text: #c4b5fd;
+            --toast-bg: rgba(30, 30, 45, 0.85);
+            --outline-bg: rgba(255, 255, 255, 0.04);
+            --orb-opacity: 0.5;
+            --particle-opacity: 0.03;
+        }
+
+        [data-theme="light"] {
+            --bg: #f2eef9;
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --glass-border: rgba(30, 20, 60, 0.08);
+            --glass-highlight: rgba(30, 20, 60, 0.03);
+            --text: #201c33;
+            --text-muted: #6b6580;
+            --field-bg: rgba(255, 255, 255, 0.55);
+            --field-border: rgba(30, 20, 60, 0.1);
+            --field-text: #201c33;
+            --code-bg: rgba(30, 20, 60, 0.08);
+            --code-text: #6d3fc7;
+            --toast-bg: rgba(255, 255, 255, 0.9);
+            --outline-bg: rgba(30, 20, 60, 0.04);
+            --orb-opacity: 0.28;
+            --particle-opacity: 0.05;
         }
 
         * {
@@ -34,6 +60,7 @@
             font-family: var(--font-sans);
             background: var(--bg);
             color: var(--text);
+            transition: background 0.5s ease, color 0.5s ease;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -45,21 +72,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ── Lottie background layer ── */
-        .lottie-bg {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            opacity: 0.18;
-            pointer-events: none;
-            mix-blend-mode: screen;
-        }
-        .lottie-bg lottie-player {
-            width: 100%;
-            height: 100%;
-        }
-
-        /* animated gradient orbs (still keep as subtle complement) */
+        /* ── animated gradient orbs ── */
         .bg-orb {
             position: fixed;
             border-radius: 50%;
@@ -67,12 +80,13 @@
             pointer-events: none;
             z-index: 0;
             animation: floatOrb 14s infinite ease-in-out;
-            opacity: 0.25;
+            opacity: var(--orb-opacity);
+            transition: opacity 0.5s ease;
         }
         .bg-orb.orb-1 {
             width: 420px;
             height: 420px;
-            background: radial-gradient(circle, rgba(139, 124, 240, 0.4) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(139, 124, 240, 0.5) 0%, transparent 70%);
             top: -8%;
             left: -10%;
             animation-delay: 0s;
@@ -81,11 +95,20 @@
         .bg-orb.orb-2 {
             width: 340px;
             height: 340px;
-            background: radial-gradient(circle, rgba(196, 77, 255, 0.3) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(196, 77, 255, 0.4) 0%, transparent 70%);
             bottom: -12%;
             right: -8%;
             animation-delay: -5s;
             animation-duration: 18s;
+        }
+        .bg-orb.orb-3 {
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, rgba(100, 180, 255, 0.35) 0%, transparent 70%);
+            top: 50%;
+            left: 55%;
+            animation-delay: -9s;
+            animation-duration: 20s;
         }
 
         @keyframes floatOrb {
@@ -101,6 +124,26 @@
             }
             75% {
                 transform: translate(-18px, -30px) scale(1.05);
+            }
+        }
+
+        /* subtle particle grid overlay */
+        .particle-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image: radial-gradient(rgba(127, 100, 200, var(--particle-opacity)) 1px, transparent 1px);
+            background-size: 36px 36px;
+            animation: particleDrift 30s linear infinite;
+            transition: background-image 0.5s ease;
+        }
+        @keyframes particleDrift {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 36px 36px;
             }
         }
 
@@ -166,14 +209,24 @@
             -webkit-text-fill-color: transparent;
             font-weight: 800;
         }
-        /* Lottie logo icon */
         .logo-icon {
-            display: inline-flex;
-            width: 30px;
-            height: 30px;
-            align-items: center;
-            justify-content: center;
-            margin-right: 2px;
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            margin-right: 4px;
+            animation: logoPulse 3s infinite ease-in-out;
+            box-shadow: 0 0 18px var(--accent-glow);
+        }
+        @keyframes logoPulse {
+            0%,
+            100% {
+                box-shadow: 0 0 18px var(--accent-glow);
+            }
+            50% {
+                box-shadow: 0 0 32px rgba(196, 77, 255, 0.55);
+            }
         }
 
         .status {
@@ -189,18 +242,6 @@
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             transition: all 0.35s ease;
-            position: relative;
-        }
-        /* status ring animation behind the dot */
-        .status-ring {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 38px;
-            height: 38px;
-            pointer-events: none;
-            opacity: 0.7;
         }
         .dot {
             display: inline-block;
@@ -211,7 +252,6 @@
             box-shadow: 0 0 10px #e74c3c;
             transition: all 0.4s ease;
             flex-shrink: 0;
-            z-index: 1;
         }
         .dot.connected {
             background: #00e676;
@@ -228,7 +268,7 @@
             }
         }
 
-        /* session info row */
+        /* ── session info row ── */
         .info-row {
             font-size: 0.78rem;
             color: var(--text-muted);
@@ -249,18 +289,22 @@
             border-color: rgba(255, 255, 255, 0.12);
         }
         .info-row code {
-            background: rgba(0, 0, 0, 0.35);
+            background: var(--code-bg);
             padding: 3px 10px;
             border-radius: 6px;
-            color: #c4b5fd;
+            color: var(--code-text);
             user-select: all;
             cursor: pointer;
             font-family: var(--font-mono);
             font-size: 0.75rem;
+            letter-spacing: 0.02em;
             transition: background 0.2s;
         }
+        .info-row code:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
 
-        /* textarea */
+        /* ── textarea ── */
         .textarea-wrapper {
             position: relative;
             margin-bottom: 8px;
@@ -268,11 +312,11 @@
         textarea {
             width: 100%;
             height: 280px;
-            background: rgba(10, 10, 20, 0.5);
-            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            background: var(--field-bg);
+            border: 1.5px solid var(--field-border);
             border-radius: var(--radius);
             padding: 18px 20px;
-            color: #f0f0f8;
+            color: var(--field-text);
             font-size: 0.95rem;
             font-family: var(--font-mono);
             line-height: 1.7;
@@ -282,6 +326,12 @@
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
             letter-spacing: 0.01em;
+            position: relative;
+            z-index: 1;
+        }
+        textarea::placeholder {
+            color: rgba(200, 200, 220, 0.3);
+            font-style: italic;
         }
         textarea:focus {
             border-color: rgba(139, 124, 240, 0.5);
@@ -289,9 +339,41 @@
                 0 0 0 6px rgba(139, 124, 240, 0.06),
                 0 0 30px -8px var(--accent-glow),
                 inset 0 0 40px rgba(139, 124, 240, 0.03);
+            background: rgba(14, 14, 28, 0.6);
+        }
+        /* shimmer on focus */
+        .textarea-shimmer {
+            position: absolute;
+            inset: -2px;
+            border-radius: calc(var(--radius) + 2px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            background: linear-gradient(135deg,
+                    rgba(139, 124, 240, 0.2),
+                    transparent 40%,
+                    rgba(196, 77, 255, 0.15),
+                    transparent 70%);
+            background-size: 200% 200%;
+            animation: shimmerSweep 3s infinite linear;
+        }
+        textarea:focus+.textarea-shimmer {
+            opacity: 1;
+        }
+        @keyframes shimmerSweep {
+            0% {
+                background-position: 0% 0%;
+            }
+            50% {
+                background-position: 100% 100%;
+            }
+            100% {
+                background-position: 0% 0%;
+            }
         }
 
-        /* buttons */
+        /* ── buttons ── */
         .buttons {
             display: flex;
             gap: 10px;
@@ -307,14 +389,30 @@
             transition: all 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
             font-family: var(--font-sans);
             font-size: 0.84rem;
+            letter-spacing: 0.01em;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             position: relative;
+            overflow: hidden;
             white-space: nowrap;
+        }
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 28px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .btn:active::after {
+            opacity: 1;
         }
         .btn:active {
             transform: scale(0.96);
         }
+
         .btn-primary {
             background: linear-gradient(135deg, var(--accent), #7a5de8);
             color: #fff;
@@ -325,11 +423,14 @@
         .btn-primary:hover {
             box-shadow: 0 10px 32px rgba(108, 92, 231, 0.45);
             transform: translateY(-2px);
+            filter: brightness(1.08);
         }
+
         .btn-outline {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            background: var(--outline-bg);
+            border: 1.5px solid var(--glass-border);
             color: var(--text);
+            font-weight: 500;
         }
         .btn-outline:hover {
             border-color: rgba(139, 124, 240, 0.5);
@@ -343,67 +444,256 @@
             border-radius: 20px;
         }
 
-        /* toast */
-        .toast-temp {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            background: rgba(30, 30, 45, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-size: 0.85rem;
-            z-index: 99;
-            pointer-events: none;
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        /* ── theme toggle ── */
+        .theme-toggle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--glass-border);
+            background: var(--outline-bg);
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            flex-shrink: 0;
+            transition: all 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
-        .toast-temp.show {
+        .theme-toggle:hover {
+            border-color: rgba(139, 124, 240, 0.5);
+            transform: rotate(20deg) scale(1.06);
+        }
+        .theme-toggle:active {
+            transform: scale(0.92);
+        }
+
+        /* ── presence ── */
+        .presence-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .presence-chips {
+            display: flex;
+            align-items: center;
+        }
+        .presence-chip {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #fff;
+            border: 2px solid var(--bg);
+            margin-left: -8px;
+            position: relative;
+            cursor: default;
+            animation: chipAppear 0.35s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.5s ease;
+        }
+        .presence-chip:first-child {
+            margin-left: 0;
+        }
+        .presence-chip:hover {
+            transform: translateY(-3px) scale(1.08);
+            z-index: 5;
+        }
+        .presence-chip.typing {
+            animation: chipAppear 0.35s cubic-bezier(0.22, 0.61, 0.36, 1) both, chipPulse 1.1s infinite ease-in-out;
+        }
+        .presence-chip.self {
+            box-shadow: 0 0 0 2px var(--accent-glow);
+        }
+        @keyframes chipAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0.5) translateY(6px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        @keyframes chipPulse {
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 currentColor;
+            }
+            50% {
+                box-shadow: 0 0 0 5px transparent, 0 0 14px 2px currentColor;
+            }
+        }
+        .presence-chip .chip-tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) translateY(4px);
+            background: var(--toast-bg);
+            color: var(--text);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.68rem;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s ease;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+        }
+        .presence-chip:hover .chip-tooltip {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
+        .presence-count {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
 
-        /* responsive */
+        /* ── typing indicator ── */
+        .typing-line {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            font-style: italic;
+            height: 16px;
+            margin: -2px 0 6px 2px;
+            opacity: 0;
+            transform: translateY(-4px);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .typing-line.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .typing-dots span {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--accent);
+            margin-right: 2px;
+            animation: typingBounce 1.2s infinite ease-in-out;
+        }
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+        @keyframes typingBounce {
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+                opacity: 0.5;
+            }
+            30% {
+                transform: translateY(-3px);
+                opacity: 1;
+            }
+        }
+
+        /* ── responsive ── */
         @media (max-width: 600px) {
             .container {
                 padding: 20px 14px;
                 border-radius: 22px;
             }
+            .header {
+                gap: 8px;
+            }
+            .logo {
+                font-size: 1.25rem;
+            }
             textarea {
                 height: 220px;
                 font-size: 0.85rem;
+                padding: 14px;
             }
             .btn {
                 padding: 10px 16px;
                 font-size: 0.78rem;
+                border-radius: 24px;
+            }
+            .buttons {
+                gap: 6px;
+            }
+            .info-row {
+                font-size: 0.7rem;
+                padding: 8px 10px;
+                flex-wrap: wrap;
+                gap: 6px;
             }
             .status {
                 font-size: 0.72rem;
                 padding: 6px 12px;
             }
         }
+        @media (max-width: 380px) {
+            .buttons {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .btn {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+            textarea {
+                height: 180px;
+            }
+            .container {
+                padding: 16px 10px;
+            }
+        }
+
+        /* ── toast-style alerts replaced with subtle pulse ── */
+        .toast-temp {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--toast-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: var(--text);
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            z-index: 99;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            letter-spacing: 0.01em;
+        }
+        .toast-temp.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
     </style>
 </head>
 
 <body>
-    <!-- Lottie ambient background -->
-    <div class="lottie-bg">
-        <lottie-player
-            src="https://assets2.lottiefiles.com/packages/lf20_evxqbxyi.json"
-            background="transparent"
-            speed="0.7"
-            loop
-            autoplay>
-        </lottie-player>
-    </div>
-
-    <!-- subtle gradient orbs -->
+    <!-- animated background orbs -->
     <div class="bg-orb orb-1"></div>
     <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+    <div class="particle-layer"></div>
 
     <!-- toast -->
     <div class="toast-temp" id="toast"></div>
@@ -412,35 +702,20 @@
     <div class="container">
         <div class="header">
             <div class="logo">
-                <span class="logo-icon">
-                    <!-- Lottie share icon for the logo -->
-                    <lottie-player
-                        src="https://assets9.lottiefiles.com/packages/lf20_x8lskdsr.json"
-                        background="transparent"
-                        speed="1"
-                        style="width: 100%; height: 100%;"
-                        loop
-                        autoplay>
-                    </lottie-player>
-                </span>
-                Air<span>ForShare</span>
+                <span class="logo-icon"></span> J K<span> Share</span>
             </div>
-            <div class="status">
-                <!-- animated ring behind connection dot -->
-                <div class="status-ring">
-                    <lottie-player
-                        id="statusRingAnimation"
-                        src="https://assets8.lottiefiles.com/packages/lf20_anvnqdoe.json"
-                        background="transparent"
-                        speed="0.8"
-                        style="width: 100%; height: 100%;"
-                        loop
-                        autoplay>
-                    </lottie-player>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div class="status">
+                    <span class="dot" id="statusDot"></span>
+                    <span id="statusText">Connecting…</span>
                 </div>
-                <span class="dot" id="statusDot"></span>
-                <span id="statusText">Connecting…</span>
+                <button class="theme-toggle" id="themeToggle" title="Toggle theme" aria-label="Toggle light and dark theme">🌙</button>
             </div>
+        </div>
+
+        <div class="presence-row">
+            <div class="presence-chips" id="presenceChips"></div>
+            <span class="presence-count" id="presenceCount"></span>
         </div>
 
         <div class="info-row">
@@ -450,6 +725,12 @@
 
         <div class="textarea-wrapper">
             <textarea id="sharedTextarea" placeholder="Start typing — it syncs live ✨"></textarea>
+            <div class="textarea-shimmer"></div>
+        </div>
+
+        <div class="typing-line" id="typingLine">
+            <span class="typing-dots"><span></span><span></span><span></span></span>
+            <span id="typingText"></span>
         </div>
 
         <div class="buttons">
@@ -460,11 +741,14 @@
     </div>
 
     <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js">
+    </script>
 
     <script>
         (function() {
+            // ── Toast helper ──
             const toastEl = document.getElementById('toast');
             let toastTimer;
 
@@ -472,9 +756,12 @@
                 if (toastTimer) clearTimeout(toastTimer);
                 toastEl.textContent = msg;
                 toastEl.classList.add('show');
-                toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1800);
+                toastTimer = setTimeout(() => {
+                    toastEl.classList.remove('show');
+                }, 1800);
             }
 
+            // ── Firebase config ──
             const firebaseConfig = {
                 apiKey: "AIzaSyACGCVwSYv62Pyjxo7UKcgdxLq3FJVv4lA",
                 authDomain: "taskflow-planner-2334d.firebaseapp.com",
@@ -489,6 +776,7 @@
             firebase.initializeApp(firebaseConfig);
             const db = firebase.database();
 
+            // ── Session management ──
             function getSessionId() {
                 const params = new URLSearchParams(window.location.search);
                 let sid = params.get('session');
@@ -509,14 +797,55 @@
             document.getElementById('sessionIdDisplay').textContent = SESSION_ID;
             const shareUrl = `${window.location.origin}${window.location.pathname}?session=${SESSION_ID}`;
 
+            // ── DOM elements ──
             const textarea = document.getElementById('sharedTextarea');
             const statusDot = document.getElementById('statusDot');
             const statusText = document.getElementById('statusText');
-            const statusRing = document.getElementById('statusRingAnimation');
+            const copyLinkBtn = document.getElementById('copyLinkBtn');
+            const themeToggle = document.getElementById('themeToggle');
+            const presenceChipsEl = document.getElementById('presenceChips');
+            const presenceCountEl = document.getElementById('presenceCount');
+            const typingLine = document.getElementById('typingLine');
+            const typingText = document.getElementById('typingText');
 
+            // ── Theme toggle ──
+            function applyTheme(theme) {
+                if (theme === 'light') {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    themeToggle.textContent = '☀️';
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    themeToggle.textContent = '🌙';
+                }
+            }
+            let currentTheme = 'dark';
+            applyTheme(currentTheme);
+            themeToggle.addEventListener('click', () => {
+                currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                applyTheme(currentTheme);
+            });
+
+            // ── Peer identity ──
+            const NAME_POOL = ['Nova', 'Comet', 'Ember', 'Sable', 'Wren', 'Orion', 'Juno', 'Lark',
+                'Vega', 'Indigo', 'Basil', 'Reef', 'Onyx', 'Sage', 'Talon', 'Iris'
+            ];
+            const COLOR_POOL = ['#8b7cf0', '#c44dff', '#00b8d9', '#00c896', '#ff8a5c', '#ff5c8a', '#5c9eff', '#e0c341'];
+
+            function pick(pool) {
+                return pool[Math.floor(Math.random() * pool.length)];
+            }
+
+            const PEER_ID = generateId();
+            const PEER_NAME = pick(NAME_POOL);
+            const PEER_COLOR = pick(COLOR_POOL);
+
+            // ── Firebase references ──
             const textRef = db.ref(`sessions/${SESSION_ID}/text`);
+            const presenceRef = db.ref(`sessions/${SESSION_ID}/presence`);
+            const myPresenceRef = presenceRef.child(PEER_ID);
             let isUpdatingFromFirebase = false;
 
+            // Listen for remote changes
             textRef.on('value', (snapshot) => {
                 const text = snapshot.val() || '';
                 if (!isUpdatingFromFirebase) {
@@ -524,6 +853,7 @@
                 }
             });
 
+            // Send local changes (debounced)
             let debounceTimer;
             textarea.addEventListener('input', () => {
                 const text = textarea.value;
@@ -536,46 +866,137 @@
                         isUpdatingFromFirebase = false;
                     });
                 }, 200);
+                setTyping(true);
             });
 
+            // Connection status
             const connectedRef = db.ref('.info/connected');
             connectedRef.on('value', (snap) => {
-                const connected = snap.val() === true;
-                if (connected) {
+                if (snap.val() === true) {
                     statusDot.classList.add('connected');
                     statusText.textContent = 'Connected';
-                    // Pause the ring animation when connected (optional)
-                    statusRing.style.opacity = '0.3';
+
+                    // (Re)announce presence whenever we (re)connect
+                    myPresenceRef.set({
+                        name: PEER_NAME,
+                        color: PEER_COLOR,
+                        typing: false,
+                        lastActive: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    myPresenceRef.onDisconnect().remove();
                 } else {
                     statusDot.classList.remove('connected');
                     statusText.textContent = 'Disconnected';
-                    statusRing.style.opacity = '0.7';
                 }
             });
 
+            // ── Presence: typing state ──
+            let typingTimer;
+            function setTyping(isTyping) {
+                myPresenceRef.update({
+                    typing: isTyping,
+                    lastActive: firebase.database.ServerValue.TIMESTAMP
+                });
+                if (isTyping) {
+                    clearTimeout(typingTimer);
+                    typingTimer = setTimeout(() => setTyping(false), 1200);
+                }
+            }
+
+            // ── Presence: render peer chips + typing line ──
+            function initials(name) {
+                return name.slice(0, 2).toUpperCase();
+            }
+
+            presenceRef.on('value', (snapshot) => {
+                const peers = snapshot.val() || {};
+                const entries = Object.entries(peers);
+
+                // Chips
+                presenceChipsEl.innerHTML = '';
+                entries.forEach(([id, peer]) => {
+                    const chip = document.createElement('div');
+                    chip.className = 'presence-chip' + (peer.typing ? ' typing' : '') + (id === PEER_ID ? ' self' : '');
+                    chip.style.background = peer.color || '#8b7cf0';
+                    chip.style.color = peer.color || '#8b7cf0';
+                    chip.innerHTML = `<span style="color:#fff;">${initials(peer.name || '??')}</span>
+                        <span class="chip-tooltip">${peer.name || 'Someone'}${id === PEER_ID ? ' (you)' : ''}</span>`;
+                    presenceChipsEl.appendChild(chip);
+                });
+
+                const count = entries.length;
+                presenceCountEl.textContent = count <= 1 ?
+                    'Only you here' :
+                    `${count} people here`;
+
+                // Typing line
+                const othersTyping = entries
+                    .filter(([id, peer]) => id !== PEER_ID && peer.typing)
+                    .map(([, peer]) => peer.name || 'Someone');
+
+                if (othersTyping.length === 0) {
+                    typingLine.classList.remove('show');
+                } else if (othersTyping.length === 1) {
+                    typingText.textContent = `${othersTyping[0]} is typing`;
+                    typingLine.classList.add('show');
+                } else if (othersTyping.length === 2) {
+                    typingText.textContent = `${othersTyping[0]} and ${othersTyping[1]} are typing`;
+                    typingLine.classList.add('show');
+                } else {
+                    typingText.textContent = `${othersTyping.length} people are typing`;
+                    typingLine.classList.add('show');
+                }
+            });
+
+            // Clean up presence if the tab is closed without a proper disconnect event
+            window.addEventListener('beforeunload', () => {
+                myPresenceRef.remove();
+            });
+
+            // ── Button handlers ──
             document.getElementById('clearBtn').addEventListener('click', () => {
-                if (confirm('Clear text for all peers?')) {
+                if (confirm('Clear text for all peers in this session?')) {
                     textRef.set('');
                     textarea.value = '';
                     showToast('✨ Text cleared for everyone');
                 }
             });
+
             document.getElementById('copyTextBtn').addEventListener('click', () => {
                 const text = textarea.value;
                 if (text.trim()) {
-                    navigator.clipboard.writeText(text).then(() => showToast('📋 Text copied!'));
+                    navigator.clipboard.writeText(text).then(() => {
+                        showToast('📋 Text copied to clipboard');
+                    }).catch(() => {
+                        showToast('⚠️ Failed to copy');
+                    });
                 } else {
-                    showToast('📝 Nothing to copy');
+                    showToast('📝 Nothing to copy yet');
                 }
             });
+
             document.getElementById('newSessionBtn').addEventListener('click', () => {
                 const newId = generateId();
                 window.location.href = `${window.location.pathname}?session=${newId}`;
             });
-            document.getElementById('copyLinkBtn').addEventListener('click', () => {
-                navigator.clipboard.writeText(shareUrl).then(() => showToast('🔗 Link copied!'));
+
+            copyLinkBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    showToast('🔗 Session link copied!');
+                }).catch(() => {
+                    showToast('⚠️ Failed to copy link');
+                });
+            });
+
+            // ── keyboard shortcut: Ctrl+Shift+C to copy text ──
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+                    e.preventDefault();
+                    document.getElementById('copyTextBtn').click();
+                }
             });
         })();
     </script>
 </body>
+
 </html>
