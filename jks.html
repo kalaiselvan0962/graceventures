@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirForShare - Firebase Edition</title>
+    <style>
+         :root {
+            --bg: #0f0f14;
+            --surface: #1a1a24;
+            --surface-2: #222230;
+            --text: #e0e0e0;
+            --accent: #6c5ce7;
+            --radius: 16px;
+            --border: #2a2a3a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 28px 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .logo {
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        .status {
+            background: var(--surface-2);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid var(--border);
+        }
+        
+        .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e74c3c;
+            margin-right: 6px;
+            transition: background 0.3s;
+        }
+        
+        .dot.connected {
+            background: #00b894;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 280px;
+            background: var(--surface-2);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            color: var(--text);
+            font-size: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        textarea:focus {
+            border-color: var(--accent);
+        }
+        
+        .info-row {
+            font-size: 0.8rem;
+            color: #999;
+            margin: 10px 0;
+            background: var(--surface-2);
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .info-row code {
+            background: #111;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #a29bfe;
+            user-select: all;
+            cursor: pointer;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+            font-size: 0.85rem;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            filter: brightness(1.1);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--border);
+            color: var(--text);
+        }
+        
+        .btn-outline:hover {
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Air<span>ForShare</span></div>
+            <div class="status">
+                <span class="dot" id="statusDot"></span>
+                <span id="statusText">Connecting...</span>
+            </div>
+        </div>
+
+        <div class="info-row">
+            🔗 Session: <code id="sessionIdDisplay">...</code>
+            <button class="btn-outline" style="padding:4px 12px;font-size:0.75rem;" id="copyLinkBtn">Copy link</button>
+        </div>
+
+        <textarea id="sharedTextarea" placeholder="Start typing..."></textarea>
+
+        <div class="buttons">
+            <button class="btn-outline" id="clearBtn">🗑️ Clear</button>
+            <button class="btn-outline" id="copyTextBtn">📋 Copy text</button>
+            <button class="btn-primary" id="newSessionBtn">🔄 New session</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <script>
+        // ⚠️ REPLACE THIS CONFIG with your own from the Firebase console
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyACGCVwSYv62Pyjxo7UKcgdxLq3FJVv4lA",
+            authDomain: "taskflow-planner-2334d.firebaseapp.com",
+            databaseURL: "https://taskflow-planner-2334d-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "taskflow-planner-2334d",
+            storageBucket: "taskflow-planner-2334d.firebasestorage.app",
+            messagingSenderId: "397910412033",
+            appId: "1:397910412033:web:29ccabf522a9d620832900",
+            measurementId: "G-CL9BS9HF51"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // ───── Session management ─────
+        function getSessionId() {
+            const params = new URLSearchParams(window.location.search);
+            let sid = params.get('session');
+            if (!sid) {
+                sid = generateId();
+                const url = new URL(window.location);
+                url.searchParams.set('session', sid);
+                window.history.replaceState({}, '', url);
+            }
+            return sid;
+        }
+
+        function generateId() {
+            return Math.random().toString(36).substring(2, 10);
+        }
+
+        const SESSION_ID = getSessionId();
+        document.getElementById('sessionIdDisplay').textContent = SESSION_ID;
+
+        // Update share URL
+        const shareUrl = `${window.location.origin}${window.location.pathname}?session=${SESSION_ID}`;
+
+        // ───── DOM elements ─────
+        const textarea = document.getElementById('sharedTextarea');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const copyLinkBtn = document.getElementById('copyLinkBtn');
+
+        // ───── Firebase reference ─────
+        const textRef = db.ref(`sessions/${SESSION_ID}/text`);
+        let isUpdatingFromFirebase = false;
+
+        // Listen for remote changes
+        textRef.on('value', (snapshot) => {
+            const text = snapshot.val() || '';
+            if (!isUpdatingFromFirebase) {
+                textarea.value = text;
+            }
+        });
+
+        // Send local changes (debounced)
+        let debounceTimer;
+        textarea.addEventListener('input', () => {
+            const text = textarea.value;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                isUpdatingFromFirebase = true;
+                textRef.set(text).then(() => {
+                    isUpdatingFromFirebase = false;
+                }).catch(() => {
+                    isUpdatingFromFirebase = false;
+                });
+            }, 200);
+        });
+
+        // Connection status
+        const connectedRef = db.ref('.info/connected');
+        connectedRef.on('value', (snap) => {
+            if (snap.val() === true) {
+                statusDot.classList.add('connected');
+                statusText.textContent = 'Connected';
+            } else {
+                statusDot.classList.remove('connected');
+                statusText.textContent = 'Disconnected';
+            }
+        });
+
+        // Buttons
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            if (confirm('Clear text for all peers?')) {
+                textRef.set('');
+                textarea.value = '';
+            }
+        });
+        document.getElementById('copyTextBtn').addEventListener('click', () => {
+            const text = textarea.value;
+            if (text) {
+                navigator.clipboard.writeText(text).then(() => alert('Text copied!'));
+            }
+        });
+        document.getElementById('newSessionBtn').addEventListener('click', () => {
+            const newId = generateId();
+            window.location.href = `${window.location.pathname}?session=${newId}`;
+        });
+        copyLinkBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(shareUrl).then(() => alert('Link copied!'));
+        });
+    </script>
+</body>
+
+</html>
