@@ -4,181 +4,529 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AirForShare - Firebase Edition</title>
+    <title>AirForShare — Glass Edition</title>
     <style>
-         :root {
-            --bg: #0f0f14;
-            --surface: #1a1a24;
-            --surface-2: #222230;
-            --text: #e0e0e0;
-            --accent: #6c5ce7;
-            --radius: 16px;
-            --border: #2a2a3a;
+        :root {
+            --bg: #0a0a14;
+            --glass-bg: rgba(20, 20, 35, 0.55);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.04);
+            --text: #e8e8f0;
+            --text-muted: #9494b8;
+            --accent: #8b7cf0;
+            --accent-glow: rgba(139, 124, 240, 0.35);
+            --accent-2: #c44dff;
+            --radius: 20px;
+            --radius-sm: 12px;
+            --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+            --font-sans: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Inter', system-ui, sans-serif;
+            font-family: var(--font-sans);
             background: var(--bg);
             color: var(--text);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 16px;
+            overflow-x: hidden;
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
         }
-        
+
+        /* ── animated gradient orbs ── */
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+            animation: floatOrb 14s infinite ease-in-out;
+            opacity: 0.5;
+        }
+        .bg-orb.orb-1 {
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(circle, rgba(139, 124, 240, 0.5) 0%, transparent 70%);
+            top: -8%;
+            left: -10%;
+            animation-delay: 0s;
+            animation-duration: 16s;
+        }
+        .bg-orb.orb-2 {
+            width: 340px;
+            height: 340px;
+            background: radial-gradient(circle, rgba(196, 77, 255, 0.4) 0%, transparent 70%);
+            bottom: -12%;
+            right: -8%;
+            animation-delay: -5s;
+            animation-duration: 18s;
+        }
+        .bg-orb.orb-3 {
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, rgba(100, 180, 255, 0.35) 0%, transparent 70%);
+            top: 50%;
+            left: 55%;
+            animation-delay: -9s;
+            animation-duration: 20s;
+        }
+
+        @keyframes floatOrb {
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(30px, -40px) scale(1.1);
+            }
+            50% {
+                transform: translate(-25px, 20px) scale(0.92);
+            }
+            75% {
+                transform: translate(-18px, -30px) scale(1.05);
+            }
+        }
+
+        /* subtle particle grid overlay */
+        .particle-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 36px 36px;
+            animation: particleDrift 30s linear infinite;
+        }
+        @keyframes particleDrift {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 36px 36px;
+            }
+        }
+
+        /* ── main container ── */
         .container {
             width: 100%;
-            max-width: 700px;
-            background: var(--surface);
-            border-radius: 24px;
+            max-width: 720px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(32px) saturate(160%);
+            -webkit-backdrop-filter: blur(32px) saturate(160%);
+            border-radius: 28px;
             padding: 28px 24px;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            border: 1.5px solid var(--glass-border);
+            box-shadow:
+                0 8px 40px rgba(0, 0, 0, 0.45),
+                0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+                0 1px 0 rgba(255, 255, 255, 0.06) inset;
+            position: relative;
+            z-index: 2;
+            transition: box-shadow 0.5s ease, border-color 0.5s ease;
+            animation: containerAppear 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) both;
         }
-        
+        @keyframes containerAppear {
+            0% {
+                opacity: 0;
+                transform: translateY(24px) scale(0.97);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .container:hover {
+            border-color: rgba(255, 255, 255, 0.14);
+            box-shadow:
+                0 12px 50px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+                0 0 60px -15px var(--accent-glow);
+        }
+
+        /* ── header ── */
         .header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
         }
-        
         .logo {
-            font-weight: 700;
-            font-size: 1.4rem;
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -0.02em;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        
         .logo span {
-            color: var(--accent);
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
         }
-        
+        .logo-icon {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            margin-right: 4px;
+            animation: logoPulse 3s infinite ease-in-out;
+            box-shadow: 0 0 18px var(--accent-glow);
+        }
+        @keyframes logoPulse {
+            0%,
+            100% {
+                box-shadow: 0 0 18px var(--accent-glow);
+            }
+            50% {
+                box-shadow: 0 0 32px rgba(196, 77, 255, 0.55);
+            }
+        }
+
         .status {
-            background: var(--surface-2);
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 16px;
+            border-radius: 24px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.35s ease;
         }
-        
         .dot {
             display: inline-block;
-            width: 8px;
-            height: 8px;
+            width: 9px;
+            height: 9px;
             border-radius: 50%;
             background: #e74c3c;
-            margin-right: 6px;
-            transition: background 0.3s;
+            box-shadow: 0 0 10px #e74c3c;
+            transition: all 0.4s ease;
+            flex-shrink: 0;
         }
-        
         .dot.connected {
-            background: #00b894;
+            background: #00e676;
+            box-shadow: 0 0 14px #00e676;
+            animation: dotGlow 2s infinite ease-in-out;
         }
-        
-        textarea {
-            width: 100%;
-            height: 280px;
-            background: var(--surface-2);
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
-            padding: 16px;
-            color: var(--text);
-            font-size: 1rem;
-            font-family: 'JetBrains Mono', monospace;
-            line-height: 1.6;
-            resize: vertical;
-            outline: none;
-            transition: border-color 0.2s;
+        @keyframes dotGlow {
+            0%,
+            100% {
+                box-shadow: 0 0 10px #00e676;
+            }
+            50% {
+                box-shadow: 0 0 22px #00e676, 0 0 40px rgba(0, 230, 118, 0.35);
+            }
         }
-        
-        textarea:focus {
-            border-color: var(--accent);
-        }
-        
+
+        /* ── session info row ── */
         .info-row {
-            font-size: 0.8rem;
-            color: #999;
-            margin: 10px 0;
-            background: var(--surface-2);
-            padding: 8px 12px;
-            border-radius: 8px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
             display: flex;
             gap: 8px;
             align-items: center;
+            flex-wrap: wrap;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            transition: border-color 0.3s;
         }
-        
+        .info-row:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
         .info-row code {
-            background: #111;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: #a29bfe;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 3px 10px;
+            border-radius: 6px;
+            color: #c4b5fd;
             user-select: all;
             cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            letter-spacing: 0.02em;
+            transition: background 0.2s;
         }
-        
+        .info-row code:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        /* ── textarea ── */
+        .textarea-wrapper {
+            position: relative;
+            margin-bottom: 8px;
+        }
+        textarea {
+            width: 100%;
+            height: 280px;
+            background: rgba(10, 10, 20, 0.5);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            color: #f0f0f8;
+            font-size: 0.95rem;
+            font-family: var(--font-mono);
+            line-height: 1.7;
+            resize: vertical;
+            outline: none;
+            transition: all 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            letter-spacing: 0.01em;
+            position: relative;
+            z-index: 1;
+        }
+        textarea::placeholder {
+            color: rgba(200, 200, 220, 0.3);
+            font-style: italic;
+        }
+        textarea:focus {
+            border-color: rgba(139, 124, 240, 0.5);
+            box-shadow:
+                0 0 0 6px rgba(139, 124, 240, 0.06),
+                0 0 30px -8px var(--accent-glow),
+                inset 0 0 40px rgba(139, 124, 240, 0.03);
+            background: rgba(14, 14, 28, 0.6);
+        }
+        /* shimmer on focus */
+        .textarea-shimmer {
+            position: absolute;
+            inset: -2px;
+            border-radius: calc(var(--radius) + 2px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            background: linear-gradient(135deg,
+                    rgba(139, 124, 240, 0.2),
+                    transparent 40%,
+                    rgba(196, 77, 255, 0.15),
+                    transparent 70%);
+            background-size: 200% 200%;
+            animation: shimmerSweep 3s infinite linear;
+        }
+        textarea:focus+.textarea-shimmer {
+            opacity: 1;
+        }
+        @keyframes shimmerSweep {
+            0% {
+                background-position: 0% 0%;
+            }
+            50% {
+                background-position: 100% 100%;
+            }
+            100% {
+                background-position: 0% 0%;
+            }
+        }
+
+        /* ── buttons ── */
         .buttons {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
-            margin-top: 12px;
+            margin-top: 14px;
         }
-        
         .btn {
-            padding: 10px 20px;
-            border-radius: 25px;
+            padding: 11px 22px;
+            border-radius: 28px;
             border: none;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.2s;
-            font-family: inherit;
-            font-size: 0.85rem;
+            transition: all 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
+            font-family: var(--font-sans);
+            font-size: 0.84rem;
+            letter-spacing: 0.01em;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
         }
-        
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 28px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .btn:active::after {
+            opacity: 1;
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+
         .btn-primary {
-            background: var(--accent);
+            background: linear-gradient(135deg, var(--accent), #7a5de8);
             color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 6px 24px rgba(108, 92, 231, 0.3);
+            font-weight: 700;
         }
-        
         .btn-primary:hover {
-            filter: brightness(1.1);
+            box-shadow: 0 10px 32px rgba(108, 92, 231, 0.45);
+            transform: translateY(-2px);
+            filter: brightness(1.08);
         }
-        
+
         .btn-outline {
-            background: transparent;
-            border: 1.5px solid var(--border);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
             color: var(--text);
+            font-weight: 500;
         }
-        
         .btn-outline:hover {
-            border-color: var(--accent);
+            border-color: rgba(139, 124, 240, 0.5);
+            background: rgba(255, 255, 255, 0.07);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+            transform: translateY(-1px);
+        }
+        .btn-outline.btn-sm {
+            padding: 5px 14px;
+            font-size: 0.74rem;
+            border-radius: 20px;
+        }
+
+        /* ── responsive ── */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px 14px;
+                border-radius: 22px;
+            }
+            .header {
+                gap: 8px;
+            }
+            .logo {
+                font-size: 1.25rem;
+            }
+            textarea {
+                height: 220px;
+                font-size: 0.85rem;
+                padding: 14px;
+            }
+            .btn {
+                padding: 10px 16px;
+                font-size: 0.78rem;
+                border-radius: 24px;
+            }
+            .buttons {
+                gap: 6px;
+            }
+            .info-row {
+                font-size: 0.7rem;
+                padding: 8px 10px;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .status {
+                font-size: 0.72rem;
+                padding: 6px 12px;
+            }
+        }
+        @media (max-width: 380px) {
+            .buttons {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .btn {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+            textarea {
+                height: 180px;
+            }
+            .container {
+                padding: 16px 10px;
+            }
+        }
+
+        /* ── toast-style alerts replaced with subtle pulse ── */
+        .toast-temp {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(30, 30, 45, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            z-index: 99;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            letter-spacing: 0.01em;
+        }
+        .toast-temp.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
     </style>
 </head>
 
 <body>
+    <!-- animated background orbs -->
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+    <div class="particle-layer"></div>
+
+    <!-- toast -->
+    <div class="toast-temp" id="toast"></div>
+
+    <!-- main container -->
     <div class="container">
         <div class="header">
-            <div class="logo">Air<span>ForShare</span></div>
+            <div class="logo">
+                <span class="logo-icon"></span> Air<span>ForShare</span>
+            </div>
             <div class="status">
                 <span class="dot" id="statusDot"></span>
-                <span id="statusText">Connecting...</span>
+                <span id="statusText">Connecting…</span>
             </div>
         </div>
 
         <div class="info-row">
-            🔗 Session: <code id="sessionIdDisplay">...</code>
-            <button class="btn-outline" style="padding:4px 12px;font-size:0.75rem;" id="copyLinkBtn">Copy link</button>
+            🔗 Session: <code id="sessionIdDisplay">…</code>
+            <button class="btn-outline btn-sm" id="copyLinkBtn">📎 Copy link</button>
         </div>
 
-        <textarea id="sharedTextarea" placeholder="Start typing..."></textarea>
+        <div class="textarea-wrapper">
+            <textarea id="sharedTextarea" placeholder="Start typing — it syncs live ✨"></textarea>
+            <div class="textarea-shimmer"></div>
+        </div>
 
         <div class="buttons">
             <button class="btn-outline" id="clearBtn">🗑️ Clear</button>
@@ -188,115 +536,150 @@
     </div>
 
     <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js">
+    </script>
 
     <script>
-        // ⚠️ REPLACE THIS CONFIG with your own from the Firebase console
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const firebaseConfig = {
-            apiKey: "AIzaSyACGCVwSYv62Pyjxo7UKcgdxLq3FJVv4lA",
-            authDomain: "taskflow-planner-2334d.firebaseapp.com",
-            databaseURL: "https://taskflow-planner-2334d-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "taskflow-planner-2334d",
-            storageBucket: "taskflow-planner-2334d.firebasestorage.app",
-            messagingSenderId: "397910412033",
-            appId: "1:397910412033:web:29ccabf522a9d620832900",
-            measurementId: "G-CL9BS9HF51"
-        };
+        (function() {
+            // ── Toast helper ──
+            const toastEl = document.getElementById('toast');
+            let toastTimer;
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        // ───── Session management ─────
-        function getSessionId() {
-            const params = new URLSearchParams(window.location.search);
-            let sid = params.get('session');
-            if (!sid) {
-                sid = generateId();
-                const url = new URL(window.location);
-                url.searchParams.set('session', sid);
-                window.history.replaceState({}, '', url);
+            function showToast(msg) {
+                if (toastTimer) clearTimeout(toastTimer);
+                toastEl.textContent = msg;
+                toastEl.classList.add('show');
+                toastTimer = setTimeout(() => {
+                    toastEl.classList.remove('show');
+                }, 1800);
             }
-            return sid;
-        }
 
-        function generateId() {
-            return Math.random().toString(36).substring(2, 10);
-        }
+            // ── Firebase config ──
+            const firebaseConfig = {
+                apiKey: "AIzaSyACGCVwSYv62Pyjxo7UKcgdxLq3FJVv4lA",
+                authDomain: "taskflow-planner-2334d.firebaseapp.com",
+                databaseURL: "https://taskflow-planner-2334d-default-rtdb.asia-southeast1.firebasedatabase.app",
+                projectId: "taskflow-planner-2334d",
+                storageBucket: "taskflow-planner-2334d.firebasestorage.app",
+                messagingSenderId: "397910412033",
+                appId: "1:397910412033:web:29ccabf522a9d620832900",
+                measurementId: "G-CL9BS9HF51"
+            };
 
-        const SESSION_ID = getSessionId();
-        document.getElementById('sessionIdDisplay').textContent = SESSION_ID;
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.database();
 
-        // Update share URL
-        const shareUrl = `${window.location.origin}${window.location.pathname}?session=${SESSION_ID}`;
-
-        // ───── DOM elements ─────
-        const textarea = document.getElementById('sharedTextarea');
-        const statusDot = document.getElementById('statusDot');
-        const statusText = document.getElementById('statusText');
-        const copyLinkBtn = document.getElementById('copyLinkBtn');
-
-        // ───── Firebase reference ─────
-        const textRef = db.ref(`sessions/${SESSION_ID}/text`);
-        let isUpdatingFromFirebase = false;
-
-        // Listen for remote changes
-        textRef.on('value', (snapshot) => {
-            const text = snapshot.val() || '';
-            if (!isUpdatingFromFirebase) {
-                textarea.value = text;
+            // ── Session management ──
+            function getSessionId() {
+                const params = new URLSearchParams(window.location.search);
+                let sid = params.get('session');
+                if (!sid) {
+                    sid = generateId();
+                    const url = new URL(window.location);
+                    url.searchParams.set('session', sid);
+                    window.history.replaceState({}, '', url);
+                }
+                return sid;
             }
-        });
 
-        // Send local changes (debounced)
-        let debounceTimer;
-        textarea.addEventListener('input', () => {
-            const text = textarea.value;
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                isUpdatingFromFirebase = true;
-                textRef.set(text).then(() => {
-                    isUpdatingFromFirebase = false;
+            function generateId() {
+                return Math.random().toString(36).substring(2, 10);
+            }
+
+            const SESSION_ID = getSessionId();
+            document.getElementById('sessionIdDisplay').textContent = SESSION_ID;
+            const shareUrl = `${window.location.origin}${window.location.pathname}?session=${SESSION_ID}`;
+
+            // ── DOM elements ──
+            const textarea = document.getElementById('sharedTextarea');
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const copyLinkBtn = document.getElementById('copyLinkBtn');
+
+            // ── Firebase reference ──
+            const textRef = db.ref(`sessions/${SESSION_ID}/text`);
+            let isUpdatingFromFirebase = false;
+
+            // Listen for remote changes
+            textRef.on('value', (snapshot) => {
+                const text = snapshot.val() || '';
+                if (!isUpdatingFromFirebase) {
+                    textarea.value = text;
+                }
+            });
+
+            // Send local changes (debounced)
+            let debounceTimer;
+            textarea.addEventListener('input', () => {
+                const text = textarea.value;
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    isUpdatingFromFirebase = true;
+                    textRef.set(text).then(() => {
+                        isUpdatingFromFirebase = false;
+                    }).catch(() => {
+                        isUpdatingFromFirebase = false;
+                    });
+                }, 200);
+            });
+
+            // Connection status
+            const connectedRef = db.ref('.info/connected');
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    statusDot.classList.add('connected');
+                    statusText.textContent = 'Connected';
+                } else {
+                    statusDot.classList.remove('connected');
+                    statusText.textContent = 'Disconnected';
+                }
+            });
+
+            // ── Button handlers ──
+            document.getElementById('clearBtn').addEventListener('click', () => {
+                if (confirm('Clear text for all peers in this session?')) {
+                    textRef.set('');
+                    textarea.value = '';
+                    showToast('✨ Text cleared for everyone');
+                }
+            });
+
+            document.getElementById('copyTextBtn').addEventListener('click', () => {
+                const text = textarea.value;
+                if (text.trim()) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        showToast('📋 Text copied to clipboard');
+                    }).catch(() => {
+                        showToast('⚠️ Failed to copy');
+                    });
+                } else {
+                    showToast('📝 Nothing to copy yet');
+                }
+            });
+
+            document.getElementById('newSessionBtn').addEventListener('click', () => {
+                const newId = generateId();
+                window.location.href = `${window.location.pathname}?session=${newId}`;
+            });
+
+            copyLinkBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    showToast('🔗 Session link copied!');
                 }).catch(() => {
-                    isUpdatingFromFirebase = false;
+                    showToast('⚠️ Failed to copy link');
                 });
-            }, 200);
-        });
+            });
 
-        // Connection status
-        const connectedRef = db.ref('.info/connected');
-        connectedRef.on('value', (snap) => {
-            if (snap.val() === true) {
-                statusDot.classList.add('connected');
-                statusText.textContent = 'Connected';
-            } else {
-                statusDot.classList.remove('connected');
-                statusText.textContent = 'Disconnected';
-            }
-        });
-
-        // Buttons
-        document.getElementById('clearBtn').addEventListener('click', () => {
-            if (confirm('Clear text for all peers?')) {
-                textRef.set('');
-                textarea.value = '';
-            }
-        });
-        document.getElementById('copyTextBtn').addEventListener('click', () => {
-            const text = textarea.value;
-            if (text) {
-                navigator.clipboard.writeText(text).then(() => alert('Text copied!'));
-            }
-        });
-        document.getElementById('newSessionBtn').addEventListener('click', () => {
-            const newId = generateId();
-            window.location.href = `${window.location.pathname}?session=${newId}`;
-        });
-        copyLinkBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(shareUrl).then(() => alert('Link copied!'));
-        });
+            // ── keyboard shortcut: Ctrl+Shift+C to copy text ──
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+                    e.preventDefault();
+                    document.getElementById('copyTextBtn').click();
+                }
+            });
+        })();
     </script>
 </body>
 
