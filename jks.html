@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AirForShare — Glass Edition</title>
+    <title>J K S H A R E</title>
+    <!-- LottieFiles Player -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <style>
         :root {
             --bg: #0a0a14;
@@ -43,7 +45,21 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ── animated gradient orbs ── */
+        /* ── Lottie background layer ── */
+        .lottie-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            opacity: 0.18;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+        .lottie-bg lottie-player {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* animated gradient orbs (still keep as subtle complement) */
         .bg-orb {
             position: fixed;
             border-radius: 50%;
@@ -51,12 +67,12 @@
             pointer-events: none;
             z-index: 0;
             animation: floatOrb 14s infinite ease-in-out;
-            opacity: 0.5;
+            opacity: 0.25;
         }
         .bg-orb.orb-1 {
             width: 420px;
             height: 420px;
-            background: radial-gradient(circle, rgba(139, 124, 240, 0.5) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(139, 124, 240, 0.4) 0%, transparent 70%);
             top: -8%;
             left: -10%;
             animation-delay: 0s;
@@ -65,20 +81,11 @@
         .bg-orb.orb-2 {
             width: 340px;
             height: 340px;
-            background: radial-gradient(circle, rgba(196, 77, 255, 0.4) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(196, 77, 255, 0.3) 0%, transparent 70%);
             bottom: -12%;
             right: -8%;
             animation-delay: -5s;
             animation-duration: 18s;
-        }
-        .bg-orb.orb-3 {
-            width: 260px;
-            height: 260px;
-            background: radial-gradient(circle, rgba(100, 180, 255, 0.35) 0%, transparent 70%);
-            top: 50%;
-            left: 55%;
-            animation-delay: -9s;
-            animation-duration: 20s;
         }
 
         @keyframes floatOrb {
@@ -94,25 +101,6 @@
             }
             75% {
                 transform: translate(-18px, -30px) scale(1.05);
-            }
-        }
-
-        /* subtle particle grid overlay */
-        .particle-layer {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 36px 36px;
-            animation: particleDrift 30s linear infinite;
-        }
-        @keyframes particleDrift {
-            0% {
-                background-position: 0 0;
-            }
-            100% {
-                background-position: 36px 36px;
             }
         }
 
@@ -178,24 +166,14 @@
             -webkit-text-fill-color: transparent;
             font-weight: 800;
         }
+        /* Lottie logo icon */
         .logo-icon {
-            display: inline-block;
-            width: 22px;
-            height: 22px;
-            border-radius: 6px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-2));
-            margin-right: 4px;
-            animation: logoPulse 3s infinite ease-in-out;
-            box-shadow: 0 0 18px var(--accent-glow);
-        }
-        @keyframes logoPulse {
-            0%,
-            100% {
-                box-shadow: 0 0 18px var(--accent-glow);
-            }
-            50% {
-                box-shadow: 0 0 32px rgba(196, 77, 255, 0.55);
-            }
+            display: inline-flex;
+            width: 30px;
+            height: 30px;
+            align-items: center;
+            justify-content: center;
+            margin-right: 2px;
         }
 
         .status {
@@ -211,6 +189,18 @@
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             transition: all 0.35s ease;
+            position: relative;
+        }
+        /* status ring animation behind the dot */
+        .status-ring {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 38px;
+            height: 38px;
+            pointer-events: none;
+            opacity: 0.7;
         }
         .dot {
             display: inline-block;
@@ -221,6 +211,7 @@
             box-shadow: 0 0 10px #e74c3c;
             transition: all 0.4s ease;
             flex-shrink: 0;
+            z-index: 1;
         }
         .dot.connected {
             background: #00e676;
@@ -237,7 +228,7 @@
             }
         }
 
-        /* ── session info row ── */
+        /* session info row */
         .info-row {
             font-size: 0.78rem;
             color: var(--text-muted);
@@ -266,14 +257,10 @@
             cursor: pointer;
             font-family: var(--font-mono);
             font-size: 0.75rem;
-            letter-spacing: 0.02em;
             transition: background 0.2s;
         }
-        .info-row code:hover {
-            background: rgba(0, 0, 0, 0.5);
-        }
 
-        /* ── textarea ── */
+        /* textarea */
         .textarea-wrapper {
             position: relative;
             margin-bottom: 8px;
@@ -295,12 +282,6 @@
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
             letter-spacing: 0.01em;
-            position: relative;
-            z-index: 1;
-        }
-        textarea::placeholder {
-            color: rgba(200, 200, 220, 0.3);
-            font-style: italic;
         }
         textarea:focus {
             border-color: rgba(139, 124, 240, 0.5);
@@ -308,41 +289,9 @@
                 0 0 0 6px rgba(139, 124, 240, 0.06),
                 0 0 30px -8px var(--accent-glow),
                 inset 0 0 40px rgba(139, 124, 240, 0.03);
-            background: rgba(14, 14, 28, 0.6);
-        }
-        /* shimmer on focus */
-        .textarea-shimmer {
-            position: absolute;
-            inset: -2px;
-            border-radius: calc(var(--radius) + 2px);
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            background: linear-gradient(135deg,
-                    rgba(139, 124, 240, 0.2),
-                    transparent 40%,
-                    rgba(196, 77, 255, 0.15),
-                    transparent 70%);
-            background-size: 200% 200%;
-            animation: shimmerSweep 3s infinite linear;
-        }
-        textarea:focus+.textarea-shimmer {
-            opacity: 1;
-        }
-        @keyframes shimmerSweep {
-            0% {
-                background-position: 0% 0%;
-            }
-            50% {
-                background-position: 100% 100%;
-            }
-            100% {
-                background-position: 0% 0%;
-            }
         }
 
-        /* ── buttons ── */
+        /* buttons */
         .buttons {
             display: flex;
             gap: 10px;
@@ -358,30 +307,14 @@
             transition: all 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
             font-family: var(--font-sans);
             font-size: 0.84rem;
-            letter-spacing: 0.01em;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             position: relative;
-            overflow: hidden;
             white-space: nowrap;
-        }
-        .btn::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 28px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
-            pointer-events: none;
-        }
-        .btn:active::after {
-            opacity: 1;
         }
         .btn:active {
             transform: scale(0.96);
         }
-
         .btn-primary {
             background: linear-gradient(135deg, var(--accent), #7a5de8);
             color: #fff;
@@ -392,14 +325,11 @@
         .btn-primary:hover {
             box-shadow: 0 10px 32px rgba(108, 92, 231, 0.45);
             transform: translateY(-2px);
-            filter: brightness(1.08);
         }
-
         .btn-outline {
             background: rgba(255, 255, 255, 0.04);
             border: 1.5px solid rgba(255, 255, 255, 0.12);
             color: var(--text);
-            font-weight: 500;
         }
         .btn-outline:hover {
             border-color: rgba(139, 124, 240, 0.5);
@@ -413,61 +343,7 @@
             border-radius: 20px;
         }
 
-        /* ── responsive ── */
-        @media (max-width: 600px) {
-            .container {
-                padding: 20px 14px;
-                border-radius: 22px;
-            }
-            .header {
-                gap: 8px;
-            }
-            .logo {
-                font-size: 1.25rem;
-            }
-            textarea {
-                height: 220px;
-                font-size: 0.85rem;
-                padding: 14px;
-            }
-            .btn {
-                padding: 10px 16px;
-                font-size: 0.78rem;
-                border-radius: 24px;
-            }
-            .buttons {
-                gap: 6px;
-            }
-            .info-row {
-                font-size: 0.7rem;
-                padding: 8px 10px;
-                flex-wrap: wrap;
-                gap: 6px;
-            }
-            .status {
-                font-size: 0.72rem;
-                padding: 6px 12px;
-            }
-        }
-        @media (max-width: 380px) {
-            .buttons {
-                flex-direction: column;
-                gap: 8px;
-            }
-            .btn {
-                width: 100%;
-                text-align: center;
-                justify-content: center;
-            }
-            textarea {
-                height: 180px;
-            }
-            .container {
-                padding: 16px 10px;
-            }
-        }
-
-        /* ── toast-style alerts replaced with subtle pulse ── */
+        /* toast */
         .toast-temp {
             position: fixed;
             bottom: 30px;
@@ -480,28 +356,54 @@
             padding: 12px 24px;
             border-radius: 30px;
             font-size: 0.85rem;
-            font-weight: 500;
             z-index: 99;
             pointer-events: none;
             opacity: 0;
             transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-            letter-spacing: 0.01em;
         }
         .toast-temp.show {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
+
+        /* responsive */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px 14px;
+                border-radius: 22px;
+            }
+            textarea {
+                height: 220px;
+                font-size: 0.85rem;
+            }
+            .btn {
+                padding: 10px 16px;
+                font-size: 0.78rem;
+            }
+            .status {
+                font-size: 0.72rem;
+                padding: 6px 12px;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <!-- animated background orbs -->
+    <!-- Lottie ambient background -->
+    <div class="lottie-bg">
+        <lottie-player
+            src="https://assets2.lottiefiles.com/packages/lf20_evxqbxyi.json"
+            background="transparent"
+            speed="0.7"
+            loop
+            autoplay>
+        </lottie-player>
+    </div>
+
+    <!-- subtle gradient orbs -->
     <div class="bg-orb orb-1"></div>
     <div class="bg-orb orb-2"></div>
-    <div class="bg-orb orb-3"></div>
-    <div class="particle-layer"></div>
 
     <!-- toast -->
     <div class="toast-temp" id="toast"></div>
@@ -510,9 +412,32 @@
     <div class="container">
         <div class="header">
             <div class="logo">
-                <span class="logo-icon"></span>J K <span>S h a r e</span>
+                <span class="logo-icon">
+                    <!-- Lottie share icon for the logo -->
+                    <lottie-player
+                        src="https://assets9.lottiefiles.com/packages/lf20_x8lskdsr.json"
+                        background="transparent"
+                        speed="1"
+                        style="width: 100%; height: 100%;"
+                        loop
+                        autoplay>
+                    </lottie-player>
+                </span>
+                Air<span>ForShare</span>
             </div>
             <div class="status">
+                <!-- animated ring behind connection dot -->
+                <div class="status-ring">
+                    <lottie-player
+                        id="statusRingAnimation"
+                        src="https://assets8.lottiefiles.com/packages/lf20_anvnqdoe.json"
+                        background="transparent"
+                        speed="0.8"
+                        style="width: 100%; height: 100%;"
+                        loop
+                        autoplay>
+                    </lottie-player>
+                </div>
                 <span class="dot" id="statusDot"></span>
                 <span id="statusText">Connecting…</span>
             </div>
@@ -525,7 +450,6 @@
 
         <div class="textarea-wrapper">
             <textarea id="sharedTextarea" placeholder="Start typing — it syncs live ✨"></textarea>
-            <div class="textarea-shimmer"></div>
         </div>
 
         <div class="buttons">
@@ -536,14 +460,11 @@
     </div>
 
     <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js">
-    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
     <script>
         (function() {
-            // ── Toast helper ──
             const toastEl = document.getElementById('toast');
             let toastTimer;
 
@@ -551,12 +472,9 @@
                 if (toastTimer) clearTimeout(toastTimer);
                 toastEl.textContent = msg;
                 toastEl.classList.add('show');
-                toastTimer = setTimeout(() => {
-                    toastEl.classList.remove('show');
-                }, 1800);
+                toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1800);
             }
 
-            // ── Firebase config ──
             const firebaseConfig = {
                 apiKey: "AIzaSyACGCVwSYv62Pyjxo7UKcgdxLq3FJVv4lA",
                 authDomain: "taskflow-planner-2334d.firebaseapp.com",
@@ -571,7 +489,6 @@
             firebase.initializeApp(firebaseConfig);
             const db = firebase.database();
 
-            // ── Session management ──
             function getSessionId() {
                 const params = new URLSearchParams(window.location.search);
                 let sid = params.get('session');
@@ -592,17 +509,14 @@
             document.getElementById('sessionIdDisplay').textContent = SESSION_ID;
             const shareUrl = `${window.location.origin}${window.location.pathname}?session=${SESSION_ID}`;
 
-            // ── DOM elements ──
             const textarea = document.getElementById('sharedTextarea');
             const statusDot = document.getElementById('statusDot');
             const statusText = document.getElementById('statusText');
-            const copyLinkBtn = document.getElementById('copyLinkBtn');
+            const statusRing = document.getElementById('statusRingAnimation');
 
-            // ── Firebase reference ──
             const textRef = db.ref(`sessions/${SESSION_ID}/text`);
             let isUpdatingFromFirebase = false;
 
-            // Listen for remote changes
             textRef.on('value', (snapshot) => {
                 const text = snapshot.val() || '';
                 if (!isUpdatingFromFirebase) {
@@ -610,7 +524,6 @@
                 }
             });
 
-            // Send local changes (debounced)
             let debounceTimer;
             textarea.addEventListener('input', () => {
                 const text = textarea.value;
@@ -625,62 +538,44 @@
                 }, 200);
             });
 
-            // Connection status
             const connectedRef = db.ref('.info/connected');
             connectedRef.on('value', (snap) => {
-                if (snap.val() === true) {
+                const connected = snap.val() === true;
+                if (connected) {
                     statusDot.classList.add('connected');
                     statusText.textContent = 'Connected';
+                    // Pause the ring animation when connected (optional)
+                    statusRing.style.opacity = '0.3';
                 } else {
                     statusDot.classList.remove('connected');
                     statusText.textContent = 'Disconnected';
+                    statusRing.style.opacity = '0.7';
                 }
             });
 
-            // ── Button handlers ──
             document.getElementById('clearBtn').addEventListener('click', () => {
-                if (confirm('Clear text for all peers in this session?')) {
+                if (confirm('Clear text for all peers?')) {
                     textRef.set('');
                     textarea.value = '';
                     showToast('✨ Text cleared for everyone');
                 }
             });
-
             document.getElementById('copyTextBtn').addEventListener('click', () => {
                 const text = textarea.value;
                 if (text.trim()) {
-                    navigator.clipboard.writeText(text).then(() => {
-                        showToast('📋 Text copied to clipboard');
-                    }).catch(() => {
-                        showToast('⚠️ Failed to copy');
-                    });
+                    navigator.clipboard.writeText(text).then(() => showToast('📋 Text copied!'));
                 } else {
-                    showToast('📝 Nothing to copy yet');
+                    showToast('📝 Nothing to copy');
                 }
             });
-
             document.getElementById('newSessionBtn').addEventListener('click', () => {
                 const newId = generateId();
                 window.location.href = `${window.location.pathname}?session=${newId}`;
             });
-
-            copyLinkBtn.addEventListener('click', () => {
-                navigator.clipboard.writeText(shareUrl).then(() => {
-                    showToast('🔗 Session link copied!');
-                }).catch(() => {
-                    showToast('⚠️ Failed to copy link');
-                });
-            });
-
-            // ── keyboard shortcut: Ctrl+Shift+C to copy text ──
-            document.addEventListener('keydown', (e) => {
-                if (e.ctrlKey && e.shiftKey && e.key === 'C') {
-                    e.preventDefault();
-                    document.getElementById('copyTextBtn').click();
-                }
+            document.getElementById('copyLinkBtn').addEventListener('click', () => {
+                navigator.clipboard.writeText(shareUrl).then(() => showToast('🔗 Link copied!'));
             });
         })();
     </script>
 </body>
-
 </html>
