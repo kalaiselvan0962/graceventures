@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DriveGuard AI — Driver Safety Monitor</title>
+<style>
+:root{--bg:#060a10;--panel:#0c131d;--panel2:#101a26;--line:#203044;--text:#edf5ff;--muted:#8fa2b8;--green:#28e07d;--yellow:#ffc857;--red:#ff4658;--cyan:#36cfff;--shadow:0 18px 60px #0008}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% -10%,#12334b 0,#060a10 38%);color:var(--text);font-family:Inter,system-ui,Segoe UI,sans-serif;min-height:100vh}
+button{font:inherit}.app{max-width:1500px;margin:auto;padding:22px}.top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:18px}.brand{display:flex;gap:12px;align-items:center}.logo{width:45px;height:45px;border:1px solid #31516a;border-radius:13px;display:grid;place-items:center;background:#0d1c29;color:var(--cyan);box-shadow:0 0 25px #36cfff22}.brand h1{font-size:21px;margin:0}.brand p{margin:3px 0 0;color:var(--muted);font-size:12px}.system{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--line);background:#0a1119;border-radius:12px;font-size:12px;color:var(--muted)}.dot{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 12px currentColor}.running .dot{background:var(--green)}
+.layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(310px,.8fr);gap:18px}.card{background:linear-gradient(145deg,#0d1621,#091019);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}.camera{position:relative;aspect-ratio:16/9;background:#030609;display:flex;align-items:center;justify-content:center}.camera video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}#overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.placeholder{position:absolute;text-align:center;color:var(--muted);z-index:2}.placeholder .camicon{font-size:48px;margin-bottom:8px}.live{position:absolute;top:14px;left:14px;z-index:3;background:#05090ddd;border:1px solid #2c3c4e;border-radius:9px;padding:7px 10px;font-size:11px;letter-spacing:.1em}.live b{color:var(--red)}.warning{position:absolute;inset:0;z-index:4;pointer-events:none;display:none;place-items:center;background:radial-gradient(circle,#ff465822,#ff465808 55%,#ff465833);border:4px solid var(--red);animation:pulse 1s infinite}.warning span{background:#4d0810ee;color:#fff;padding:14px 24px;border-radius:13px;font-weight:900;font-size:clamp(18px,3vw,34px);letter-spacing:.06em}.warning.show{display:grid}@keyframes pulse{50%{opacity:.45}}
+.controls{padding:14px;display:flex;gap:9px;flex-wrap:wrap;border-top:1px solid var(--line)}.btn{border:1px solid #2c4257;background:#132131;color:#e9f6ff;padding:10px 15px;border-radius:10px;cursor:pointer;transition:.2s;font-weight:700}.btn:hover{transform:translateY(-1px);background:#193047}.btn.primary{background:#087d58;border-color:#1bb67f}.btn.danger{background:#701d28;border-color:#b73543}.btn:disabled{opacity:.4;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px}.stat{padding:15px;background:#0c141e;border:1px solid var(--line);border-radius:15px}.label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.value{font-size:23px;font-weight:850;margin-top:8px}.small{font-size:11px;color:var(--muted);margin-top:4px}.bar{height:7px;background:#1a2634;border-radius:20px;margin-top:12px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--green);transition:.25s}.side{display:flex;flex-direction:column;gap:12px;padding:14px}.status{display:flex;align-items:center;justify-content:space-between;padding:15px;border-radius:14px;border:1px solid #25402f;background:#0b1913}.status .main{font-size:21px;font-weight:900}.status.alert{border-color:#276842}.status.warn{border-color:#765c23;background:#211b0b}.status.danger{border-color:#7d2733;background:#230c11}.gauge{height:170px;display:grid;place-items:center;position:relative}.ring{width:145px;height:145px;border-radius:50%;background:conic-gradient(var(--green) 0deg, var(--green) 0deg,#1b2734 0deg);display:grid;place-items:center;transition:.3s}.ring:after{content:"";width:113px;height:113px;background:#0a1119;border-radius:50%;position:absolute}.gaugeText{position:absolute;text-align:center;z-index:1}.gaugeText b{font-size:34px}.stateRow{display:flex;justify-content:space-between;align-items:center}.badge{padding:6px 9px;border-radius:8px;background:#132131;color:var(--cyan);font-size:11px;font-weight:800}.objects{min-height:125px}.obj{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #182534;font-size:13px}.history{max-height:150px;overflow:auto}.event{font-size:11px;color:#a9b9ca;padding:8px 0;border-bottom:1px solid #182534}.event b{color:#fff}.footer{margin-top:16px;padding:13px 16px;border:1px solid #332b1e;background:#15130e;border-radius:13px;color:#c4b79e;font-size:11px;line-height:1.5}.footer strong{color:#ffd36b}.settings{margin-top:12px;display:flex;align-items:center;gap:12px}.settings input{width:70px;background:#0a1119;border:1px solid var(--line);color:white;padding:8px;border-radius:8px}.camera-note{position:absolute;bottom:14px;right:14px;z-index:3;background:#05090dbb;border:1px solid #273849;border-radius:9px;padding:7px 10px;font-size:10px;color:#a9b9ca}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.top{align-items:flex-start}.grid{grid-template-columns:1fr 1fr}}
+@media(max-width:550px){.app{padding:12px}.top{flex-direction:column}.grid{grid-template-columns:1fr}.camera{aspect-ratio:4/3}.controls .btn{flex:1}.brand h1{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+  <div class="brand"><div class="logo">◉</div><div><h1>DriveGuard AI</h1><p>Real-time driver & road safety monitoring</p></div></div>
+  <div class="system" id="sys"><span class="dot"></span><span id="sysText">SYSTEM STANDBY</span></div>
+</header>
+
+<main class="layout">
+<section>
+  <div class="card">
+    <div class="camera" id="cameraBox">
+      <video id="video" autoplay muted playsinline></video>
+      <canvas id="overlay"></canvas>
+      <div class="placeholder" id="placeholder"><div class="camicon">◉</div><b>Camera offline</b><div>Start the camera to begin local AI monitoring</div></div>
+      <div class="live">● <b id="liveText">OFFLINE</b></div>
+      <div class="warning" id="warning"><span id="warningText">⚠ CRITICAL WARNING</span></div>
+      <div class="camera-note">Local browser processing • Camera stays on this device</div>
+    </div>
+    <div class="controls">
+      <button class="btn primary" id="start">▶ Start Camera</button>
+      <button class="btn" id="stop" disabled>■ Stop Camera</button>
+      <button class="btn danger" id="test">⚠ Emergency / Test Alert</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="stat"><div class="label">Eye Openness</div><div class="value" id="eye">—</div><div class="bar"><i id="eyeBar"></i></div><div class="small">Estimated from face landmarks</div></div>
+    <div class="stat"><div class="label">Drowsiness Score</div><div class="value" id="drowsy">0%</div><div class="bar"><i id="drowseBar"></i></div><div class="small">Higher = more fatigue risk</div></div>
+    <div class="stat"><div class="label">Facial State</div><div class="value" id="emotion">Awaiting camera</div><div class="small" id="emotionConf">AI-estimated facial state</div></div>
+    <div class="stat"><div class="label">Threat Level</div><div class="value" id="threat">LOW</div><div class="small" id="threatReason">No active risk</div></div>
+  </div>
+</section>
+
+<aside class="side">
+  <div class="status alert" id="driverStatus"><div><div class="label">Driver status</div><div class="main" id="driverText">● Alert</div></div><div class="badge" id="driverBadge">READY</div></div>
+  <div class="card" style="padding:12px"><div class="stateRow"><div><div class="label">Drowsiness monitor</div><div class="small">Eye-closure risk</div></div><span class="badge" id="eyeState">NORMAL</span></div>
+    <div class="gauge"><div class="ring" id="ring"></div><div class="gaugeText"><b id="gaugeVal">0%</b><div class="small">DROWSY</div></div></div>
+    <div class="settings"><span class="label">Closure alarm (sec)</span><input id="threshold" type="number" min="1" max="10" step=".5" value="2"></div>
+  </div>
+  <div class="card" style="padding:14px"><div class="stateRow"><div><div class="label">Detected objects</div><div class="small">Road-facing object model</div></div><span class="badge" id="objectCount">0</span></div><div class="objects" id="objects"><div class="small" style="padding-top:18px">No objects detected yet.</div></div></div>
+  <div class="card" style="padding:14px"><div class="stateRow"><div class="label">Alert history</div><span class="badge">LIVE</span></div><div class="history" id="history"><div class="event">System initialized. <b>Waiting for camera.</b></div></div></div>
+</aside>
+</main>
+
+<div class="footer"><strong>Safety disclaimer:</strong> This demonstration uses browser-based computer vision. Eye closure, fatigue, facial state/emotion and proximity are estimates and may be inaccurate due to lighting, camera angle, occlusion, motion or model limitations. They are not medical diagnoses or definitive judgments. Never rely on this prototype as a substitute for attentive driving or vehicle safety systems.</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/face_mesh.js"></script>
+<script>
+const $=id=>document.getElementById(id), video=$('video'), canvas=$('overlay'), ctx=canvas.getContext('2d');
+let stream=null, objectModel=null, faceMesh=null, running=false, raf=0, lastObj=0, closedSince=null, alarmed=false, testMode=false;
+const ROAD=new Set(['car','bus','truck','motorcycle','bicycle','person']);
+
+function log(msg){const e=document.createElement('div');e.className='event';e.innerHTML=`${new Date().toLocaleTimeString()} — <b>${msg}</b>`;$('history').prepend(e);while($('history').children.length>12)$('history').lastChild.remove()}
+function beep(){try{const A=new (window.AudioContext||window.webkitAudioContext)();const o=A.createOscillator(),g=A.createGain();o.type='square';o.frequency.value=880;g.gain.value=.16;o.connect(g);g.connect(A.destination);o.start();o.stop(A.currentTime+.7)}catch(e){}}
+function setWarning(on,text='⚠ CRITICAL WARNING'){ $('warning').classList.toggle('show',on);$('warningText').textContent=text;if(on)beep()}
+function resize(){canvas.width=video.videoWidth||640;canvas.height=video.videoHeight||480}
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+// MediaPipe Face Mesh eye aspect proxy. Indices: left eye 33,160,158,133,153,144; right 362,385,387,263,373,380.
+function ear(p,a,b,c,d,e,f){return (dist(p[b],p[f])+dist(p[c],p[e]))/(2*dist(p[a],p[d]))}
+function faceResults(r){
+ if(!r.multiFaceLandmarks?.length){$('eye').textContent='NO FACE';$('eyeBar').style.width='0%';return}
+ const p=r.multiFaceLandmarks[0], L=ear(p,33,160,158,133,153,144), R=ear(p,362,385,387,263,373,380), openness=Math.max(0,Math.min(100,((L+R)/2-.12)/.22*100));
+ $('eye').textContent=Math.round(openness)+'%';$('eyeBar').style.width=openness+'%';
+ const threshold=Number($('threshold').value)||2, now=performance.now()/1000;
+ if(openness<25){if(!closedSince)closedSince=now;const sec=now-closedSince;const score=Math.min(100,Math.round(sec/threshold*100));setDrowsy(score);if(sec>=threshold){setDriver('danger','Eyes Closed – Danger','DANGER');if(!alarmed){log('Eyes closed too long — alarm triggered');beep();alarmed=true}setWarning(true,'⚠ EYES CLOSED — DANGER')}else{setDriver('warn','Drowsy Warning','WARNING');setWarning(false)}}else{closedSince=null;alarmed=false;setDrowsy(8);setDriver('alert','Alert','READY');setWarning(false)}
+ // Simple blink/attention estimate. Emotion is intentionally presented as a demo placeholder unless an expression model is added.
+ $('emotion').textContent=openness<25?'Fatigue-like facial state':'Neutral / attentive';
+ $('emotionConf').textContent='AI-estimated facial state • demo confidence '+Math.round(openness<25?78:72)+'%';
+}
+function setDrowsy(v){$('drowsy').textContent=v+'%';$('gaugeVal').textContent=v+'%';$('drowseBar').style.width=v+'%';$('ring').style.background=`conic-gradient(${v>70?'var(--red)':v>35?'var(--yellow)':'var(--green)'} ${v*3.6}deg,#1b2734 0deg)`}
+function setDriver(type,text,badge){const x=$('driverStatus');x.className='status '+type;$('driverText').textContent=(type==='alert'?'● ':type==='warn'?'● ':'● ')+text;$('driverBadge').textContent=badge;$('eyeState').textContent=type==='danger'?'DANGER':type==='warn'?'WARNING':'NORMAL'}
+function objectResults(preds){
+ const filtered=preds.filter(x=>ROAD.has(x.class)&&x.score>.45);
+ $('objectCount').textContent=filtered.length;$('objects').innerHTML=filtered.length?filtered.map(x=>`<div class="obj"><span>${x.class}</span><b>${Math.round(x.score*100)}%</b></div>`).join(''):'<div class="small" style="padding-top:18px">No priority objects detected.</div>';
+ ctx.clearRect(0,0,canvas.width,canvas.height);const sx=canvas.width/video.videoWidth,sy=canvas.height/video.videoHeight;
+ let close=false;
+ filtered.forEach(x=>{const [a,b,w,h]=x.bbox.map(Number), danger=(x.class!=='person'&&w>canvas.width*.38)||(x.class==='person'&&w>canvas.width*.30);if(danger)close=true;ctx.strokeStyle=danger?'#ff4658':'#36cfff';ctx.lineWidth=3;ctx.strokeRect(a*sx,b*sy,w*sx,h*sy);ctx.fillStyle=danger?'#ff4658':'#36cfff';ctx.font='bold 14px system-ui';ctx.fillRect(a*sx,Math.max(0,b*sy-23),Math.max(90,w*sx),23);ctx.fillStyle='#001018';ctx.fillText(`${x.class} ${Math.round(x.score*100)}%`,a*sx+6,Math.max(15,b*sy-7))});
+ if(close&&!closedSince){$('threat').textContent='HIGH';$('threat').style.color='var(--red)';$('threatReason').textContent='Object appears unusually close';setWarning(true,'⚠ COLLISION RISK');if(performance.now()-lastObj>3000)log('High proximity warning from object detector');}
+ else if(!closedSince){$('threat').textContent='LOW';$('threat').style.color='var(--green)';$('threatReason').textContent='No active risk'}
+}
+async function detectObjects(){if(!running||!objectModel)return;try{const p=await objectModel.detect(video);objectResults(p)}catch(e){}lastObj=performance.now();if(running)setTimeout(detectObjects,350)}
+async function loop(){if(!running)return;await faceMesh.send({image:video});raf=requestAnimationFrame(loop)}
+async function start(){
+ try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}},audio:false});video.srcObject=stream;await video.play();resize();$('placeholder').style.display='none';$('start').disabled=true;$('stop').disabled=false;$('sys').classList.add('running');$('sysText').textContent='SYSTEM ONLINE';$('liveText').textContent='LIVE';running=true;log('Camera started — local monitoring active');if(!objectModel)objectModel=await cocoSsd.load();detectObjects();loop()}catch(e){alert('Camera access failed. Allow webcam permission and use HTTPS or localhost.');log('Camera start failed')}}
+function stop(){running=false;cancelAnimationFrame(raf);if(stream)stream.getTracks().forEach(t=>t.stop());video.srcObject=null;$('placeholder').style.display='block';$('start').disabled=false;$('stop').disabled=true;$('sys').classList.remove('running');$('sysText').textContent='SYSTEM STANDBY';$('liveText').textContent='OFFLINE';ctx.clearRect(0,0,canvas.width,canvas.height);setWarning(false);log('Camera stopped')}
+$('start').onclick=start;$('stop').onclick=stop;$('test').onclick=()=>{setWarning(true,'⚠ TEST / EMERGENCY ALERT');$('threat').textContent='CRITICAL';$('threat').style.color='var(--red)';$('threatReason').textContent='Manual alert activated';log('Manual emergency/test alert activated');setTimeout(()=>{if(!closedSince)setWarning(false)},3000)};
+window.addEventListener('resize',resize);
+faceMesh=new FaceMesh({locateFile:file=>`https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${file}`});
+faceMesh.setOptions({maxNumFaces:1,refineLandmarks:true,minDetectionConfidence:.55,minTrackingConfidence:.55});
+faceMesh.onResults(faceResults);
+</script>
+</body>
+</html>
