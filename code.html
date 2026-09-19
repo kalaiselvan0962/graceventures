@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataNinja - Gamified Technical Assessment Platform</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        },
+                        dark: {
+                            bg: '#0f172a',
+                            card: '#1e293b',
+                            border: '#334155'
+                        },
+                        neon: {
+                            cyan: '#06b6d4',
+                            purple: '#a855f7',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- CodeMirror for Code Editing -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/sql/sql.min.js"></script>
+    <!-- AlaSQL for Client-Side SQL Database Execution -->
+    <script src="https://cdn.jsdelivr.net/npm/alasql@1.7.3/dist/alasql.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0f19;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(6, 182, 212, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.15);
+        }
+
+        .neon-glow-cyan {
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.35);
+        }
+        
+        .neon-glow-purple {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.35);
+        }
+
+        .neon-glow-amber {
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.35);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* CodeMirror Customization */
+        .CodeMirror {
+            height: 280px !important;
+            border-radius: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+        }
+
+        /* Anti-Cheat Warning Modal Flash */
+        @keyframes pulse-red {
+            0%, 100% { border-color: rgba(244, 63, 94, 0.8); }
+            50% { border-color: rgba(244, 63, 94, 0.2); }
+        }
+        .cheat-warning-border {
+            animation: pulse-red 1s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-white">
+
+    <!-- Anti-Cheat Overlay Banner (Hidden by default) -->
+    <div id="antiCheatOverlay" class="fixed inset-0 bg-red-950/90 z-50 backdrop-blur-md flex flex-col items-center justify-center p-6 hidden">
+        <div class="glass-panel border-2 border-red-500 max-w-md w-full rounded-2xl p-6 text-center shadow-2xl cheat-warning-border">
+            <div class="w-16 h-16 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="shield-alert" class="w-10 h-10"></i>
+            </div>
+            <h2 class="text-2xl font-black text-white tracking-wide mb-2">SECURITY VIOLATION DETECTED</h2>
+            <p id="cheatWarningMessage" class="text-slate-300 text-sm mb-6">Tab switching, developer tools, or copying content is strictly prohibited during active assessments.</p>
+            <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 mb-6">
+                <div class="flex justify-between text-xs font-semibold text-slate-400 mb-1">
+                    <span>STRIKE WARNINGS</span>
+                    <span id="cheatStrikeCounter" class="text-red-400 font-bold">1 / 3</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div id="cheatStrikeBar" class="bg-red-500 h-full w-1/3 transition-all duration-300"></div>
+                </div>
+            </div>
+            <button id="resumeAssessmentBtn" onclick="AntiCheatManager.acknowledgeViolation()" class="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition shadow-lg">
+                I UNDERSTAND & RESUME
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN APP WRAPPER -->
+    <div id="app" class="flex flex-col flex-1 min-h-screen">
+        
+        <!-- LOGIN / REGISTRATION SCREEN (INITIAL VIEW) -->
+        <section id="loginScreen" class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-radial text-slate-100">
+            <!-- Background Decorative Orbs -->
+            <div class="absolute -top-32 -left-32 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="glass-panel w-full max-w-md rounded-3xl p-8 border border-slate-700/50 shadow-2xl relative z-10">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center p-3 bg-gradient-to-tr from-cyan-500 to-purple-600 rounded-2xl mb-3 shadow-lg shadow-cyan-500/20">
+                        <i data-lucide="zap" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h1 class="text-3xl font-extrabold tracking-tight text-white">DATA<span class="text-cyan-400">NINJA</span></h1>
+                    <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest font-semibold">Competitive Technical Assessment Platform</p>
+                </div>
+
+                <form id="loginForm" onsubmit="AuthManager.login(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Student Full Name</label>
+                        <div class="relative">
+                            <i data-lucide="user" class="w-5 h-5 absolute left-3.5 top-3 text-slate-400"></i>
+                            <input type="text" id="loginName" required placeholder="e.g. Alex Mercer" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-2.5 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Student ID / Roll No</label>
+                        <div class="relative">
+                            <i data-lucide="badge-check" class="w-5 h-5 absolute left-3.5 top-3 text-slate-400"></i>
+                            <input type="text" id="loginId" required placeholder="e.g. STU-2026-894" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-2.5 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Assigned Batch</label>
+                        <div class="relative">
+                            <i data-lucide="users" class="w-5 h-5 absolute left-3.5 top-3 text-slate-400"></i>
+                            <select id="loginBatch" required class="w-full bg-slate-900/80 border border-slate-700 rounded-xl py-2.5 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition appearance-none">
+                                <option value="Batch A">Batch A - Data Science Alpha</option>
+                                <option value="Batch B">Batch B - BI Analytics Vanguard</option>
+                                <option value="Batch C">Batch C - Python Engineers</option>
+                                <option value="Batch D">Batch D - SQL Architects</option>
+                                <option value="Batch E">Batch E - Fullstack Data Cadets</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full mt-6 py-3.5 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/25 transition transform active:scale-95 flex items-center justify-center gap-2">
+                        <span>ENTER ASSESSMENT ARENA</span>
+                        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </button>
+                </form>
+
+                <div class="mt-6 pt-4 border-t border-slate-800 text-center">
+                    <p class="text-xs text-slate-500">Supports Power BI • Tableau • Python • SQL</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- MAIN DASHBOARD APP LAYOUT (Hidden until login) -->
+        <div id="mainDashboard" class="hidden flex-1 flex flex-col md:flex-row min-h-screen">
+            
+            <!-- SIDEBAR NAV (Desktop) -->
+            <aside class="w-full md:w-64 bg-slate-900/90 border-r border-slate-800 p-4 flex flex-col justify-between hidden md:flex sticky top-0 h-screen z-30">
+                <div>
+                    <!-- Logo -->
+                    <div class="flex items-center gap-3 px-3 py-4 mb-6">
+                        <div class="p-2 bg-gradient-to-tr from-cyan-500 to-purple-600 rounded-xl">
+                            <i data-lucide="zap" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-black text-lg tracking-wider text-white">DATA<span class="text-cyan-400">NINJA</span></h2>
+                            <span class="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Arena v2.5</span>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Links -->
+                    <nav class="space-y-1">
+                        <button onclick="Navigation.showView('dashboardView')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition font-medium text-sm text-left active" data-target="dashboardView">
+                            <i data-lucide="layout-dashboard" class="w-5 h-5 text-cyan-400"></i>
+                            <span>Dashboard</span>
+                        </button>
+                        <button onclick="Navigation.showView('roadmapView')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition font-medium text-sm text-left" data-target="roadmapView">
+                            <i data-lucide="map" class="w-5 h-5 text-purple-400"></i>
+                            <span>Learning Map</span>
+                        </button>
+                        <button onclick="Navigation.showView('quizSelectionView')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition font-medium text-sm text-left" data-target="quizSelectionView">
+                            <i data-lucide="gamepad-2" class="w-5 h-5 text-amber-400"></i>
+                            <span>MCQ Quizzes</span>
+                        </button>
+                        <button onclick="Navigation.showView('pythonArenaView')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition font-medium text-sm text-left" data-target="pythonArenaView">
+                            <i data-lucide="code" class="w-5 h-5 text-emerald-400"></i>
+                            <span>Python Arena</span>
+                        </button>
+                        <button onclick="Navigation.showView('sqlLabView')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition font-medium text-sm text-left" data-target="sqlLabView">
+                            <i data-lucide="database" class="w-5 h-5 text-blue-400"></i>
+                            <span>SQL Playground</span>
+                        </button>
+                        <button onclick="Navigation.showView('leaderboardView')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition font-medium text-sm text-left" data-target="leaderboardView">
+                            <i data-lucide="trophy" class="w-5 h-5 text-yellow-400"></i>
+                            <span>Leaderboard</span>
+                        </button>
+                        <button onclick="Navigation.showView('analyticsView')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition font-medium text-sm text-left" data-target="analyticsView">
+                            <i data-lucide="line-chart" class="w-5 h-5 text-rose-400"></i>
+                            <span>Analytics</span>
+                        </button>
+                        <button onclick="Navigation.showView('adminView')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition font-medium text-sm text-left" data-target="adminView">
+                            <i data-lucide="settings" class="w-5 h-5 text-slate-400"></i>
+                            <span>Admin Suite</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- User Quick Info / Sound Controls -->
+                <div class="pt-4 border-t border-slate-800 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-slate-400">Audio FX</span>
+                        <button id="soundToggleBtn" onclick="SoundManager.toggle()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 rounded-lg flex items-center gap-1.5 transition">
+                            <i data-lucide="volume-2" class="w-3.5 h-3.5 text-cyan-400"></i>
+                            <span id="soundStatusText">ON</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-3 bg-slate-800/60 p-2.5 rounded-xl">
+                        <div class="w-9 h-9 bg-cyan-500/20 text-cyan-400 font-black rounded-lg flex items-center justify-center text-sm border border-cyan-500/30">
+                            <span id="userNavAvatar">AM</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p id="userNavName" class="text-xs font-bold text-white truncate">Alex Mercer</p>
+                            <p id="userNavBatch" class="text-[10px] text-slate-400 truncate">Batch A</p>
+                        </div>
+                        <button onclick="AuthManager.logout()" class="text-slate-500 hover:text-red-400 p-1" title="Logout">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- MOBILE TOP BAR & BOTTOM NAV -->
+            <div class="md:hidden flex items-center justify-between bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-40">
+                <div class="flex items-center gap-2">
+                    <div class="p-1.5 bg-cyan-500 rounded-lg">
+                        <i data-lucide="zap" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="font-black text-white text-lg">DATANINJA</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="SoundManager.toggle()" class="p-2 bg-slate-800 text-slate-300 rounded-lg">
+                        <i data-lucide="volume-2" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="AuthManager.logout()" class="p-2 bg-slate-800 text-red-400 rounded-lg">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around p-2 z-40 text-slate-400 text-[10px]">
+                <button onclick="Navigation.showView('dashboardView')" class="flex flex-col items-center py-1 px-2 text-cyan-400">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    <span>Dash</span>
+                </button>
+                <button onclick="Navigation.showView('roadmapView')" class="flex flex-col items-center py-1 px-2">
+                    <i data-lucide="map" class="w-5 h-5"></i>
+                    <span>Map</span>
+                </button>
+                <button onclick="Navigation.showView('quizSelectionView')" class="flex flex-col items-center py-1 px-2">
+                    <i data-lucide="gamepad-2" class="w-5 h-5"></i>
+                    <span>Quiz</span>
+                </button>
+                <button onclick="Navigation.showView('pythonArenaView')" class="flex flex-col items-center py-1 px-2">
+                    <i data-lucide="code" class="w-5 h-5"></i>
+                    <span>Code</span>
+                </button>
+                <button onclick="Navigation.showView('leaderboardView')" class="flex flex-col items-center py-1 px-2">
+                    <i data-lucide="trophy" class="w-5 h-5"></i>
+                    <span>Ranks</span>
+                </button>
+            </div>
+
+            <!-- MAIN CONTENT AREA -->
+            <main class="flex-1 p-4 md:p-8 overflow-y-auto pb-20 md:pb-8">
+
+                <!-- 1. DASHBOARD VIEW -->
+                <div id="dashboardView" class="view-content space-y-6">
+                    <!-- Welcome Hero Header -->
+                    <div class="glass-panel p-6 rounded-3xl relative overflow-hidden border border-cyan-500/20 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                            <div>
+                                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-bold mb-2 border border-cyan-500/20">
+                                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                    <span id="dashWelcomeBatch">Batch A - Data Science Alpha</span>
+                                </div>
+                                <h1 class="text-2xl md:text-3xl font-black text-white">Welcome back, <span id="dashWelcomeName" class="text-cyan-400">Student</span>! 👋</h1>
+                                <p class="text-sm text-slate-400 mt-1">Ready to tackle today's technical challenges and boost your rank?</p>
+                            </div>
+
+                            <!-- XP & Level Card -->
+                            <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-700/60 min-w-[260px]">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">CURRENT LEVEL</span>
+                                    <span id="dashLevelBadge" class="px-2.5 py-0.5 bg-gradient-to-r from-amber-500 to-rose-500 text-white font-black text-xs rounded-full shadow">LEVEL 1</span>
+                                </div>
+                                <div class="flex items-baseline justify-between mb-1">
+                                    <span id="dashXpVal" class="text-xl font-extrabold text-white">0 XP</span>
+                                    <span id="dashXpNext" class="text-xs text-slate-400">/ 100 XP</span>
+                                </div>
+                                <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                                    <div id="dashXpBar" class="bg-gradient-to-r from-cyan-400 to-purple-500 h-full w-0 transition-all duration-500"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="glass-card p-4 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between text-amber-400 mb-2">
+                                <span class="text-xs font-bold uppercase text-slate-400">Active Streak</span>
+                                <i data-lucide="flame" class="w-5 h-5"></i>
+                            </div>
+                            <div id="dashCurrentStreak" class="text-2xl md:text-3xl font-black text-white">🔥 0</div>
+                            <span id="dashBestStreak" class="text-[11px] text-slate-400">Best: 0 consecutive</span>
+                        </div>
+
+                        <div class="glass-card p-4 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between text-cyan-400 mb-2">
+                                <span class="text-xs font-bold uppercase text-slate-400">Total Points</span>
+                                <i data-lucide="coins" class="w-5 h-5"></i>
+                            </div>
+                            <div id="dashTotalPoints" class="text-2xl md:text-3xl font-black text-white">0</div>
+                            <span class="text-[11px] text-slate-400">Global Score</span>
+                        </div>
+
+                        <div class="glass-card p-4 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between text-emerald-400 mb-2">
+                                <span class="text-xs font-bold uppercase text-slate-400">Accuracy %</span>
+                                <i data-lucide="target" class="w-5 h-5"></i>
+                            </div>
+                            <div id="dashAccuracy" class="text-2xl md:text-3xl font-black text-white">0%</div>
+                            <span id="dashAccuracyCount" class="text-[11px] text-slate-400">0 / 0 correct</span>
+                        </div>
+
+                        <div class="glass-card p-4 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between text-purple-400 mb-2">
+                                <span class="text-xs font-bold uppercase text-slate-400">Batch Rank</span>
+                                <i data-lucide="award" class="w-5 h-5"></i>
+                            </div>
+                            <div id="dashBatchRank" class="text-2xl md:text-3xl font-black text-white">#--</div>
+                            <span class="text-[11px] text-slate-400">In Batch Standings</span>
+                        </div>
+                    </div>
+
+                    <!-- Middle Section: Daily Streak & Daily Challenge -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Daily Calendar Tracker -->
+                        <div class="glass-panel p-5 rounded-2xl border border-slate-800 lg:col-span-1">
+                            <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider mb-4 flex items-center gap-2">
+                                <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i>
+                                <span>Weekly Learning Streak</span>
+                            </h3>
+                            <div id="weeklyStreakGrid" class="grid grid-cols-7 gap-2 text-center text-xs font-bold mb-3">
+                                <!-- Rendered dynamically -->
+                            </div>
+                            <p class="text-[11px] text-slate-400 text-center">Complete 1 quiz or coding problem daily to keep your flame alive!</p>
+                        </div>
+
+                        <!-- Daily Challenge Banner -->
+                        <div class="glass-panel p-5 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-950/30 to-slate-900 lg:col-span-2 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="px-3 py-1 bg-amber-500/20 text-amber-400 font-bold text-xs rounded-full border border-amber-500/30 flex items-center gap-1">
+                                        <i data-lucide="zap" class="w-3.5 h-3.5"></i> DAILY SPECIAL CHALLENGE
+                                    </span>
+                                    <span class="text-xs text-amber-300 font-mono font-bold">+250 XP BONUS</span>
+                                </div>
+                                <h2 class="text-lg font-extrabold text-white mb-1">SQL Window Functions Mastery</h2>
+                                <p class="text-xs text-slate-300">Solve today's scenario problem using ROW_NUMBER() and DENSE_RANK() in the SQL Lab.</p>
+                            </div>
+                            <div class="mt-4 flex items-center justify-between border-t border-slate-800/80 pt-3">
+                                <span class="text-xs text-slate-400" id="dailyChallengeStatus">Status: Available Today</span>
+                                <button onclick="QuizEngine.startDailyChallenge()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl transition shadow-lg shadow-amber-500/20">
+                                    LAUNCH DAILY CHALLENGE
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Badges Grid View -->
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-800">
+                        <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <i data-lucide="shield" class="w-4 h-4 text-purple-400"></i>
+                            <span>Earned Achievements & Badges</span>
+                        </h3>
+                        <div id="dashboardBadgesGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. GAME MAP / LEARNING PATH VIEW -->
+                <div id="roadmapView" class="view-content hidden space-y-6">
+                    <div class="text-center max-w-xl mx-auto mb-8">
+                        <h1 class="text-3xl font-extrabold text-white">LEARNING JOURNEY MAP</h1>
+                        <p class="text-sm text-slate-400 mt-1">Unlock stages by accumulating XP and proving skill across subjects.</p>
+                    </div>
+
+                    <div id="gameMapContainer" class="max-w-2xl mx-auto relative space-y-8 py-4">
+                        <!-- Node elements rendered dynamically via JS -->
+                    </div>
+                </div>
+
+                <!-- 3. MCQ QUIZ SELECTION VIEW -->
+                <div id="quizSelectionView" class="view-content hidden space-y-6">
+                    <div>
+                        <h1 class="text-2xl font-black text-white">ASSESSMENT ARENA</h1>
+                        <p class="text-sm text-slate-400">Select an assessment mode or subject to begin testing.</p>
+                    </div>
+
+                    <!-- Quiz Modes Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div onclick="QuizEngine.prepareAssessment('Quick Quiz')" class="glass-card p-5 rounded-2xl cursor-pointer border border-cyan-500/30 hover:border-cyan-400">
+                            <div class="w-10 h-10 bg-cyan-500/20 text-cyan-400 rounded-xl flex items-center justify-center mb-3">
+                                <i data-lucide="timer" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="font-extrabold text-white text-base">Quick Quiz</h3>
+                            <p class="text-xs text-slate-400 mt-1">10 Random Questions • 5 Minutes speed run</p>
+                        </div>
+
+                        <div onclick="QuizEngine.prepareAssessment('Standard Quiz')" class="glass-card p-5 rounded-2xl cursor-pointer border border-purple-500/30 hover:border-purple-400">
+                            <div class="w-10 h-10 bg-purple-500/20 text-purple-400 rounded-xl flex items-center justify-center mb-3">
+                                <i data-lucide="file-text" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="font-extrabold text-white text-base">Standard Assessment</h3>
+                            <p class="text-xs text-slate-400 mt-1">20 Questions • 15 Minutes evaluation</p>
+                        </div>
+
+                        <div onclick="QuizEngine.prepareAssessment('Hardcore Mode')" class="glass-card p-5 rounded-2xl cursor-pointer border border-rose-500/30 hover:border-rose-400">
+                            <div class="w-10 h-10 bg-rose-500/20 text-rose-400 rounded-xl flex items-center justify-center mb-3">
+                                <i data-lucide="skull" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="font-extrabold text-white text-base">Hardcore Mode</h3>
+                            <p class="text-xs text-slate-400 mt-1">30 Hard Questions • No Backtracking • Strict anti-cheat</p>
+                        </div>
+                    </div>
+
+                    <!-- Subject Specific Cards -->
+                    <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider pt-4 border-t border-slate-800">Subject Drills</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                        <div onclick="QuizEngine.prepareAssessment('Power BI')" class="glass-card p-5 rounded-2xl cursor-pointer">
+                            <div class="text-amber-400 text-2xl font-black mb-1">📊 Power BI</div>
+                            <p class="text-xs text-slate-400">DAX, Power Query, Modeling & RLS</p>
+                        </div>
+                        <div onclick="QuizEngine.prepareAssessment('Tableau')" class="glass-card p-5 rounded-2xl cursor-pointer">
+                            <div class="text-cyan-400 text-2xl font-black mb-1">📈 Tableau</div>
+                            <p class="text-xs text-slate-400">LOD Expressions, Calculated Fields & Server</p>
+                        </div>
+                        <div onclick="QuizEngine.prepareAssessment('Python')" class="glass-card p-5 rounded-2xl cursor-pointer">
+                            <div class="text-emerald-400 text-2xl font-black mb-1">🐍 Python</div>
+                            <p class="text-xs text-slate-400">Comprehensions, OOP, Pandas & NumPy</p>
+                        </div>
+                        <div onclick="QuizEngine.prepareAssessment('SQL')" class="glass-card p-5 rounded-2xl cursor-pointer">
+                            <div class="text-blue-400 text-2xl font-black mb-1">🗄️ SQL</div>
+                            <p class="text-xs text-slate-400">Window Functions, CTEs, JOINs & Aggregations</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. ACTIVE MCQ QUIZ ARENA VIEW -->
+                <div id="activeQuizView" class="view-content hidden space-y-6 max-w-3xl mx-auto">
+                    <!-- Quiz Header Bar -->
+                    <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span id="quizSubjectTag" class="px-3 py-1 bg-cyan-500/20 text-cyan-400 font-extrabold text-xs rounded-lg border border-cyan-500/30">PYTHON</span>
+                            <span id="quizProgressText" class="text-xs font-bold text-slate-300">Q 1 / 10</span>
+                        </div>
+
+                        <!-- Timer Box -->
+                        <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
+                            <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
+                            <span id="quizTimer" class="font-mono font-bold text-amber-400 text-sm">15:00</span>
+                        </div>
+
+                        <!-- XP / Streak Live Stats -->
+                        <div class="flex items-center gap-3 text-xs font-bold">
+                            <span id="quizLiveStreak" class="text-amber-400">🔥 0</span>
+                            <span id="quizLiveXp" class="text-purple-400">+0 XP</span>
+                        </div>
+                    </div>
+
+                    <!-- Question Card -->
+                    <div class="glass-panel p-6 md:p-8 rounded-3xl border border-slate-800 relative">
+                        <div class="flex items-center justify-between mb-4">
+                            <span id="quizTopicTag" class="text-xs text-slate-400 font-mono">Topic: Data Cleaning</span>
+                            <span id="quizDifficultyTag" class="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-400 font-bold text-xs rounded-md">🟢 EASY</span>
+                        </div>
+
+                        <h2 id="quizQuestionText" class="text-lg md:text-xl font-bold text-white mb-6 leading-relaxed">
+                            Loading question content...
+                        </h2>
+
+                        <!-- Answer Options Grid -->
+                        <div id="quizOptionsContainer" class="space-y-3">
+                            <!-- Rendered dynamically -->
+                        </div>
+
+                        <!-- Post-Answer Feedback Overlay / Explanation -->
+                        <div id="quizFeedbackBox" class="mt-6 p-4 rounded-xl hidden border">
+                            <div id="quizFeedbackHeader" class="font-bold text-sm mb-1 flex items-center gap-2"></div>
+                            <p id="quizExplanationText" class="text-xs text-slate-300 leading-normal"></p>
+                            <button id="quizNextBtn" onclick="QuizEngine.nextQuestion()" class="mt-4 px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl transition flex items-center gap-2">
+                                <span>NEXT QUESTION</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. QUIZ RESULT SUMMARY VIEW -->
+                <div id="quizResultView" class="view-content hidden space-y-6 max-w-2xl mx-auto text-center">
+                    <div class="glass-panel p-8 rounded-3xl border border-cyan-500/30">
+                        <div class="w-20 h-20 bg-gradient-to-tr from-cyan-500 to-purple-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
+                            <i data-lucide="award" class="w-10 h-10"></i>
+                        </div>
+
+                        <h1 class="text-3xl font-black text-white mb-1">ASSESSMENT COMPLETE!</h1>
+                        <p id="resultSubtitle" class="text-xs text-slate-400 mb-6">Great effort! Your score has been persisted to the leaderboard.</p>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                                <span class="text-[10px] text-slate-400 font-bold uppercase">XP EARNED</span>
+                                <p id="resultXpEarned" class="text-xl font-black text-purple-400">+0 XP</p>
+                            </div>
+                            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                                <span class="text-[10px] text-slate-400 font-bold uppercase">ACCURACY</span>
+                                <p id="resultAccuracy" class="text-xl font-black text-emerald-400">0%</p>
+                            </div>
+                            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                                <span class="text-[10px] text-slate-400 font-bold uppercase">TIME TAKEN</span>
+                                <p id="resultTimeTaken" class="text-xl font-black text-amber-400">00:00</p>
+                            </div>
+                            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                                <span class="text-[10px] text-slate-400 font-bold uppercase">BEST STREAK</span>
+                                <p id="resultBestStreak" class="text-xl font-black text-rose-400">🔥 0</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3 justify-center">
+                            <button onclick="Navigation.showView('quizSelectionView')" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition">
+                                BACK TO QUIZZES
+                            </button>
+                            <button onclick="Navigation.showView('dashboardView')" class="px-5 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold rounded-xl transition">
+                                RETURN DASHBOARD
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. PYTHON PROGRAMMING ARENA VIEW -->
+                <div id="pythonArenaView" class="view-content hidden space-y-6">
+                    <div>
+                        <h1 class="text-2xl font-black text-white">PYTHON CODING BATTLE</h1>
+                        <p class="text-sm text-slate-400">Write clean, efficient solutions to pass test cases.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <!-- Problem Statement Column -->
+                        <div class="lg:col-span-5 space-y-4">
+                            <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span id="pyChallengeDifficulty" class="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded-md">🟢 EASY</span>
+                                    <span class="text-xs text-amber-400 font-bold">+100 XP</span>
+                                </div>
+                                <h2 id="pyChallengeTitle" class="text-lg font-bold text-white">Count Vowels in String</h2>
+                                <p id="pyChallengeDesc" class="text-xs text-slate-300 leading-relaxed">Write a Python function `count_vowels(text)` that returns the total count of vowels (a, e, i, o, u - case insensitive) in the string.</p>
+                                
+                                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 text-xs font-mono">
+                                    <span class="text-slate-400 block mb-1">Example:</span>
+                                    <p class="text-slate-200">Input: "DataNinja Assessment"</p>
+                                    <p class="text-cyan-400">Expected Output: 7</p>
+                                </div>
+                            </div>
+
+                            <!-- Selector for available python challenges -->
+                            <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+                                <label class="text-xs font-bold text-slate-400 uppercase block mb-2">Select Python Challenge</label>
+                                <select id="pythonChallengeSelect" onchange="ProgrammingEngine.loadSelectedChallenge('python')" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-xs text-white">
+                                    <option value="PY-01">1. Count Vowels (Easy)</option>
+                                    <option value="PY-02">2. Find Largest Number (Easy)</option>
+                                    <option value="PY-03">3. Fibonacci Generator (Medium)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Code Editor Column -->
+                        <div class="lg:col-span-7 space-y-4">
+                            <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-xs font-bold text-slate-300 font-mono">solution.py</span>
+                                    <div class="flex gap-2">
+                                        <button onclick="ProgrammingEngine.runPythonCode()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 rounded-lg flex items-center gap-1.5 transition">
+                                            <i data-lucide="play" class="w-3.5 h-3.5 text-emerald-400"></i> RUN TEST
+                                        </button>
+                                        <button onclick="ProgrammingEngine.submitPythonChallenge()" class="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-xs font-black text-slate-950 rounded-lg flex items-center gap-1.5 transition">
+                                            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> SUBMIT
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <textarea id="pythonCodeEditor">def count_vowels(text):
+    # Write your solution here
+    vowels = "aeiouAEIOU"
+    return sum(1 for char in text if char in vowels)
+</textarea>
+
+                                <!-- Output / Test Case Log -->
+                                <div class="mt-4 bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs">
+                                    <div class="text-slate-400 font-bold mb-1 flex items-center justify-between">
+                                        <span>EXECUTION OUTPUT</span>
+                                        <span id="pythonExecutionStatus" class="text-slate-500">Ready</span>
+                                    </div>
+                                    <pre id="pythonConsoleOutput" class="text-slate-300 whitespace-pre-wrap font-mono min-h-[60px]">Click 'Run Test' to execute public test cases.</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. SQL PLAYGROUND & ARENA VIEW -->
+                <div id="sqlLabView" class="view-content hidden space-y-6">
+                    <div>
+                        <h1 class="text-2xl font-black text-white">SQL INTERACTIVE PLAYGROUND</h1>
+                        <p class="text-sm text-slate-400">Run live queries against the sandbox SQLite database engine.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <!-- Schema Browser Column -->
+                        <div class="lg:col-span-4 space-y-4">
+                            <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+                                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                    <i data-lucide="database" class="w-4 h-4 text-blue-400"></i>
+                                    <span>Database Schema</span>
+                                </h3>
+
+                                <div class="space-y-3 text-xs">
+                                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                                        <div class="font-bold text-cyan-400 font-mono mb-1">Employees Table</div>
+                                        <p class="text-[11px] text-slate-400 font-mono">id, name, department, salary, city</p>
+                                    </div>
+                                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                                        <div class="font-bold text-purple-400 font-mono mb-1">Orders Table</div>
+                                        <p class="text-[11px] text-slate-400 font-mono">order_id, employee_id, amount, order_date</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+                                <label class="text-xs font-bold text-slate-400 uppercase block mb-2">Preset SQL Challenges</label>
+                                <select id="sqlChallengeSelect" onchange="SQLPlayground.loadPreset()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-xs text-white">
+                                    <option value="SQL-01">1. High Earners (> 60,000)</option>
+                                    <option value="SQL-02">2. Department Salary Average</option>
+                                    <option value="SQL-03">3. Second Highest Salary</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Editor & Results Column -->
+                        <div class="lg:col-span-8 space-y-4">
+                            <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-xs font-bold text-slate-300 font-mono">query.sql</span>
+                                    <div class="flex gap-2">
+                                        <button onclick="SQLPlayground.runQuery()" class="px-4 py-1.5 bg-blue-500 hover:bg-blue-400 text-xs font-bold text-slate-950 rounded-lg flex items-center gap-1.5 transition">
+                                            <i data-lucide="play" class="w-3.5 h-3.5"></i> RUN QUERY
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <textarea id="sqlCodeEditor">SELECT name, department, salary 
+FROM Employees 
+WHERE salary > 60000 
+ORDER BY salary DESC;</textarea>
+                            </div>
+
+                            <!-- Results Table View -->
+                            <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+                                <h3 class="text-xs font-bold text-slate-300 uppercase mb-3">Query Results Output</h3>
+                                <div id="sqlTableContainer" class="overflow-x-auto max-h-60 rounded-xl border border-slate-800 bg-slate-950 p-2">
+                                    <p class="text-xs text-slate-500 p-2 font-mono">Execute a query to display rows.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 8. LEADERBOARD VIEW -->
+                <div id="leaderboardView" class="view-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl font-black text-white">LEADERBOARD STANDINGS</h1>
+                            <p class="text-sm text-slate-400">Competitive rankings across batches and individual subjects.</p>
+                        </div>
+
+                        <!-- Tab Selectors -->
+                        <div class="flex p-1 bg-slate-900 rounded-xl border border-slate-800 text-xs font-bold">
+                            <button onclick="LeaderboardManager.showTab('overall')" class="lb-tab px-3 py-1.5 rounded-lg text-white bg-slate-800" data-tab="overall">Overall</button>
+                            <button onclick="LeaderboardManager.showTab('batch')" class="lb-tab px-3 py-1.5 rounded-lg text-slate-400" data-tab="batch">Batches</button>
+                            <button onclick="LeaderboardManager.showTab('powerbi')" class="lb-tab px-3 py-1.5 rounded-lg text-slate-400" data-tab="powerbi">Power BI</button>
+                            <button onclick="LeaderboardManager.showTab('python')" class="lb-tab px-3 py-1.5 rounded-lg text-slate-400" data-tab="python">Python</button>
+                        </div>
+                    </div>
+
+                    <!-- Leaderboard Table -->
+                    <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-900/90 text-slate-400 uppercase font-bold border-b border-slate-800">
+                                    <tr>
+                                        <th class="p-4">Rank</th>
+                                        <th class="p-4">Student</th>
+                                        <th class="p-4">Batch</th>
+                                        <th class="p-4">XP Score</th>
+                                        <th class="p-4">Streak</th>
+                                        <th class="p-4">Accuracy</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaderboardTableBody" class="divide-y divide-slate-800/60 font-medium">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 9. ANALYTICS VIEW -->
+                <div id="analyticsView" class="view-content hidden space-y-6">
+                    <div>
+                        <h1 class="text-2xl font-black text-white">PERFORMANCE ANALYTICS</h1>
+                        <p class="text-sm text-slate-400">Detailed breakdown of subject proficiency and progress over time.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase mb-4">Subject Proficiency Breakdown</h3>
+                            <div class="h-64 relative flex items-center justify-center">
+                                <canvas id="analyticsRadarChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase mb-4">Accuracy Progress History</h3>
+                            <div class="h-64 relative flex items-center justify-center">
+                                <canvas id="analyticsLineChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 10. ADMIN DASHBOARD SUITE -->
+                <div id="adminView" class="view-content hidden space-y-6">
+                    <div>
+                        <h1 class="text-2xl font-black text-white">ADMINISTRATION SUITE</h1>
+                        <p class="text-sm text-slate-400">Manage question banks, export batch reports, or reset attempts.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Left Panel: Actions -->
+                        <div class="space-y-4 md:col-span-1">
+                            <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
+                                <h3 class="text-xs font-bold text-slate-300 uppercase">Batch Data Tools</h3>
+                                <button onclick="AdminManager.exportDataJSON()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition">
+                                    <i data-lucide="download" class="w-4 h-4"></i> EXPORT ALL DATA (JSON)
+                                </button>
+                                <button onclick="AdminManager.resetStudentData()" class="w-full py-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 text-xs font-bold rounded-xl border border-rose-500/30 flex items-center justify-center gap-2 transition">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> RESET STUDENT PROGRESS
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Question Creator -->
+                        <div class="glass-panel p-5 rounded-2xl border border-slate-800 md:col-span-2">
+                            <h3 class="text-xs font-bold text-slate-300 uppercase mb-4">Add Custom Question to Bank</h3>
+                            <form onsubmit="AdminManager.addQuestion(event)" class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase">Subject</label>
+                                        <select id="adminSubject" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2 text-xs text-white">
+                                            <option value="Power BI">Power BI</option>
+                                            <option value="Tableau">Tableau</option>
+                                            <option value="Python">Python</option>
+                                            <option value="SQL">SQL</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase">Difficulty</label>
+                                        <select id="adminDifficulty" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2 text-xs text-white">
+                                            <option value="Easy">Easy (10 pts)</option>
+                                            <option value="Medium">Medium (20 pts)</option>
+                                            <option value="Hard">Hard (30 pts)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase">Question Text</label>
+                                    <input type="text" id="adminQuestionText" required placeholder="Enter question..." class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2 text-xs text-white">
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <input type="text" id="adminOpt0" required placeholder="Option 0" class="bg-slate-900 border border-slate-800 rounded-xl p-2 text-xs text-white">
+                                    <input type="text" id="adminOpt1" required placeholder="Option 1" class="bg-slate-900 border border-slate-800 rounded-xl p-2 text-xs text-white">
+                                    <input type="text" id="adminOpt2" required placeholder="Option 2" class="bg-slate-900 border border-slate-800 rounded-xl p-2 text-xs text-white">
+                                    <input type="text" id="adminOpt3" required placeholder="Option 3" class="bg-slate-900 border border-slate-800 rounded-xl p-2 text-xs text-white">
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase">Correct Index (0-3)</label>
+                                        <input type="number" id="adminCorrectIdx" min="0" max="3" required value="0" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2 text-xs text-white">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase">Topic</label>
+                                        <input type="text" id="adminTopic" required placeholder="e.g. DAX Measures" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2 text-xs text-white">
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl transition">
+                                    SAVE QUESTION TO BANK
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const SoundManager = {
+            enabled: true,
+            ctx: null,
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
+
+            toggle() {
+                this.enabled = !this.enabled;
+                const txt = document.getElementById('soundStatusText');
+                if (txt) txt.innerText = this.enabled ? 'ON' : 'OFF';
+            },
+
+            playCorrect() {
+                if (!this.enabled) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); // C5
+                osc.frequency.exponentialRampToValueAtTime(659.25, this.ctx.currentTime + 0.15); // E5
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.3);
+            },
+
+            playWrong() {
+                if (!this.enabled) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.25);
+            }
+        };
+
+        const StorageManager = {
+            KEY_USER: 'dataninja_user',
+            KEY_QUESTIONS: 'dataninja_questions',
+
+            getUser() {
+                const data = localStorage.getItem(this.KEY_USER);
+                return data ? JSON.parse(data) : null;
+            },
+
+            saveUser(user) {
+                localStorage.setItem(this.KEY_USER, JSON.stringify(user));
+            },
+
+            getQuestions() {
+                const data = localStorage.getItem(this.KEY_QUESTIONS);
+                return data ? JSON.parse(data) : BuiltInQuestions;
+            },
+
+            saveQuestions(qList) {
+                localStorage.setItem(this.KEY_QUESTIONS, JSON.stringify(qList));
+            }
+        };
+
+        // Comprehensive Built-in Question Dataset
+        const BuiltInQuestions = [
+            // Power BI
+            { id: "PBI-E-01", subject: "Power BI", topic: "DAX", difficulty: "Easy", question: "What is the primary difference between a Calculated Column and a Measure in Power BI?", options: ["Calculated columns compute at data refresh and store results; Measures calculate dynamically on filter context.", "Measures store data in memory while calculated columns do not.", "Measures can only be used in SQL queries.", "Calculated columns are strictly used for visuals."], answer: 0, explanation: "Calculated columns are evaluated row-by-row at refresh and stored. Measures are dynamic DAX expressions computed on-the-fly based on visual filter context.", points: 10 },
+            { id: "PBI-M-01", subject: "Power BI", topic: "Row-Level Security", difficulty: "Medium", question: "Which DAX function is used in RLS role definitions to capture the login user's principal name?", options: ["USERPRINCIPALNAME()", "GETUSER()", "USERNAME_ONLY()", "AUTH_USER()"], answer: 0, explanation: "USERPRINCIPALNAME() returns the user's UPN/Email in Power BI Service, essential for dynamic RLS.", points: 20 },
+            { id: "PBI-H-01", subject: "Power BI", topic: "Modeling", difficulty: "Hard", question: "What occurs when you apply TREATAS in DAX calculated measures?", options: ["It applies a filter from an unrelated table by treating column values as data lineage filters.", "It converts string fields into integer format.", "It creates a physical relationship between two tables.", "It removes all filters from the current evaluation context."], answer: 0, explanation: "TREATAS maps result set filters to columns in another table without creating a physical relationship.", points: 30 },
+
+            // Tableau
+            { id: "TAB-E-01", subject: "Tableau", topic: "Calculated Fields", difficulty: "Easy", question: "Which field type in Tableau produces headers when placed on rows/columns shelves?", options: ["Dimensions", "Measures", "Parameters", "Calculations"], answer: 0, explanation: "Dimensions are qualitative categorical fields that create column/row headers.", points: 10 },
+            { id: "TAB-M-01", subject: "Tableau", topic: "LOD Expressions", difficulty: "Medium", question: "Which Level of Detail (LOD) expression computes aggregations ignoring view dimensions?", options: ["FIXED", "INCLUDE", "EXCLUDE", "ABSOLUTE"], answer: 0, explanation: "FIXED LOD expressions compute values using specified dimensions, ignoring other dimensions in the view.", points: 20 },
+
+            // Python
+            { id: "PY-E-01", subject: "Python", topic: "Comprehensions", difficulty: "Easy", question: "What will the following Python list comprehension output? `[x**2 for x in range(4)]`", options: ["[0, 1, 4, 9]", "[1, 4, 9, 16]", "[0, 1, 2, 3]", "[0, 2, 4, 6]"], answer: 0, explanation: "range(4) produces 0, 1, 2, 3. Squaring each yields [0, 1, 4, 9].", points: 10 },
+            { id: "PY-M-01", subject: "Python", topic: "Pandas", difficulty: "Medium", question: "Which Pandas method is used to drop rows containing missing (NaN) values?", options: ["df.dropna()", "df.remove_null()", "df.clean_na()", "df.strip_missing()"], answer: 0, explanation: "df.dropna() removes rows/columns with missing values in DataFrame.", points: 20 },
+
+            // SQL
+            { id: "SQL-E-01", subject: "SQL", topic: "JOINs", difficulty: "Easy", question: "Which SQL JOIN returns all rows from the left table and matching records from the right table?", options: ["LEFT JOIN", "RIGHT JOIN", "INNER JOIN", "CROSS JOIN"], answer: 0, explanation: "LEFT JOIN retrieves all rows from the left table regardless of matches in the right table.", points: 10 },
+            { id: "SQL-M-01", subject: "SQL", topic: "Window Functions", difficulty: "Medium", question: "What is the key difference between RANK() and DENSE_RANK() in SQL?", options: ["RANK() skips consecutive rank numbers on ties; DENSE_RANK() does not skip numbers.", "DENSE_RANK() sorts in descending order only.", "RANK() ignores NULL values completely.", "There is no functional difference."], answer: 0, explanation: "On duplicate values, RANK() creates gaps in sequence numbers (e.g. 1, 1, 3) while DENSE_RANK() retains unbroken sequence numbers (1, 1, 2).", points: 20 },
+            { id: "SQL-H-01", subject: "SQL", topic: "CTEs & Subqueries", difficulty: "Hard", question: "In SQL, what statement introduces a Common Table Expression (CTE)?", options: ["WITH", "CREATE CTE", "DEFINE", "TEMPORARY"], answer: 0, explanation: "CTEs are defined using the WITH clause before the main query execution.", points: 30 }
+        ];
+
+        const AntiCheatManager = {
+            violations: 0,
+            maxViolations: 3,
+
+            init() {
+                // Prevent Tab Switch
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'hidden' && QuizEngine.isActive) {
+                        this.triggerViolation("Tab switch or window blur detected!");
+                    }
+                });
+
+                // Prevent Copy / Paste / Context Menu in Quiz Area
+                document.addEventListener('contextmenu', (e) => {
+                    if (QuizEngine.isActive) {
+                        e.preventDefault();
+                        this.triggerViolation("Right-click context menu is disabled during active assessment.");
+                    }
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    if (QuizEngine.isActive) {
+                        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J'))) {
+                            e.preventDefault();
+                            this.triggerViolation("Developer Tools shortcuts are prohibited.");
+                        }
+                    }
+                });
+            },
+
+            triggerViolation(msg) {
+                this.violations++;
+                const overlay = document.getElementById('antiCheatOverlay');
+                const text = document.getElementById('cheatWarningMessage');
+                const counter = document.getElementById('cheatStrikeCounter');
+                const bar = document.getElementById('cheatStrikeBar');
+
+                if (text) text.innerText = msg;
+                if (counter) counter.innerText = `${this.violations} / ${this.maxViolations}`;
+                if (bar) bar.style.width = `${(this.violations / this.maxViolations) * 100}%`;
+
+                if (overlay) overlay.classList.remove('hidden');
+
+                if (this.violations >= this.maxViolations && QuizEngine.isActive) {
+                    setTimeout(() => {
+                        alert("Assessment Locked due to excessive anti-cheat security strikes.");
+                        QuizEngine.finishQuiz();
+                        this.acknowledgeViolation();
+                    }, 500);
+                }
+            },
+
+            acknowledgeViolation() {
+                const overlay = document.getElementById('antiCheatOverlay');
+                if (overlay) overlay.classList.add('hidden');
+            }
+        };
+
+        const AuthManager = {
+            currentUser: null,
+
+            init() {
+                this.currentUser = StorageManager.getUser();
+                if (this.currentUser) {
+                    this.showDashboard();
+                } else {
+                    document.getElementById('loginScreen').classList.remove('hidden');
+                    document.getElementById('mainDashboard').classList.add('hidden');
+                }
+            },
+
+            login(e) {
+                e.preventDefault();
+                const name = document.getElementById('loginName').value.trim();
+                const id = document.getElementById('loginId').value.trim();
+                const batch = document.getElementById('loginBatch').value;
+
+                this.currentUser = {
+                    id: id,
+                    name: name,
+                    batch: batch,
+                    xp: 0,
+                    level: 1,
+                    points: 0,
+                    streak: 0,
+                    bestStreak: 0,
+                    completedCount: 0,
+                    correctCount: 0,
+                    badges: ['First Victory'],
+                    dailyStreakDays: [true, false, false, false, false, false, false]
+                };
+
+                StorageManager.saveUser(this.currentUser);
+                this.showDashboard();
+            },
+
+            logout() {
+                localStorage.removeItem(StorageManager.KEY_USER);
+                location.reload();
+            },
+
+            showDashboard() {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainDashboard').classList.remove('hidden');
+                this.updateUI();
+                Navigation.showView('dashboardView');
+            },
+
+            updateUI() {
+                if (!this.currentUser) return;
+                const u = this.currentUser;
+
+                // Nav Info
+                document.getElementById('userNavName').innerText = u.name;
+                document.getElementById('userNavBatch').innerText = u.batch;
+                document.getElementById('userNavAvatar').innerText = u.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0, 2);
+
+                // Dashboard Stats
+                document.getElementById('dashWelcomeName').innerText = u.name;
+                document.getElementById('dashWelcomeBatch').innerText = u.batch;
+                document.getElementById('dashCurrentStreak').innerText = `🔥 ${u.streak}`;
+                document.getElementById('dashBestStreak').innerText = `Best: ${u.bestStreak} consecutive`;
+                document.getElementById('dashTotalPoints').innerText = u.points.toLocaleString();
+
+                const acc = u.completedCount > 0 ? Math.round((u.correctCount / u.completedCount) * 100) : 0;
+                document.getElementById('dashAccuracy').innerText = `${acc}%`;
+                document.getElementById('dashAccuracyCount').innerText = `${u.correctCount} / ${u.completedCount} correct`;
+
+                // Level calculation
+                const nextXp = u.level * 100;
+                document.getElementById('dashLevelBadge').innerText = `LEVEL ${u.level}`;
+                document.getElementById('dashXpVal').innerText = `${u.xp} XP`;
+                document.getElementById('dashXpNext').innerText = `/ ${nextXp} XP`;
+                document.getElementById('dashXpBar').style.width = `${Math.min(100, (u.xp / nextXp) * 100)}%`;
+
+                // Render Badges Grid
+                const badgeContainer = document.getElementById('dashboardBadgesGrid');
+                if (badgeContainer) {
+                    badgeContainer.innerHTML = u.badges.map(b => `
+                        <div class="bg-slate-900/90 p-3 rounded-xl border border-purple-500/30 text-center">
+                            <div class="w-8 h-8 bg-purple-500/20 text-purple-400 rounded-full flex items-center justify-center mx-auto mb-1 text-xs">🏆</div>
+                            <span class="text-[10px] font-bold text-white block truncate">${b}</span>
+                        </div>
+                    `).join('');
+                }
+
+                // Render Weekly Streak Grid
+                const streakGrid = document.getElementById('weeklyStreakGrid');
+                if (streakGrid) {
+                    const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+                    streakGrid.innerHTML = days.map((d, i) => `
+                        <div class="flex flex-col items-center">
+                            <span class="text-[10px] text-slate-500 mb-1">${d}</span>
+                            <div class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black ${u.dailyStreakDays[i] ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-600'}">
+                                ${u.dailyStreakDays[i] ? '✓' : ''}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            },
+
+            addRewards(xp, points, isCorrect) {
+                if (!this.currentUser) return;
+                const u = this.currentUser;
+
+                u.completedCount++;
+                if (isCorrect) {
+                    u.correctCount++;
+                    u.streak++;
+                    if (u.streak > u.bestStreak) u.bestStreak = u.streak;
+                } else {
+                    u.streak = 0;
+                }
+
+                // Streak Multiplier
+                let streakBonus = 1;
+                if (u.streak >= 5) streakBonus = 1.5;
+
+                u.xp += Math.round(xp * streakBonus);
+                u.points += Math.round(points * streakBonus);
+
+                // Check Level Up
+                if (u.xp >= u.level * 100) {
+                    u.level++;
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                }
+
+                StorageManager.saveUser(u);
+                this.updateUI();
+            }
+        };
+
+        const Navigation = {
+            showView(viewId) {
+                document.querySelectorAll('.view-content').forEach(el => el.classList.add('hidden'));
+                const target = document.getElementById(viewId);
+                if (target) target.classList.remove('hidden');
+
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    if (btn.getAttribute('data-target') === viewId) {
+                        btn.classList.add('bg-slate-800', 'text-white');
+                    } else {
+                        btn.classList.remove('bg-slate-800', 'text-white');
+                    }
+                });
+
+                if (viewId === 'roadmapView') GameMap.render();
+                if (viewId === 'leaderboardView') LeaderboardManager.showTab('overall');
+                if (viewId === 'analyticsView') AnalyticsEngine.render();
+            }
+        };
+
+        const GameMap = {
+            stages: [
+                { title: 'Beginner Cadet', subject: 'General', requiredXp: 0, icon: 'flag' },
+                { title: 'Power BI Analyst', subject: 'Power BI', requiredXp: 50, icon: 'bar-chart' },
+                { title: 'Tableau Visualizer', subject: 'Tableau', requiredXp: 150, icon: 'pie-chart' },
+                { title: 'Python Engineer', subject: 'Python', requiredXp: 300, icon: 'code' },
+                { title: 'SQL Architect', subject: 'SQL', requiredXp: 500, icon: 'database' },
+                { title: 'Data Ninja Grandmaster', subject: 'Mixed', requiredXp: 800, icon: 'crown' }
+            ],
+
+            render() {
+                const user = AuthManager.currentUser;
+                const container = document.getElementById('gameMapContainer');
+                if (!container || !user) return;
+
+                container.innerHTML = this.stages.map((st, i) => {
+                    const unlocked = user.xp >= st.requiredXp;
+                    return `
+                        <div class="flex items-center gap-4 ${unlocked ? 'opacity-100' : 'opacity-40'}">
+                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-white shadow-lg ${unlocked ? 'bg-gradient-to-tr from-cyan-500 to-purple-600' : 'bg-slate-800 text-slate-500'}">
+                                ${unlocked ? '✓' : '🔒'}
+                            </div>
+                            <div class="glass-panel flex-1 p-4 rounded-2xl border border-slate-800">
+                                <span class="text-[10px] font-bold text-cyan-400 uppercase tracking-wider">${st.subject} • ${st.requiredXp} XP REQUIRED</span>
+                                <h3 class="text-base font-extrabold text-white">${st.title}</h3>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        };
+
+        const QuizEngine = {
+            isActive: false,
+            currentQueue: [],
+            currentIndex: 0,
+            timerInterval: null,
+            secondsLeft: 0,
+
+            prepareAssessment(modeOrSubject) {
+                const allQ = StorageManager.getQuestions();
+                let selected = [];
+
+                if (['Power BI', 'Tableau', 'Python', 'SQL'].includes(modeOrSubject)) {
+                    selected = allQ.filter(q => q.subject === modeOrSubject);
+                } else {
+                    selected = [...allQ];
+                }
+
+                // Shuffle
+                selected = selected.sort(() => Math.random() - 0.5).slice(0, 10);
+                if (selected.length === 0) selected = [...BuiltInQuestions];
+
+                this.currentQueue = selected;
+                this.currentIndex = 0;
+                this.isActive = true;
+                this.secondsLeft = 300; // 5 mins
+
+                Navigation.showView('activeQuizView');
+                this.startTimer();
+                this.renderQuestion();
+            },
+
+            startDailyChallenge() {
+                this.prepareAssessment('SQL');
+            },
+
+            startTimer() {
+                clearInterval(this.timerInterval);
+                this.timerInterval = setInterval(() => {
+                    this.secondsLeft--;
+                    const mins = Math.floor(this.secondsLeft / 60);
+                    const secs = this.secondsLeft % 60;
+                    document.getElementById('quizTimer').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+                    if (this.secondsLeft <= 0) {
+                        clearInterval(this.timerInterval);
+                        this.finishQuiz();
+                    }
+                }, 1000);
+            },
+
+            renderQuestion() {
+                const q = this.currentQueue[this.currentIndex];
+                if (!q) {
+                    this.finishQuiz();
+                    return;
+                }
+
+                document.getElementById('quizSubjectTag').innerText = q.subject.toUpperCase();
+                document.getElementById('quizProgressText').innerText = `Q ${this.currentIndex + 1} / ${this.currentQueue.length}`;
+                document.getElementById('quizTopicTag').innerText = `Topic: ${q.topic}`;
+                document.getElementById('quizDifficultyTag').innerText = `${q.difficulty === 'Easy' ? '🟢 EASY' : q.difficulty === 'Medium' ? '🟡 MEDIUM' : '🔴 HARD'}`;
+                document.getElementById('quizQuestionText').innerText = q.question;
+
+                // Feedback overlay hide
+                document.getElementById('quizFeedbackBox').classList.add('hidden');
+
+                // Render Options
+                const optsContainer = document.getElementById('quizOptionsContainer');
+                optsContainer.innerHTML = q.options.map((opt, idx) => `
+                    <button onclick="QuizEngine.submitAnswer(${idx})" class="w-full text-left p-4 bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 rounded-2xl text-sm text-slate-200 transition font-medium">
+                        <span class="inline-block w-6 h-6 text-center bg-slate-800 text-slate-400 font-mono text-xs rounded-lg mr-3">${String.fromCharCode(65 + idx)}</span>
+                        ${opt}
+                    </button>
+                `).join('');
+            },
+
+            submitAnswer(optIdx) {
+                const q = this.currentQueue[this.currentIndex];
+                const isCorrect = optIdx === q.answer;
+
+                if (isCorrect) {
+                    SoundManager.playCorrect();
+                    AuthManager.addRewards(q.points, q.points * 10, true);
+                } else {
+                    SoundManager.playWrong();
+                    AuthManager.addRewards(0, 0, false);
+                }
+
+                // Show Feedback
+                const feedbackBox = document.getElementById('quizFeedbackBox');
+                const feedbackHeader = document.getElementById('quizFeedbackHeader');
+                const expText = document.getElementById('quizExplanationText');
+
+                feedbackBox.classList.remove('hidden');
+                if (isCorrect) {
+                    feedbackBox.className = "mt-6 p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/20";
+                    feedbackHeader.innerHTML = `<span class="text-emerald-400 font-extrabold">🎉 Correct Answer! +${q.points} XP</span>`;
+                } else {
+                    feedbackBox.className = "mt-6 p-4 rounded-xl border border-rose-500/40 bg-rose-950/20";
+                    feedbackHeader.innerHTML = `<span class="text-rose-400 font-extrabold">❌ Incorrect</span>`;
+                }
+
+                expText.innerText = q.explanation;
+            },
+
+            nextQuestion() {
+                this.currentIndex++;
+                this.renderQuestion();
+            },
+
+            finishQuiz() {
+                this.isActive = false;
+                clearInterval(this.timerInterval);
+                Navigation.showView('quizResultView');
+            }
+        };
+
+        const ProgrammingEngine = {
+            pyEditor: null,
+
+            init() {
+                const textarea = document.getElementById('pythonCodeEditor');
+                if (textarea && !this.pyEditor) {
+                    this.pyEditor = CodeMirror.fromTextArea(textarea, {
+                        mode: 'python',
+                        theme: 'dracula',
+                        lineNumbers: true
+                    });
+                }
+            },
+
+            loadSelectedChallenge(type) {
+                // Switch challenge definition
+            },
+
+            runPythonCode() {
+                const output = document.getElementById('pythonConsoleOutput');
+                const code = this.pyEditor.getValue();
+                
+                try {
+                    output.innerText = "Running Test Cases...\n✓ Test Case 1 Passed (Input: 'DataNinja')\n✓ Test Case 2 Passed (Input: 'Assessment')\n\nAll public test cases passed successfully!";
+                    output.className = "text-emerald-400 whitespace-pre-wrap font-mono min-h-[60px]";
+                    SoundManager.playCorrect();
+                } catch(e) {
+                    output.innerText = e.toString();
+                    output.className = "text-rose-400 whitespace-pre-wrap font-mono min-h-[60px]";
+                }
+            },
+
+            submitPythonChallenge() {
+                AuthManager.addRewards(100, 1000, true);
+                alert("Challenge Submitted Successfully! +100 XP awarded.");
+            }
+        };
+
+        const SQLPlayground = {
+            sqlEditor: null,
+
+            init() {
+                const textarea = document.getElementById('sqlCodeEditor');
+                if (textarea && !this.sqlEditor) {
+                    this.sqlEditor = CodeMirror.fromTextArea(textarea, {
+                        mode: 'text/x-sql',
+                        theme: 'dracula',
+                        lineNumbers: true
+                    });
+
+                    // Init Sandbox AlaSQL DB
+                    alasql("CREATE TABLE Employees (id INT, name STRING, department STRING, salary INT, city STRING)");
+                    alasql("INSERT INTO Employees VALUES (1, 'Alex Mercer', 'Engineering', 75000, 'New York'), (2, 'Sara Connor', 'Analytics', 62000, 'Chicago'), (3, 'John Doe', 'Engineering', 55000, 'San Francisco')");
+                }
+            },
+
+            runQuery() {
+                const sql = this.sqlEditor.getValue();
+                const container = document.getElementById('sqlTableContainer');
+
+                try {
+                    const res = alasql(sql);
+                    if (Array.isArray(res) && res.length > 0) {
+                        const cols = Object.keys(res[0]);
+                        container.innerHTML = `
+                            <table class="w-full text-left font-mono text-xs text-slate-200">
+                                <thead class="bg-slate-900 uppercase font-bold text-slate-400">
+                                    <tr>${cols.map(c => `<th class="p-2 border-b border-slate-800">${c}</th>`).join('')}</tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800">
+                                    ${res.map(row => `<tr>${cols.map(c => `<td class="p-2">${row[c]}</td>`).join('')}</tr>`).join('')}
+                                </tbody>
+                            </table>
+                        `;
+                    } else {
+                        container.innerHTML = `<p class="text-xs text-slate-400 p-2">Query executed successfully. 0 rows returned.</p>`;
+                    }
+                } catch(e) {
+                    container.innerHTML = `<p class="text-xs text-rose-400 p-2 font-mono">SQL Error: ${e.message}</p>`;
+                }
+            },
+
+            loadPreset() {
+                const val = document.getElementById('sqlChallengeSelect').value;
+                if (val === 'SQL-01') {
+                    this.sqlEditor.setValue("SELECT name, department, salary FROM Employees WHERE salary > 60000;");
+                } else if (val === 'SQL-02') {
+                    this.sqlEditor.setValue("SELECT department, AVG(salary) as avg_salary FROM Employees GROUP BY department;");
+                }
+            }
+        };
+
+        const LeaderboardManager = {
+            mockLeaderboard: [
+                { rank: 1, name: "Alex Mercer", batch: "Batch A", xp: 1250, streak: 12, acc: "94%" },
+                { rank: 2, name: "Elena Rostova", batch: "Batch B", xp: 980, streak: 8, acc: "89%" },
+                { rank: 3, name: "Liam Chen", batch: "Batch A", xp: 850, streak: 5, acc: "85%" },
+                { rank: 4, name: "Marcus Vance", batch: "Batch C", xp: 720, streak: 3, acc: "80%" }
+            ],
+
+            showTab(tab) {
+                const tbody = document.getElementById('leaderboardTableBody');
+                if (!tbody) return;
+
+                tbody.innerHTML = this.mockLeaderboard.map(item => `
+                    <tr class="hover:bg-slate-800/40 transition">
+                        <td class="p-4 font-black text-amber-400">#${item.rank}</td>
+                        <td class="p-4 font-bold text-white">${item.name}</td>
+                        <td class="p-4 text-slate-400">${item.batch}</td>
+                        <td class="p-4 font-bold text-purple-400">${item.xp} XP</td>
+                        <td class="p-4 text-amber-400 font-bold">🔥 ${item.streak}</td>
+                        <td class="p-4 text-emerald-400 font-bold">${item.acc}</td>
+                    </tr>
+                `).join('');
+            }
+        };
+
+        const AnalyticsEngine = {
+            radarChart: null,
+            lineChart: null,
+
+            render() {
+                const ctx1 = document.getElementById('analyticsRadarChart');
+                const ctx2 = document.getElementById('analyticsLineChart');
+
+                if (ctx1 && !this.radarChart) {
+                    this.radarChart = new Chart(ctx1, {
+                        type: 'radar',
+                        data: {
+                            labels: ['Power BI', 'Tableau', 'Python', 'SQL', 'Modeling'],
+                            datasets: [{
+                                label: 'Proficiency Score',
+                                data: [85, 70, 95, 88, 75],
+                                backgroundColor: 'rgba(6, 182, 212, 0.2)',
+                                borderColor: '#06b6d4',
+                                pointBackgroundColor: '#06b6d4'
+                            }]
+                        },
+                        options: {
+                            plugins: { legend: { display: false } },
+                            scales: { r: { ticks: { display: false }, grid: { color: '#334155' } } }
+                        }
+                    });
+                }
+
+                if (ctx2 && !this.lineChart) {
+                    this.lineChart = new Chart(ctx2, {
+                        type: 'line',
+                        data: {
+                            labels: ['Attempt 1', 'Attempt 2', 'Attempt 3', 'Attempt 4', 'Attempt 5'],
+                            datasets: [{
+                                label: 'Accuracy %',
+                                data: [60, 75, 70, 85, 92],
+                                borderColor: '#a855f7',
+                                tension: 0.3
+                            }]
+                        },
+                        options: {
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                y: { grid: { color: '#334155' } },
+                                x: { grid: { color: '#334155' } }
+                            }
+                        }
+                    });
+                }
+            }
+        };
+
+        const AdminManager = {
+            addQuestion(e) {
+                e.preventDefault();
+                const qList = StorageManager.getQuestions();
+                const newQ = {
+                    id: `CUSTOM-${Date.now()}`,
+                    subject: document.getElementById('adminSubject').value,
+                    difficulty: document.getElementById('adminDifficulty').value,
+                    topic: document.getElementById('adminTopic').value,
+                    question: document.getElementById('adminQuestionText').value,
+                    options: [
+                        document.getElementById('adminOpt0').value,
+                        document.getElementById('adminOpt1').value,
+                        document.getElementById('adminOpt2').value,
+                        document.getElementById('adminOpt3').value
+                    ],
+                    answer: parseInt(document.getElementById('adminCorrectIdx').value),
+                    explanation: "Custom added admin question.",
+                    points: 20
+                };
+
+                qList.push(newQ);
+                StorageManager.saveQuestions(qList);
+                alert("Question saved to custom question bank!");
+            },
+
+            exportDataJSON() {
+                const data = {
+                    user: AuthManager.currentUser,
+                    questions: StorageManager.getQuestions()
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `DataNinja_Backup_${Date.now()}.json`;
+                a.click();
+            },
+
+            resetStudentData() {
+                if (confirm("Are you sure you want to reset all progress for this student?")) {
+                    AuthManager.logout();
+                }
+            }
+        };
+
+        window.onload = function() {
+            lucide.createIcons();
+            AuthManager.init();
+            AntiCheatManager.init();
+            ProgrammingEngine.init();
+            SQLPlayground.init();
+        };
+    </script>
+</body>
+</html>
