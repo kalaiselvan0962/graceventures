@@ -51,10 +51,10 @@ details[open] .pl{transform:rotate(45deg)}
   <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
     <a href="#top" class="flex items-center gap-2"><span class="w-9 h-9 rounded-xl bg-gradient-to-br from-cp via-cc to-ng flex items-center justify-center text-black font-black">SZ</span><span class="text-xl font-extrabold">Skill<span class="tg">GenZ</span></span></a>
     <div class="hidden lg:flex gap-6 text-sm font-semibold text-gray-300">
-      <a href="#why" data-k="n1" class="hover:text-cc"></a><a href="#tracks" data-k="n2" class="hover:text-cc"></a><a href="#curriculum" data-k="n6" class="hover:text-cc"></a><a href="#lab" data-k="n3" class="hover:text-cc"></a><a href="#roadmap" data-k="n4" class="hover:text-cc"></a><a href="#faq" data-k="n5" class="hover:text-cc"></a>
+      <a href="#why" data-k="n1" class="hover:text-cc"></a><a href="#tracks" data-k="n2" class="hover:text-cc"></a><a href="#curriculum" data-k="n6" class="hover:text-cc"></a><a href="#ncert" data-k="n7" class="hover:text-cc"></a><a href="#lab" data-k="n3" class="hover:text-cc"></a><a href="#roadmap" data-k="n4" class="hover:text-cc"></a><a href="#faq" data-k="n5" class="hover:text-cc"></a>
     </div>
     <div class="flex items-center gap-2">
-      <button onclick="pick(lang==='en'?'ta':'en')" class="gl rounded-xl px-3 py-2 text-xs font-bold text-cc border-cc/40" id="langBtn">தமிழ்</button>
+      <button onclick="toggleLang()" class="gl rounded-xl px-3 py-2 text-xs font-bold text-cc border-cc/40" id="langBtn">தமிழ்</button>
       <a href="#demo" data-k="cta" class="px-4 py-2 rounded-xl font-bold text-sm text-black bg-gradient-to-r from-cc to-ng"></a>
     </div>
   </div>
@@ -101,11 +101,7 @@ details[open] .pl{transform:rotate(45deg)}
     <h2 class="text-3xl sm:text-5xl font-black mb-3"><span data-k="curT"></span> <span class="tg" data-k="curT2"></span></h2>
     <p class="text-gray-400 max-w-3xl mx-auto" data-k="curP"></p>
   </div>
-
-  <!-- Category cards -->
   <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="cur-grid"></div>
-
-  <!-- Data Science Career Track -->
   <div class="gl rounded-3xl p-6 md:p-10 mt-10 border-cc/30">
     <div class="flex flex-wrap items-start justify-between gap-4 mb-7">
       <div class="max-w-2xl">
@@ -117,8 +113,6 @@ details[open] .pl{transform:rotate(45deg)}
     </div>
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3" id="ds-grid"></div>
   </div>
-
-  <!-- Certification Tracks -->
   <div class="gl rounded-3xl p-6 md:p-10 mt-10 border-cp/30">
     <div class="text-center mb-6">
       <h3 class="text-2xl sm:text-3xl font-black mb-2"><span data-k="certT"></span> <span class="tg" data-k="certT2"></span></h3>
@@ -126,6 +120,17 @@ details[open] .pl{transform:rotate(45deg)}
     </div>
     <div class="flex flex-wrap justify-center gap-2" id="cert-grid"></div>
   </div>
+</section>
+
+<!-- NCERT SYLLABUS -->
+<section id="ncert" class="px-4 py-20 max-w-7xl mx-auto">
+  <div class="text-center mb-12 rv">
+    <h2 class="text-3xl sm:text-5xl font-black mb-3"><span data-k="ncrT"></span> <span class="tg" data-k="ncrT2"></span></h2>
+    <p class="text-gray-400 max-w-3xl mx-auto" data-k="ncrP"></p>
+  </div>
+  <div class="flex flex-wrap justify-center gap-2 mb-8" id="ncrTabs"></div>
+  <div class="flex flex-wrap justify-center gap-2 mb-6" id="ncrSubTabs"></div>
+  <div id="ncrContent" class="gl rounded-3xl p-6 md:p-8 border-cc/20"></div>
 </section>
 
 <!-- LAB -->
@@ -200,9 +205,11 @@ details[open] .pl{transform:rotate(45deg)}
 </footer>
 
 <script>
-let lang='en';const I=()=>lang==='ta'?1:0;const P=a=>a[I()];
+/* ⬇️ FIX #1: use `var` so inline handlers can access it */
+var lang='en';
+const I=()=>lang==='ta'?1:0;const P=a=>a[I()];
 const S={
-n1:['Why Us','ஏன் நாங்கள்'],n2:['Tracks','பாடத்திட்டங்கள்'],n3:['Code Lab','கோட் லேப்'],n4:['Roadmap','வழிகாட்டி'],n5:['FAQ','கேள்விகள்'],n6:['Curriculum','பாடத்திட்டம்'],
+n1:['Why Us','ஏன் நாங்கள்'],n2:['Tracks','பாடத்திட்டங்கள்'],n3:['Code Lab','கோட் லேப்'],n4:['Roadmap','வழிகாட்டி'],n5:['FAQ','கேள்விகள்'],n6:['Curriculum','பாடத்திட்டம்'],n7:['NCERT Syllabus','NCERT பாடத்திட்டம்'],
 cta:['Free Demo','இலவச டெமோ'],
 badge:['Admissions Open 2026-27','2026-27 சேர்க்கை தொடங்கிவிட்டது'],
 h1a:['Stop being an NPC.','சும்மா பார்வையாளராக இருக்காதீர்கள்.'],
@@ -220,6 +227,8 @@ dsT:['Data Science Career Track','Data Science தொழில் பாதை']
 dsP:['12 modules from statistics to Generative AI — built for real analyst, data engineer and ML roles.','புள்ளியியல் முதல் Generative AI வரை 12 தொகுதிகள் — உண்மையான analyst, data engineer & ML பதவிகளுக்கு.'],
 certT:['Certification','சான்றிதழ்'],certT2:['Tracks','பாதைகள்'],
 certP:['Exam-aligned preparation for globally recognised credentials.','உலகளவில் அங்கீகரிக்கப்பட்ட சான்றிதழ்களுக்கான தேர்வு தயாரிப்பு.'],
+ncrT:['NCERT Syllabus','NCERT பாடத்திட்டம்'],ncrT2:['Class 6 – 12','வகுப்பு 6 – 12'],
+ncrP:['Complete chapter-wise NCERT syllabus for Mathematics, Science, Social Science and Computer Science for Classes 6 to 12. (Languages excluded)','6 முதல் 12 வகுப்பு வரை கணிதம், அறிவியல், சமூக அறிவியல் மற்றும் கணினி அறிவியல் — முழுமையான பாடவாரியான NCERT பாடத்திட்டம். (மொழிகள் நீங்கலாக)'],
 labB:['⌨ INTERACTIVE CODE LAB','⌨ நேரடி கோட் லேப்'],labT:['Learn by running real code','உண்மையான கோடை இயக்கி கற்றுக்கொள்ளுங்கள்'],labP:['No installs. Practice in the browser from day one.','எதையும் நிறுவ வேண்டாம். முதல் நாளிலிருந்தே உலாவியிலேயே பயிற்சி.'],run:['Re-run','மீண்டும் இயக்கு'],
 rmT:['Your 90-Day','உங்கள் 90 நாள்'],rmT2:['Lock-In Roadmap','வழிகாட்டி திட்டம்'],rmP:['Pick your level and goal for a custom plan.','உங்கள் நிலை மற்றும் இலக்கைத் தேர்ந்தெடுத்து திட்டம் பெறுங்கள்.'],rmB:['✨ Generate My 90-Day Plan','✨ என் 90 நாள் திட்டத்தை உருவாக்கு'],
 hwT:['How it','இது எப்படி'],hwT2:['works','செயல்படுகிறது'],
@@ -294,7 +303,6 @@ btech:[
 ]
 };
 
-/* ============ CURRICULUM DATA ============ */
 const CUR=[
 ['💻',['Programming & Development','நிரலாக்கம் & மேம்பாடு'],
  ['Java / J2EE','Python','C / C++','.NET','PHP','Angular','React','Node.js','Ionic','UI Development'],'text-cp'],
@@ -308,7 +316,6 @@ const CUR=[
  ['Oracle','Salesforce','SAP ABAP','SAP FICO','Pega','TIBCO','Talend','SharePoint','Blockchain','IoT','AR/VR','MATLAB','Unix / Shell Scripting','QlikView'],'text-cp']
 ];
 
-/* Data Science curriculum: [en, ta, descEn, descTa] */
 const DS=[
 ['Data Science Tools & Technologies','Data Science கருவிகள் & தொழில்நுட்பங்கள்','Jupyter, Anaconda, Git, IDEs and the full analyst toolkit.','Jupyter, Anaconda, Git, IDE மற்றும் முழு analyst கருவித்தொகுப்பு.'],
 ['Statistics for Data Science','Data Science-க்கான புள்ளியியல்','Descriptive stats, probability and distributions.','விவரண புள்ளியியல், நிகழ்தகவு, பரவல்கள்.'],
@@ -325,6 +332,98 @@ const DS=[
 ];
 
 const CERT=['Oracle','ISTQB','Scrum Master','PMP','ITIL','CBAP','CCBA','Network+','A+','Salesforce','RPA','IoT','Ionic','Data Science','DevOps','Azure','Data Warehousing','SAS','Datastage','Software Testing','Java/J2EE','.NET','PHP','Unix','Selenium','QlikView','SAP','Talend','Pega','TIBCO','Adobe CQ5','MATLAB','Informix'];
+
+const NCERT={
+6:[
+['Mathematics','கணிதம்',
+ ['Patterns in Mathematics','Lines and Angles','Number Play','Data Handling','Prime Time','Perimeter and Area','Fractions','Playing with Constructions','Symmetry','The Other Side of Zero'],
+ ['கணிதத்தில் வடிவங்கள்','கோடுகள் மற்றும் கோணங்கள்','எண் விளையாட்டு','தரவு கையாளுதல்','பகா எண் நேரம்','சுற்றளவு மற்றும் பரப்பளவு','பின்னங்கள்','கட்டுமானங்களுடன் விளையாடுதல்','சமச்சீர்மை','பூஜ்யத்தின் மறுபக்கம்']],
+['Science','அறிவியல்',
+ ['The Wonderful World of Science','Diversity in the Living World','Mindful Eating: A Path to a Healthy Body','Exploring Magnets','Measurement of Length and Motion','Materials Around Us','Temperature and its Measurement','A Journey through States of Water','Methods of Separation in Everyday Life','Living Creatures: Exploring their Characteristics','Nature\'s Treasures','Beyond Earth'],
+ ['அறிவியலின் அற்புத உலகம்','உயிரினங்களின் பல்வேறு வகைகள்','நினைவுள்ள உணவு: ஆரோக்கியமான உடலுக்கு வழி','காந்தங்களை ஆராய்தல்','நீளம் மற்றும் இயக்கத்தின் அளவீடு','நம்மைச் சுற்றியுள்ள பொருட்கள்','வெப்பநிலை மற்றும் அதன் அளவீடு','நீரின் நிலைகள் வழியாக ஒரு பயணம்','அன்றாட வாழ்வில் பிரிக்கும் முறைகள்','உயிரினங்கள்: அவற்றின் பண்புகளை ஆராய்தல்','இயற்கையின் பொக்கிஷங்கள்','பூமிக்கு அப்பால்']],
+['Social Science','சமூக அறிவியல்',
+ ['Exploring Society: India and Beyond (History)','Exploring Society: India and Beyond (Geography)','Exploring Society: India and Beyond (Civics)'],
+ ['சமூகத்தை ஆராய்தல்: இந்தியா மற்றும் அப்பால் (வரலாறு)','சமூகத்தை ஆராய்தல்: இந்தியா மற்றும் அப்பால் (புவியியல்)','சமூகத்தை ஆராய்தல்: இந்தியா மற்றும் அப்பால் (குடிமையியல்)']]
+],
+7:[
+['Mathematics','கணிதம்',
+ ['Large Numbers Around Us','Integers','Fractions and Decimals','Simple Equations','Lines and Angles','Triangles and their Properties','Data Handling','Perimeter and Area','Symmetry','Rational Numbers'],
+ ['நம்மைச் சுற்றியுள்ள பெரிய எண்கள்','முழு எண்கள்','பின்னங்கள் மற்றும் தசமங்கள்','எளிய சமன்பாடுகள்','கோடுகள் மற்றும் கோணங்கள்','முக்கோணங்கள் மற்றும் அவற்றின் பண்புகள்','தரவு கையாளுதல்','சுற்றளவு மற்றும் பரப்பளவு','சமச்சீர்மை','விகிதமுறு எண்கள்']],
+['Science','அறிவியல்',
+ ['The Ever-Evolving World of Science','Nutrition in Plants','Nutrition in Animals','Exploring Substances: Acidic, Basic, and Neutral','Heat Transfer in Nature','Physical and Chemical Changes','Weather, Climate and Adaptations','Winds, Storms and Cyclones','Soil','Respiration in Organisms','Transportation in Animals and Plants','Reproduction in Plants','Motion and Time','Electric Current and its Effects','Light','Water: A Precious Resource'],
+ ['அறிவியலின் எப்போதும் பரிணமிக்கும் உலகம்','தாவரங்களில் ஊட்டச்சத்து','விலங்குகளில் ஊட்டச்சத்து','பொருட்களை ஆராய்தல்: அமில, கார மற்றும் நடுநிலை','இயற்கையில் வெப்ப பரிமாற்றம்','இயற்பியல் மற்றும் வேதியியல் மாற்றங்கள்','வானிலை, காலநிலை மற்றும் தகவமைப்புகள்','காற்று, புயல் மற்றும் சூறாவளி','மண்','உயிரினங்களில் சுவாசம்','விலங்குகள் மற்றும் தாவரங்களில் போக்குவரத்து','தாவரங்களில் இனப்பெருக்கம்','இயக்கம் மற்றும் நேரம்','மின்னோட்டம் மற்றும் அதன் விளைவுகள்','ஒளி','நீர்: ஒரு விலைமதிப்பற்ற வளம்']],
+['Social Science','சமூக அறிவியல்',
+ ['History: Medieval India','Geography: Our Environment','Civics: Social and Political Life','Economics: Production and Markets'],
+ ['வரலாறு: இடைக்கால இந்தியா','புவியியல்: நமது சுற்றுச்சூழல்','குடிமையியல்: சமூக மற்றும் அரசியல் வாழ்க்கை','பொருளாதாரம்: உற்பத்தி மற்றும் சந்தைகள்']]
+],
+8:[
+['Mathematics','கணிதம்',
+ ['Rational Numbers','Linear Equations in one variable','Understanding Quadrilaterals','Data Handling','Squares and Square Roots','Cubes and Cube Roots','Comparing Quantities','Algebraic Expressions and Identities','Mensuration','Exponents and Powers','Direct and Inverse Proportions','Factorisation','Introduction to Graphs'],
+ ['விகிதமுறு எண்கள்','ஒரு மாறியில் நேரியல் சமன்பாடுகள்','நாற்கரங்களைப் புரிந்துகொள்ளுதல்','தரவு கையாளுதல்','வர்க்கங்கள் மற்றும் வர்க்கமூலங்கள்','கனசதுரங்கள் மற்றும் கனமூலங்கள்','அளவுகளை ஒப்பிடுதல்','இயற்கணித கோவைகள் மற்றும் முற்றொருமைகள்','அளவியல்','அடுக்குகள் மற்றும் அடுக்குகள்','நேரடி மற்றும் எதிர் விகிதங்கள்','காரணிப்படுத்துதல்','வரைபடங்களுக்கு அறிமுகம்']],
+['Science','அறிவியல்',
+ ['Crop Production and Management','Microorganisms: Friend and Foe','Synthetic Fibres and Plastics','Materials: Metals and Non-Metals','Coal and Petroleum','Combustion and Flame','Conservation of Plants and Animals','Cell - Structure and Functions','Reproduction in Animals','Reaching the Age of Adolescence','Force and Pressure','Friction','Sound','Chemical Effects of Electric Current','Some Natural Phenomena','Light'],
+ ['பயிர் உற்பத்தி மற்றும் மேலாண்மை','நுண்ணுயிரிகள்: நண்பன் மற்றும் எதிரி','செயற்கை இழைகள் மற்றும் பிளாஸ்டிக்','பொருட்கள்: உலோகங்கள் மற்றும் அலோகங்கள்','நிலக்கரி மற்றும் பெட்ரோலியம்','எரிதல் மற்றும் சுடர்','தாவரங்கள் மற்றும் விலங்குகளின் பாதுகாப்பு','செல் - அமைப்பு மற்றும் செயல்பாடுகள்','விலங்குகளில் இனப்பெருக்கம்','இளமைப் பருவத்தை அடைதல்','விசை மற்றும் அழுத்தம்','உராய்வு','ஒலி','மின்னோட்டத்தின் வேதியியல் விளைவுகள்','சில இயற்கை நிகழ்வுகள்','ஒளி']],
+['Social Science','சமூக அறிவியல்',
+ ['History: Our Pasts - III','Geography: Resources and Development','Civics: Social and Political Life - III','Economics: Understanding Economic Development'],
+ ['வரலாறு: நமது கடந்த காலம் - III','புவியியல்: வளங்கள் மற்றும் வளர்ச்சி','குடிமையியல்: சமூக மற்றும் அரசியல் வாழ்க்கை - III','பொருளாதாரம்: பொருளாதார வளர்ச்சியைப் புரிந்துகொள்ளுதல்']]
+],
+9:[
+['Mathematics','கணிதம்',
+ ['Number Systems','Polynomials','Coordinate Geometry','Linear Equations in Two Variables','Introduction to Euclid\'s Geometry','Lines and Angles','Triangles','Quadrilaterals','Areas of Parallelograms and Triangles','Circles','Constructions','Heron\'s Formula','Surface Areas and Volumes','Statistics','Probability'],
+ ['எண் அமைப்புகள்','பல்லுறுப்புக்கோவைகள்','ஆய வடிவியல்','இரண்டு மாறிகளில் நேரியல் சமன்பாடுகள்','யூக்ளிட்டின் வடிவியல் அறிமுகம்','கோடுகள் மற்றும் கோணங்கள்','முக்கோணங்கள்','நாற்கரங்கள்','இணைகரங்கள் மற்றும் முக்கோணங்களின் பரப்பளவு','வட்டங்கள்','கட்டுமானங்கள்','ஹெரானின் சூத்திரம்','பரப்பளவு மற்றும் கனஅளவு','புள்ளியியல்','நிகழ்தகவு']],
+['Science','அறிவியல்',
+ ['Matter in Our Surroundings','Is Matter Around Us Pure?','Atoms and Molecules','Structure of the Atom','The Fundamental Unit of Life','Tissues','Diversity in Living Organisms','Motion','Force and Laws of Motion','Gravitation','Work and Energy','Sound','Why Do We Fall Ill?','Natural Resources','Improvement in Food Resources'],
+ ['நம்மைச் சுற்றியுள்ள பொருள்','நம்மைச் சுற்றியுள்ள பொருள் தூய்மையானதா?','அணுக்கள் மற்றும் மூலக்கூறுகள்','அணுவின் அமைப்பு','வாழ்க்கையின் அடிப்படை அலகு','திசுக்கள்','உயிரினங்களில் பல்வேறு வகைகள்','இயக்கம்','விசை மற்றும் இயக்க விதிகள்','ஈர்ப்பு','வேலை மற்றும் ஆற்றல்','ஒலி','நாம் ஏன் நோய்வாய்ப்படுகிறோம்?','இயற்கை வளங்கள்','உணவு வளங்களில் முன்னேற்றம்']],
+['Social Science','சமூக அறிவியல்',
+ ['History: India and the Contemporary World - I','Geography: Contemporary India - I','Civics: Democratic Politics - I','Economics: Economics - I'],
+ ['வரலாறு: இந்தியா மற்றும் சமகால உலகம் - I','புவியியல்: சமகால இந்தியா - I','குடிமையியல்: ஜனநாயக அரசியல் - I','பொருளாதாரம்: பொருளாதாரம் - I']]
+],
+10:[
+['Mathematics','கணிதம்',
+ ['Real Numbers','Polynomials','Pair of Linear Equations in Two Variables','Quadratic Equations','Arithmetic Progressions','Triangles','Coordinate Geometry','Introduction to Trigonometry','Some Applications of Trigonometry','Circles','Areas Related to Circles','Surface Areas and Volumes','Statistics','Probability'],
+ ['மெய் எண்கள்','பல்லுறுப்புக்கோவைகள்','இரண்டு மாறிகளில் நேரியல் சமன்பாடுகளின் ஜோடி','இருபடி சமன்பாடுகள்','எண்கணித முன்னேற்றங்கள்','முக்கோணங்கள்','ஆய வடிவியல்','முக்கோணவியல் அறிமுகம்','முக்கோணவியலின் சில பயன்பாடுகள்','வட்டங்கள்','வட்டங்கள் தொடர்பான பரப்பளவு','பரப்பளவு மற்றும் கனஅளவு','புள்ளியியல்','நிகழ்தகவு']],
+['Science','அறிவியல்',
+ ['Chemical Reactions and Equations','Acids, Bases and Salts','Metals and Non-metals','Carbon and its Compounds','Life Processes','Control and Coordination','How Do Organisms Reproduce?','Heredity and Evolution','Light - Reflection and Refraction','The Human Eye and the Colourful World','Electricity','Magnetic Effects of Electric Current','Sources of Energy'],
+ ['வேதியியல் வினைகள் மற்றும் சமன்பாடுகள்','அமிலங்கள், காரங்கள் மற்றும் உப்புகள்','உலோகங்கள் மற்றும் அலோகங்கள்','கார்பன் மற்றும் அதன் சேர்மங்கள்','வாழ்க்கை செயல்முறைகள்','கட்டுப்பாடு மற்றும் ஒருங்கிணைப்பு','உயிரினங்கள் எவ்வாறு இனப்பெருக்கம் செய்கின்றன?','பரம்பரை மற்றும் பரிணாமம்','ஒளி - பிரதிபலிப்பு மற்றும் ஒளிவிலகல்','மனித கண் மற்றும் வண்ணமயமான உலகம்','மின்சாரம்','மின்னோட்டத்தின் காந்த விளைவுகள்','ஆற்றல் மூலங்கள்']],
+['Social Science','சமூக அறிவியல்',
+ ['History: India and the Contemporary World - II','Geography: Contemporary India - II','Civics: Democratic Politics - II','Economics: Understanding Economic Development'],
+ ['வரலாறு: இந்தியா மற்றும் சமகால உலகம் - II','புவியியல்: சமகால இந்தியா - II','குடிமையியல்: ஜனநாயக அரசியல் - II','பொருளாதாரம்: பொருளாதார வளர்ச்சியைப் புரிந்துகொள்ளுதல்']]
+],
+11:[
+['Mathematics','கணிதம்',
+ ['Sets','Relations and Functions','Trigonometric Functions','Complex Numbers and Quadratic Equations','Linear Inequalities','Permutations and Combinations','Binomial Theorem','Sequences and Series','Straight Lines','Conic Sections','Introduction to Three Dimensional Geometry','Limits and Derivatives','Statistics','Probability'],
+ ['கணங்கள்','உறவுகள் மற்றும் சார்புகள்','முக்கோணவியல் சார்புகள்','சிக்கலெண்கள் மற்றும் இருபடி சமன்பாடுகள்','நேரியல் சமனின்மைகள்','வரிசைமாற்றங்கள் மற்றும் சேர்க்கைகள்','ஈருறுப்புத் தேற்றம்','தொடர்கள் மற்றும் தொடர் வரிசைகள்','நேர்கோடுகள்','கூம்பு வெட்டுக்கள்','முப்பரிமாண வடிவியல் அறிமுகம்','எல்லைகள் மற்றும் வகைக்கெழுக்கள்','புள்ளியியல்','நிகழ்தகவு']],
+['Physics','இயற்பியல்',
+ ['Units and Measurements','Motion in a Straight Line','Motion in a Plane','Laws of Motion','Work, Energy and Power','System of Particles and Rotational Motion','Gravitation','Mechanical Properties of Solids','Mechanical Properties of Fluids','Thermal Properties of Matter','Thermodynamics','Kinetic Theory','Oscillations','Waves'],
+ ['அலகுகள் மற்றும் அளவீடுகள்','நேர்கோட்டில் இயக்கம்','தளத்தில் இயக்கம்','இயக்க விதிகள்','வேலை, ஆற்றல் மற்றும் திறன்','துகள்களின் அமைப்பு மற்றும் சுழற்சி இயக்கம்','ஈர்ப்பு','திடப்பொருட்களின் இயந்திர பண்புகள்','திரவங்களின் இயந்திர பண்புகள்','பொருளின் வெப்ப பண்புகள்','வெப்ப இயக்கவியல்','இயக்கக் கோட்பாடு','அலைவுகள்','அலைகள்']],
+['Chemistry','வேதியியல்',
+ ['Some Basic Concepts of Chemistry','Structure of Atom','Classification of Elements and Periodicity in Properties','Chemical Bonding and Molecular Structure','Thermodynamics','Equilibrium','Redox Reactions','Organic Chemistry - Some Basic Principles and Techniques','Hydrocarbons'],
+ ['வேதியியலின் சில அடிப்படைக் கருத்துகள்','அணுவின் அமைப்பு','தனிமங்களின் வகைப்பாடு மற்றும் பண்புகளில் காலவியல்','வேதியியல் பிணைப்பு மற்றும் மூலக்கூறு அமைப்பு','வெப்ப இயக்கவியல்','சமநிலை','ரெடாக்ஸ் வினைகள்','கரிம வேதியியல் - சில அடிப்படைக் கோட்பாடுகள் மற்றும் நுட்பங்கள்','ஹைட்ரோகார்பன்கள்']],
+['Biology','உயிரியல்',
+ ['The Living World','Biological Classification','Plant Kingdom','Animal Kingdom','Morphology of Flowering Plants','Anatomy of Flowering Plants','Structural Organisation in Animals','Cell: The Unit of Life','Biomolecules','Cell Cycle and Cell Division','Photosynthesis in Higher Plants','Respiration in Plants','Plant Growth and Development','Respiration in Organisms','Body Fluids and Circulation','Excretory Products and their Elimination','Locomotion and Movement','Neural Control and Coordination','Chemical Coordination and Integration'],
+ ['வாழும் உலகம்','உயிரியல் வகைப்பாடு','தாவர இராஜ்யம்','விலங்கு இராஜ்யம்','பூக்கும் தாவரங்களின் உருவவியல்','பூக்கும் தாவரங்களின் உள்ளமைப்பு','விலங்குகளில் கட்டமைப்பு அமைப்பு','செல்: வாழ்க்கையின் அலகு','உயிர்மூலக்கூறுகள்','செல் சுழற்சி மற்றும் செல் பிரிவு','உயர் தாவரங்களில் ஒளிச்சேர்க்கை','தாவரங்களில் சுவாசம்','தாவர வளர்ச்சி மற்றும் வளர்ச்சி','உயிரினங்களில் சுவாசம்','உடல் திரவங்கள் மற்றும் சுழற்சி','கழிவு பொருட்கள் மற்றும் அவற்றின் நீக்கம்','இயக்கம் மற்றும் இயக்கம்','நரம்பு கட்டுப்பாடு மற்றும் ஒருங்கிணைப்பு','வேதியியல் கட்டுப்பாடு மற்றும் ஒருங்கிணைப்பு']],
+['Computer Science','கணினி அறிவியல்',
+ ['Computer Systems','Python Programming Basics','Data Handling','Conditional and Iterative Statements','Functions','Lists and Dictionaries','String Manipulation','File Handling','Database Concepts and SQL','Computer Networks','Cyber Safety'],
+ ['கணினி அமைப்புகள்','Python நிரலாக்க அடிப்படைகள்','தரவு கையாளுதல்','நிபந்தனை மற்றும் மீள்செயல் கூற்றுகள்','சார்புகள்','பட்டியல்கள் மற்றும் அகராதிகள்','சரம் கையாளுதல்','கோப்பு கையாளுதல்','தரவுத்தளக் கருத்துகள் மற்றும் SQL','கணினி நெட்வொர்க்குகள்','இணைய பாதுகாப்பு']]
+],
+12:[
+['Mathematics','கணிதம்',
+ ['Relations and Functions','Inverse Trigonometric Functions','Matrices','Determinants','Continuity and Differentiability','Application of Derivatives','Integrals','Application of Integrals','Differential Equations','Vector Algebra','Three Dimensional Geometry','Linear Programming','Probability'],
+ ['உறவுகள் மற்றும் சார்புகள்','நேர்மாறு முக்கோணவியல் சார்புகள்','அணிகள்','அணிக்கோவைகள்','தொடர்ச்சி மற்றும் வகையிடல்','வகைக்கெழுக்களின் பயன்பாடு','தொகைநிலைக் கணிதம்','தொகைநிலைகளின் பயன்பாடு','வகைக்கெழு சமன்பாடுகள்','திசையன் இயற்கணிதம்','முப்பரிமாண வடிவியல்','நேரியல் நிரலாக்கம்','நிகழ்தகவு']],
+['Physics','இயற்பியல்',
+ ['Electric Charges and Fields','Electrostatic Potential and Capacitance','Current Electricity','Moving Charges and Magnetism','Magnetism and Matter','Electromagnetic Induction','Alternating Current','Electromagnetic Waves','Ray Optics and Optical Instruments','Wave Optics','Dual Nature of Radiation and Matter','Atoms','Nuclei','Semiconductor Electronics: Materials, Devices and Simple Circuits'],
+ ['மின்னூட்டங்கள் மற்றும் புலங்கள்','நிலைமின்னழுத்தம் மற்றும் மின்தேக்கு திறன்','மின்னோட்ட மின்சாரம்','நகரும் மின்னூட்டங்கள் மற்றும் காந்தவியல்','காந்தவியல் மற்றும் பொருள்','மின்காந்த தூண்டல்','மாற்று மின்னோட்டம்','மின்காந்த அலைகள்','கதிர் ஒளியியல் மற்றும் ஒளியியல் கருவிகள்','அலை ஒளியியல்','கதிர்வீச்சு மற்றும் பொருளின் இரட்டை இயல்பு','அணுக்கள்','கருக்கள்','குறைக்கடத்தி மின்னணுவியல்: பொருட்கள், சாதனங்கள் மற்றும் எளிய சுற்றுகள்']],
+['Chemistry','வேதியியல்',
+ ['Solutions','Electrochemistry','Chemical Kinetics','The d- and f-Block Elements','Coordination Compounds','Haloalkanes and Haloarenes','Alcohols, Phenols and Ethers','Aldehydes, Ketones and Carboxylic Acids','Amines','Biomolecules'],
+ ['கரைசல்கள்','மின்வேதியியல்','வேதியியல் இயக்கவியல்','d- மற்றும் f-தொகுதி தனிமங்கள்','ஒருங்கிணைப்பு சேர்மங்கள்','ஹாலோஆல்கேன்கள் மற்றும் ஹாலோஅரீன்கள்','ஆல்கஹால்கள், பீனால்கள் மற்றும் ஈதர்கள்','ஆல்டிஹைடுகள், கீட்டோன்கள் மற்றும் கார்பாக்சிலிக் அமிலங்கள்','அமீன்கள்','உயிர்மூலக்கூறுகள்']],
+['Biology','உயிரியல்',
+ ['Reproduction in Organisms','Sexual Reproduction in Flowering Plants','Human Reproduction','Reproductive Health','Principles of Inheritance and Variation','Molecular Basis of Inheritance','Evolution','Human Health and Disease','Microbes in Human Welfare','Biotechnology: Principles and Processes','Biotechnology and its Applications','Ecosystem','Biodiversity and Conservation'],
+ ['உயிரினங்களில் இனப்பெருக்கம்','பூக்கும் தாவரங்களில் பாலியல் இனப்பெருக்கம்','மனித இனப்பெருக்கம்','இனப்பெருக்க ஆரோக்கியம்','பரம்பரை மற்றும் மாறுபாட்டின் கோட்பாடுகள்','பரம்பரையின் மூலக்கூறு அடிப்படை','பரிணாமம்','மனித ஆரோக்கியம் மற்றும் நோய்','மனித நலனில் நுண்ணுயிரிகள்','உயிரித் தொழில்நுட்பம்: கோட்பாடுகள் மற்றும் செயல்முறைகள்','உயிரித் தொழில்நுட்பம் மற்றும் அதன் பயன்பாடுகள்','சுற்றுச்சூழல் அமைப்பு','பல்லுயிர் மற்றும் பாதுகாப்பு']],
+['Computer Science','கணினி அறிவியல்',
+ ['Python Revision and Advanced Concepts','Data Structures: Stacks and Queues','Computer Networks','Database Management Systems and SQL','Interface Python with MySQL','Boolean Algebra','Communication Technologies','Project Work'],
+ ['Python மறுபார்வை மற்றும் மேம்பட்ட கருத்துகள்','தரவு கட்டமைப்புகள்: ஸ்டாக்குகள் மற்றும் வரிசைகள்','கணினி நெட்வொர்க்குகள்','தரவுத்தள மேலாண்மை அமைப்புகள் மற்றும் SQL','MySQL உடன் Python இடைமுகம்','பூலியன் இயற்கணிதம்','தொடர்பு தொழில்நுட்பங்கள்','திட்டப் பணி']]
+]
+};
 
 const HOW=[
 ['01',['Pick your track','பாதையைத் தேர்வு செய்'],['Choose CBSE (6-12), BSc, BCA or BE/BTech and your goal.','CBSE (6-12), BSc, BCA அல்லது BE/BTech, உங்கள் இலக்கைத் தேர்வு செய்யுங்கள்.']],
@@ -347,7 +446,8 @@ const FAQ=[
 [['How do I join a demo class?','டெமோ வகுப்பில் எப்படி சேர்வது?'],['Fill the form below and our team will contact you.','கீழே உள்ள படிவத்தை நிரப்புங்கள்; எங்கள் குழு தொடர்பு கொள்ளும்.']],
 [['Will I build real projects?','உண்மையான புராஜெக்ட்கள் செய்வேனா?'],['Yes. Every track ends with a deployable project, CBSE practical project or a portfolio-ready capstone.','ஆம். ஒவ்வொரு பாடமும் வெளியிடக்கூடிய புராஜெக்ட், CBSE practical புராஜெக்ட் அல்லது portfolio-ready capstone உடன் முடியும்.']],
 [['What is covered in the Data Science track?','Data Science பாடத்தில் என்ன உள்ளது?'],['12 modules: Tools & Technologies, Statistics, Python, EDA, Advanced Statistics & Predictive Modeling, Dimensionality Reduction, Machine Learning, Deep Learning, Data Visualization, SQL, NLP and Generative AI/LLM topics.','12 தொகுதிகள்: கருவிகள் & தொழில்நுட்பங்கள், புள்ளியியல், Python, EDA, மேம்பட்ட புள்ளியியல் & முன்கணிப்பு மாதிரி, பரிமாண குறைப்பு, இயந்திர கற்றல், டீப் லேர்னிங், தரவு காட்சிப்படுத்தல், SQL, NLP, Generative AI/LLM தலைப்புகள்.']],
-[['Do you cover certification exams?','சான்றிதழ் தேர்வுகள் உள்ளதா?'],['Yes — prep for Oracle, ISTQB, Scrum Master, PMP, ITIL, CBAP, CCBA, Network+, A+, Salesforce, RPA, SAP, Talend, Pega, TIBCO, MATLAB and more.','ஆம் — Oracle, ISTQB, Scrum Master, PMP, ITIL, CBAP, CCBA, Network+, A+, Salesforce, RPA, SAP, Talend, Pega, TIBCO, MATLAB மற்றும் பலவற்றிற்கான தயாரிப்பு.']]
+[['Do you cover certification exams?','சான்றிதழ் தேர்வுகள் உள்ளதா?'],['Yes — prep for Oracle, ISTQB, Scrum Master, PMP, ITIL, CBAP, CCBA, Network+, A+, Salesforce, RPA, SAP, Talend, Pega, TIBCO, MATLAB and more.','ஆம் — Oracle, ISTQB, Scrum Master, PMP, ITIL, CBAP, CCBA, Network+, A+, Salesforce, RPA, SAP, Talend, Pega, TIBCO, MATLAB மற்றும் பலவற்றிற்கான தயாரிப்பு.']],
+[['Is the NCERT syllabus included?','NCERT பாடத்திட்டம் உள்ளதா?'],['Yes — complete chapter-wise NCERT syllabus for Classes 6 to 12 covering Mathematics, Science, Social Science and Computer Science.','ஆம் — 6 முதல் 12 வகுப்பு வரை கணிதம், அறிவியல், சமூக அறிவியல் மற்றும் கணினி அறிவியல் பாடவாரியான முழுமையான NCERT பாடத்திட்டம்.']]
 ];
 
 const SNIP={
@@ -388,10 +488,14 @@ const GO=[
 ['testing','Selenium & RPA','Selenium & RPA']
 ];
 
-let curTrack='cbse',curLang='Python',typeT,words=[['Lock In Your Tech Future.','உங்கள் தொழில்நுட்ப எதிர்காலத்தை உறுதி செய்யுங்கள்.'],['Code Real Projects.','உண்மையான புராஜெக்ட்கள் உருவாக்குங்கள்.'],['Ace Your Boards.','போர்டு தேர்வில் சாதியுங்கள்.'],['Get Placement Ready.','வேலைவாய்ப்புக்குத் தயாராகுங்கள்.']],wi=0;
+let curTrack='cbse',curLang='Python',curNcrClass=6,curNcrSub=0,typeT,words=[['Lock In Your Tech Future.','உங்கள் தொழில்நுட்ப எதிர்காலத்தை உறுதி செய்யுங்கள்.'],['Code Real Projects.','உண்மையான புராஜெக்ட்கள் உருவாக்குங்கள்.'],['Ace Your Boards.','போர்டு தேர்வில் சாதியுங்கள்.'],['Get Placement Ready.','வேலைவாய்ப்புக்குத் தயாராகுங்கள்.']],wi=0;
 
 function pick(l){lang=l;try{localStorage.setItem('sgz-lang',l)}catch(e){}
 document.getElementById('gate').classList.add('out');setTimeout(()=>document.getElementById('gate').style.display='none',650);render()}
+
+/* ⬇️ FIX #2: dedicated toggle function (guaranteed to work) */
+function toggleLang(){pick(lang==='en'?'ta':'en')}
+window.toggleLang=toggleLang;
 
 function render(){const i=I();document.documentElement.lang=lang;document.body.classList.toggle('ta',i==1);
 document.getElementById('langBtn').textContent=i?'English':'தமிழ்';
@@ -405,12 +509,14 @@ document.getElementById('why-grid').innerHTML=WHY.map(w=>`<div class="gl card rv
 
 track(curTrack);
 
-/* ---- Curriculum rendering ---- */
 document.getElementById('cur-grid').innerHTML=CUR.map(c=>`<div class="gl card rv rounded-3xl p-6"><div class="text-3xl mb-3">${c[0]}</div><h3 class="font-bold text-xl mb-4 ${c[3]}">${P(c[1])}</h3><div class="flex flex-wrap gap-1.5">${c[2].map(x=>`<span class="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] mono text-gray-300 hover:text-white hover:border-cc/50 transition">${x}</span>`).join('')}</div></div>`).join('');
 
 document.getElementById('ds-grid').innerHTML=DS.map((d,n)=>`<div class="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-cc/40 transition flex gap-3 items-start"><span class="text-cc font-black text-sm mono shrink-0 pt-0.5">${String(n+1).padStart(2,'0')}</span><div><div class="font-bold text-sm mb-1">${P([d[0],d[1]])}</div><div class="text-gray-400 text-xs leading-relaxed">${P([d[2],d[3]])}</div></div></div>`).join('');
 
 document.getElementById('cert-grid').innerHTML=CERT.map(c=>`<span class="px-3 py-1.5 rounded-full gl text-xs font-semibold text-gray-300 hover:text-ng hover:border-ng/50 transition cursor-default">${c}</span>`).join('');
+
+renderNcertTabs();
+renderNcertContent();
 
 document.getElementById('langTabs').innerHTML=Object.keys(SNIP).map(k=>`<button onclick="setLang('${k}')" class="px-3 py-1 rounded-lg text-xs font-semibold ${k===curLang?'bg-cp text-white':'text-gray-400 hover:text-white'}">${k}</button>`).join('');
 document.getElementById('code').textContent=SNIP[curLang][0];document.getElementById('out').textContent=SNIP[curLang][1];
@@ -424,6 +530,33 @@ document.getElementById('how').innerHTML=HOW.map(h=>`<div class="gl card rv roun
 document.getElementById('rev').innerHTML=REV.map(r=>`<div class="gl card rv rounded-2xl p-6"><div class="text-yellow-400 text-xs mb-3">★★★★★</div><p class="text-gray-300 text-sm mb-4">"${P(r[2])}"</p><div class="flex justify-between text-xs"><b>${r[0]}</b><span class="text-cc">${P(r[1])}</span></div></div>`).join('');
 document.getElementById('faqs').innerHTML=FAQ.map(f=>`<details class="gl rounded-2xl p-5"><summary class="flex justify-between font-bold">${P(f[0])}<span class="pl text-cc text-xl">+</span></summary><p class="text-gray-400 text-sm mt-3">${P(f[1])}</p></details>`).join('');
 roadmap();obs();clearTimeout(typeT);type()}
+
+function renderNcertTabs(){
+  const i=I();
+  document.getElementById('ncrTabs').innerHTML=[6,7,8,9,10,11,12].map(c=>`<button onclick="setNcrClass(${c})" class="px-4 py-2 rounded-xl font-extrabold text-sm transition ${c===curNcrClass?'bg-gradient-to-r from-cp to-cc text-white':'gl text-gray-400 hover:text-white'}">Class ${c}</button>`).join('');
+  const subs=NCERT[curNcrClass]||[];
+  document.getElementById('ncrSubTabs').innerHTML=subs.map((s,idx)=>`<button onclick="setNcrSub(${idx})" class="px-4 py-2 rounded-xl font-bold text-sm transition ${idx===curNcrSub?'bg-cc/20 text-cc border border-cc/40':'gl text-gray-400 hover:text-white'}">${P(s[0])}</button>`).join('');
+}
+
+function renderNcertContent(){
+  const i=I();
+  const subs=NCERT[curNcrClass]||[];
+  if(!subs.length){document.getElementById('ncrContent').innerHTML='<p class="text-gray-400 text-center">No data</p>';return}
+  const sub=subs[curNcrSub]||subs[0];
+  const chaptersEn=sub[2], chaptersTa=sub[3];
+  const chapters=i?chaptersTa:chaptersEn;
+  document.getElementById('ncrContent').innerHTML=`
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4 mb-5">
+      <h3 class="text-xl sm:text-2xl font-black">${P(sub[0])} <span class="text-gray-500 text-sm">• Class ${curNcrClass}</span></h3>
+      <span class="px-3 py-1 rounded-full bg-cc/20 text-cc text-xs font-extrabold mono">${chapters.length} CHAPTERS</span>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+      ${chapters.map((c,n)=>`<div class="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/5 hover:border-cc/30 transition"><span class="text-cc font-black text-xs mono shrink-0 pt-0.5 w-6">${String(n+1).padStart(2,'0')}</span><span class="text-sm text-gray-300">${c}</span></div>`).join('')}
+    </div>`;
+}
+
+function setNcrClass(c){curNcrClass=c;curNcrSub=0;renderNcertTabs();renderNcertContent()}
+function setNcrSub(s){curNcrSub=s;renderNcertTabs();renderNcertContent()}
 
 function track(t){curTrack=t;const on='bg-cp text-white',off='text-gray-400';
 ['cbse','college','bsc','bca','btech'].forEach(k=>{const el=document.getElementById('tb-'+k);if(el)el.className='px-5 py-3 rounded-xl font-extrabold text-sm '+(k===t?on:off)});
@@ -440,6 +573,10 @@ let io;function obs(){io&&io.disconnect();io=new IntersectionObserver(es=>es.for
 addEventListener('scroll',()=>{const h=document.documentElement;document.getElementById('bar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%'});
 document.getElementById('rg').addEventListener('change',roadmap);document.getElementById('rt').addEventListener('change',roadmap);
 render();
+
+/* ⬇️ Expose all handlers to window so any inline onclick always resolves */
+window.pick=pick;window.track=track;window.setLang=setLang;window.run=run;
+window.roadmap=roadmap;window.sub=sub;window.setNcrClass=setNcrClass;window.setNcrSub=setNcrSub;
 </script>
 </body>
 </html>
