@@ -51,7 +51,7 @@ details[open] .pl{transform:rotate(45deg)}
   <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
     <a href="#top" class="flex items-center gap-2"><span class="w-9 h-9 rounded-xl bg-gradient-to-br from-cp via-cc to-ng flex items-center justify-center text-black font-black">SZ</span><span class="text-xl font-extrabold">Skill<span class="tg">GenZ</span></span></a>
     <div class="hidden lg:flex gap-6 text-sm font-semibold text-gray-300">
-      <a href="#why" data-k="n1" class="hover:text-cc"></a><a href="#tracks" data-k="n2" class="hover:text-cc"></a><a href="#lab" data-k="n3" class="hover:text-cc"></a><a href="#roadmap" data-k="n4" class="hover:text-cc"></a><a href="#faq" data-k="n5" class="hover:text-cc"></a>
+      <a href="#why" data-k="n1" class="hover:text-cc"></a><a href="#tracks" data-k="n2" class="hover:text-cc"></a><a href="#curriculum" data-k="n6" class="hover:text-cc"></a><a href="#lab" data-k="n3" class="hover:text-cc"></a><a href="#roadmap" data-k="n4" class="hover:text-cc"></a><a href="#faq" data-k="n5" class="hover:text-cc"></a>
     </div>
     <div class="flex items-center gap-2">
       <button onclick="pick(lang==='en'?'ta':'en')" class="gl rounded-xl px-3 py-2 text-xs font-bold text-cc border-cc/40" id="langBtn">தமிழ்</button>
@@ -68,7 +68,7 @@ details[open] .pl{transform:rotate(45deg)}
   <p class="max-w-3xl mx-auto text-gray-400 text-base sm:text-lg mb-9" data-k="sub"></p>
   <div class="flex flex-col sm:flex-row gap-3 justify-center mb-14">
     <a href="#tracks" onclick="track('cbse')" data-k="b1" class="px-7 py-4 rounded-xl font-extrabold text-black bg-gradient-to-r from-cp via-cc to-ng"></a>
-    <a href="#tracks" onclick="track('college')" data-k="b2" class="px-7 py-4 rounded-xl font-extrabold gl border-cc/50 hover:bg-cc/10"></a>
+    <a href="#curriculum" onclick="track('college')" data-k="b2" class="px-7 py-4 rounded-xl font-extrabold gl border-cc/50 hover:bg-cc/10"></a>
   </div>
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto" id="stats"></div>
 </header>
@@ -85,11 +85,47 @@ details[open] .pl{transform:rotate(45deg)}
 <!-- TRACKS -->
 <section id="tracks" class="px-4 py-20 max-w-7xl mx-auto">
   <div class="text-center mb-10 rv"><h2 class="text-3xl sm:text-5xl font-black mb-3"><span data-k="trT"></span> <span class="tg" data-k="trT2"></span></h2>
-    <div class="inline-flex gl rounded-2xl p-1.5 gap-2 mt-4">
+    <div class="inline-flex gl rounded-2xl p-1.5 gap-2 mt-4 flex-wrap justify-center">
       <button id="tb-cbse" onclick="track('cbse')" class="px-5 py-3 rounded-xl font-extrabold text-sm" data-k="tab1"></button>
       <button id="tb-college" onclick="track('college')" class="px-5 py-3 rounded-xl font-extrabold text-sm" data-k="tab2"></button>
+      <button id="tb-bsc" onclick="track('bsc')" class="px-5 py-3 rounded-xl font-extrabold text-sm" data-k="tab3"></button>
+      <button id="tb-bca" onclick="track('bca')" class="px-5 py-3 rounded-xl font-extrabold text-sm" data-k="tab4"></button>
+      <button id="tb-btech" onclick="track('btech')" class="px-5 py-3 rounded-xl font-extrabold text-sm" data-k="tab5"></button>
     </div></div>
   <div id="track-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+</section>
+
+<!-- CURRICULUM -->
+<section id="curriculum" class="px-4 py-20 max-w-7xl mx-auto">
+  <div class="text-center mb-12 rv">
+    <h2 class="text-3xl sm:text-5xl font-black mb-3"><span data-k="curT"></span> <span class="tg" data-k="curT2"></span></h2>
+    <p class="text-gray-400 max-w-3xl mx-auto" data-k="curP"></p>
+  </div>
+
+  <!-- Category cards -->
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="cur-grid"></div>
+
+  <!-- Data Science Career Track -->
+  <div class="gl rounded-3xl p-6 md:p-10 mt-10 border-cc/30">
+    <div class="flex flex-wrap items-start justify-between gap-4 mb-7">
+      <div class="max-w-2xl">
+        <span class="text-xs font-bold text-cc tracking-widest" data-k="dsB"></span>
+        <h3 class="text-2xl sm:text-4xl font-black mt-1 mb-2" data-k="dsT"></h3>
+        <p class="text-gray-400 text-sm" data-k="dsP"></p>
+      </div>
+      <span class="px-4 py-2 rounded-full bg-ng/20 text-ng text-xs font-extrabold mono">12 MODULES</span>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3" id="ds-grid"></div>
+  </div>
+
+  <!-- Certification Tracks -->
+  <div class="gl rounded-3xl p-6 md:p-10 mt-10 border-cp/30">
+    <div class="text-center mb-6">
+      <h3 class="text-2xl sm:text-3xl font-black mb-2"><span data-k="certT"></span> <span class="tg" data-k="certT2"></span></h3>
+      <p class="text-gray-400 text-sm" data-k="certP"></p>
+    </div>
+    <div class="flex flex-wrap justify-center gap-2" id="cert-grid"></div>
+  </div>
 </section>
 
 <!-- LAB -->
@@ -99,7 +135,7 @@ details[open] .pl{transform:rotate(45deg)}
     <div class="rounded-2xl bg-[#090A10] border border-white/10 overflow-hidden mono text-xs sm:text-sm">
       <div class="bg-[#121420] px-4 py-3 flex items-center justify-between flex-wrap gap-2">
         <div class="flex gap-1.5"><i class="w-3 h-3 rounded-full bg-red-500/80"></i><i class="w-3 h-3 rounded-full bg-yellow-500/80"></i><i class="w-3 h-3 rounded-full bg-green-500/80"></i></div>
-        <div class="flex gap-1" id="langTabs"></div>
+        <div class="flex gap-1 flex-wrap" id="langTabs"></div>
       </div>
       <div class="grid md:grid-cols-2 md:divide-x divide-white/10 min-h-[260px]">
         <pre id="code" class="p-5 text-cc overflow-x-auto"></pre>
@@ -166,15 +202,24 @@ details[open] .pl{transform:rotate(45deg)}
 <script>
 let lang='en';const I=()=>lang==='ta'?1:0;const P=a=>a[I()];
 const S={
-n1:['Why Us','ஏன் நாங்கள்'],n2:['Tracks','பாடத்திட்டங்கள்'],n3:['Code Lab','கோட் லேப்'],n4:['Roadmap','வழிகாட்டி'],n5:['FAQ','கேள்விகள்'],
+n1:['Why Us','ஏன் நாங்கள்'],n2:['Tracks','பாடத்திட்டங்கள்'],n3:['Code Lab','கோட் லேப்'],n4:['Roadmap','வழிகாட்டி'],n5:['FAQ','கேள்விகள்'],n6:['Curriculum','பாடத்திட்டம்'],
 cta:['Free Demo','இலவச டெமோ'],
 badge:['Admissions Open 2026-27','2026-27 சேர்க்கை தொடங்கிவிட்டது'],
 h1a:['Stop being an NPC.','சும்மா பார்வையாளராக இருக்காதீர்கள்.'],
-sub:['From CBSE Class 9-12 Boards & CS to College-level Full Stack, Data Science, DBMS and AI/ML. Real code, real projects, placement readiness.','CBSE 9-12 வகுப்பு பொதுத்தேர்வு & கணினி அறிவியல் முதல் கல்லூரி அளவிலான Full Stack, Data Science, DBMS, AI/ML வரை. உண்மையான கோடிங், உண்மையான புராஜெக்ட்கள், வேலைவாய்ப்புத் தயார்நிலை.'],
-b1:['🎓 CBSE Track (9th-12th)','🎓 CBSE பாடத்திட்டம் (9-12)'],b2:['💻 College Tech Track','💻 கல்லூரி தொழில்நுட்பம்'],
+sub:['From CBSE Class 6-12 Boards & CS to College-level BSc, BCA, BE/BTech — Full Stack, Data Science, DBMS and AI/ML. Real code, real projects, placement readiness.','CBSE 6-12 வகுப்பு பொதுத்தேர்வு & கணினி அறிவியல் முதல் கல்லூரி அளவிலான BSc, BCA, BE/BTech வரை — Full Stack, Data Science, DBMS, AI/ML. உண்மையான கோடிங், உண்மையான புராஜெக்ட்கள், வேலைவாய்ப்புத் தயார்நிலை.'],
+b1:['🎓 CBSE Track (6th-12th)','🎓 CBSE பாடத்திட்டம் (6-12)'],b2:['💻 Explore Curriculum','💻 பாடத்திட்டத்தைப் பார்க்க'],
 whyT:['Why students pick','மாணவர்கள் ஏன் தேர்வு செய்கிறார்கள்:'],whyT2:['SkillGenZ','SkillGenZ'],
 whyP:['Everything is built around doing, not just watching.','எல்லாமே பார்ப்பதற்கல்ல, செய்து கற்பதற்காக வடிவமைக்கப்பட்டவை.'],
-trT:['Dual Track','இரட்டை'],trT2:['Learning Ecosystem','கற்றல் வழிகள்'],tab1:['CBSE 9th - 12th','CBSE 9 - 12'],tab2:['College & Technical','கல்லூரி & தொழில்நுட்பம்'],
+trT:['Multi Track','பல்துறை'],trT2:['Learning Ecosystem','கற்றல் வழிகள்'],
+tab1:['CBSE 6th-12th','CBSE 6-12'],tab2:['College General','கல்லூரி பொது'],
+tab3:['BSc','BSc'],tab4:['BCA','BCA'],tab5:['BE / B.Tech','BE / B.Tech'],
+curT:['Full Course','முழு பாட'],curT2:['Curriculum','த்திட்டம்'],
+curP:['40+ industry-aligned programs across programming, data & AI, cloud & DevOps, testing & automation, and enterprise technologies — aligned with global certification bodies.','நிரலாக்கம், Data & AI, Cloud & DevOps, Testing & Automation, நிறுவன தொழில்நுட்பங்கள் என 40+ தொழில்துறை பாடத்திட்டங்கள் — உலகளாவிய சான்றிதழ் அமைப்புகளுடன் ஒத்திசைவானவை.'],
+dsB:['📊 FEATURED PROGRAM','📊 சிறப்பு பாடம்'],
+dsT:['Data Science Career Track','Data Science தொழில் பாதை'],
+dsP:['12 modules from statistics to Generative AI — built for real analyst, data engineer and ML roles.','புள்ளியியல் முதல் Generative AI வரை 12 தொகுதிகள் — உண்மையான analyst, data engineer & ML பதவிகளுக்கு.'],
+certT:['Certification','சான்றிதழ்'],certT2:['Tracks','பாதைகள்'],
+certP:['Exam-aligned preparation for globally recognised credentials.','உலகளவில் அங்கீகரிக்கப்பட்ட சான்றிதழ்களுக்கான தேர்வு தயாரிப்பு.'],
 labB:['⌨ INTERACTIVE CODE LAB','⌨ நேரடி கோட் லேப்'],labT:['Learn by running real code','உண்மையான கோடை இயக்கி கற்றுக்கொள்ளுங்கள்'],labP:['No installs. Practice in the browser from day one.','எதையும் நிறுவ வேண்டாம். முதல் நாளிலிருந்தே உலாவியிலேயே பயிற்சி.'],run:['Re-run','மீண்டும் இயக்கு'],
 rmT:['Your 90-Day','உங்கள் 90 நாள்'],rmT2:['Lock-In Roadmap','வழிகாட்டி திட்டம்'],rmP:['Pick your level and goal for a custom plan.','உங்கள் நிலை மற்றும் இலக்கைத் தேர்ந்தெடுத்து திட்டம் பெறுங்கள்.'],rmB:['✨ Generate My 90-Day Plan','✨ என் 90 நாள் திட்டத்தை உருவாக்கு'],
 hwT:['How it','இது எப்படி'],hwT2:['works','செயல்படுகிறது'],
@@ -185,76 +230,209 @@ phN:['Your name','உங்கள் பெயர்'],phE:['Email address','ம
 ok:['🎉 You are on the priority list! We will contact you shortly.','🎉 முன்னுரிமைப் பட்டியலில் இணைந்துவிட்டீர்கள்! விரைவில் தொடர்பு கொள்வோம்.'],
 ft:['Made with ❤ for learners in English & தமிழ்','ஆங்கிலம் & தமிழ் கற்பவர்களுக்காக ❤ உடன் உருவாக்கப்பட்டது']
 };
-const STATS=[['9-12','CBSE',['Board Exam & CS Sprints','பொதுத்தேர்வு & CS பயிற்சி'],'text-cp'],['10+','',['Tech Stacks','தொழில்நுட்பங்கள்'],'text-cc'],['100','%',['Project-First Building','புராஜெக்ட் முறை கற்றல்'],'text-ng'],['2','',['Languages: English & தமிழ்','மொழிகள்: ஆங்கிலம் & தமிழ்'],'text-np']];
-const TECH=['Python','Java','C#','SQL','MySQL','PostgreSQL','MongoDB','React','Node.js','Docker','Git','NumPy','Pandas','PyTorch','TensorFlow','LLM APIs'];
-const WHY=[['🧠',['Concept-first teaching','கருத்து முதலில்'],['We explain the why before the how, so ideas stick.','எப்படி என்பதற்கு முன் ஏன் என்பதை விளக்குகிறோம்; அதனால் நினைவில் நிற்கும்.']],
+
+const STATS=[
+['6-12','CBSE',['Board Exam & CS Sprints (Class 6-12)','பொதுத்தேர்வு & CS பயிற்சி (6-12 வகுப்பு)'],'text-cp'],
+['40+','',['IT Courses & Certifications','IT பாடங்கள் & சான்றிதழ்கள்'],'text-cc'],
+['100','%',['Project-First Building','புராஜெக்ட் முறை கற்றல்'],'text-ng'],
+['2','',['Languages: English & தமிழ்','மொழிகள்: ஆங்கிலம் & தமிழ்'],'text-np']
+];
+
+const TECH=['Java / J2EE','Python','C / C++','.NET','PHP','Angular','React','Node.js','Ionic','UI Development','Data Science','Machine Learning','Artificial Intelligence','Deep Learning','Data Analytics','R Programming','Tableau','Power BI','Big Data / Hadoop','Data Warehousing','SAS','AWS','Microsoft Azure','DevOps','Cloud Computing','Linux','AWS Data Engineering','Software Testing','Selenium','RPA','Mobile Testing','ISTQB','API Automation','Performance Testing','Oracle','Salesforce','SAP ABAP','SAP FICO','Pega','TIBCO','Talend','SharePoint','Blockchain','IoT','AR/VR','MATLAB','Unix / Shell Scripting','QlikView','Scrum Master','PMP','ITIL','CBAP','CCBA','Network+','A+','Datastage','Adobe CQ5','Informix'];
+
+const WHY=[
+['🧠',['Concept-first teaching','கருத்து முதலில்'],['We explain the why before the how, so ideas stick.','எப்படி என்பதற்கு முன் ஏன் என்பதை விளக்குகிறோம்; அதனால் நினைவில் நிற்கும்.']],
 ['🛠',['Project-based','புராஜெக்ட் அடிப்படை'],['Every module ends with something you can show.','ஒவ்வொரு தொகுதியும் காட்டக்கூடிய ஒன்றுடன் முடிகிறது.']],
 ['🗣',['Learn in Tamil or English','தமிழ் அல்லது ஆங்கிலத்தில்'],['Doubts are explained in the language you are comfortable with.','உங்களுக்கு வசதியான மொழியில் சந்தேகங்களுக்கு விளக்கம்.']],
-['📝',['Board-exam focused','தேர்வு மையம்'],['NCERT drills, timed mocks and practical file support.','NCERT பயிற்சி, நேர மாதிரித் தேர்வுகள், practical file உதவி.']],
+['📝',['Board-exam focused','தேர்வு மையம்'],['NCERT drills, timed mocks and practical file support for Class 6-12.','NCERT பயிற்சி, நேர மாதிரித் தேர்வுகள், practical file உதவி (6-12 வகுப்பு).']],
 ['👩‍🏫',['Mentor feedback','வழிகாட்டி கருத்து'],['Code reviews and doubt-clearing, not just recorded videos.','பதிவு வீடியோக்கள் மட்டுமல்ல; கோட் ரிவ்யூ & சந்தேக தீர்வு.']],
-['🚀',['Placement ready','வேலைவாய்ப்புத் தயார்'],['GitHub portfolio, mock interviews and resume help.','GitHub போர்ட்ஃபோலியோ, மாதிரி நேர்காணல், ரெஸ்யூம் உதவி.']]];
-const TR={cbse:[['⚛',['Physics, Chemistry & Maths','இயற்பியல், வேதியியல், கணிதம்'],['NCERT chapter-wise clarity, question banks and board drills for Class 9-12.','9-12 வகுப்பு NCERT பாடவாரியான தெளிவு, வினா வங்கி, தேர்வுப் பயிற்சி.'],'Physics • Chemistry • Maths'],
+['🚀',['Placement ready','வேலைவாய்ப்புத் தயார்'],['GitHub portfolio, mock interviews and resume help.','GitHub போர்ட்ஃபோலியோ, மாதிரி நேர்காணல், ரெஸ்யூம் உதவி.']]
+];
+
+const TR={
+cbse:[
+['⚛',['Physics, Chemistry & Maths (6-12)','இயற்பியல், வேதியியல், கணிதம் (6-12)'],['NCERT chapter-wise clarity, question banks and board drills for Class 6-12.','6-12 வகுப்பு NCERT பாடவாரியான தெளிவு, வினா வங்கி, தேர்வுப் பயிற்சி.'],'Physics • Chemistry • Maths'],
 ['🐍',['Class 11-12 CS / IP','11-12 CS / IP'],['Python, MySQL, stacks & queues and networking with live labs.','Python, MySQL, ஸ்டாக்/க்யூ, நெட்வொர்க்கிங் - நேரடி லேப்களுடன்.'],'Python • MySQL • Networks'],
 ['📋',['Practical file & Capstone','Practical file & புராஜெக்ட்'],['Guidance for the practical record, viva and project work.','practical record, viva மற்றும் புராஜெக்ட் வழிகாட்டுதல்.'],'Viva • Project • Records'],
 ['🎯',['Class 9-10 Foundation','9-10 அடிப்படை'],['Logic building and math problem solving to start strong.','வலுவான தொடக்கத்திற்கு லாஜிக் & கணிதத் தீர்வு.'],'Logic • Maths • Python basics'],
-['⏱',['Mock Exam Series','மாதிரித் தேர்வுகள்'],['Timed papers with assertion-reason and case-based practice.','நேர வரையறை தாள்கள்; assertion-reason, case-based பயிற்சி.'],'Mocks • Analysis'],
-['🏆',['Score Strategy','மதிப்பெண் உத்தி'],['Answer-writing techniques to maximise marks.','மதிப்பெண்ணை அதிகரிக்கும் விடை எழுதும் முறைகள்.'],'Presentation • Time']],
-college:[['🤖',['Python, Data Science & AI/ML','Python, Data Science & AI/ML'],['NumPy, Pandas, Scikit-Learn, PyTorch, neural nets and GenAI APIs.','NumPy, Pandas, Scikit-Learn, PyTorch, நியூரல் நெட்வொர்க், GenAI API.'],'Project: Deploy an AI model'],
+['⏱',['Mock Exam Series (6-12)','மாதிரித் தேர்வுகள் (6-12)'],['Timed papers with assertion-reason and case-based practice.','நேர வரையறை தாள்கள்; assertion-reason, case-based பயிற்சி.'],'Mocks • Analysis'],
+['🏆',['Score Strategy','மதிப்பெண் உத்தி'],['Answer-writing techniques to maximise marks.','மதிப்பெண்ணை அதிகரிக்கும் விடை எழுதும் முறைகள்.'],'Presentation • Time']
+],
+college:[
+['🤖',['Python, Data Science & AI/ML','Python, Data Science & AI/ML'],['NumPy, Pandas, Scikit-Learn, PyTorch, neural nets and GenAI APIs.','NumPy, Pandas, Scikit-Learn, PyTorch, நியூரல் நெட்வொர்க், GenAI API.'],'Project: Deploy an AI model'],
 ['🗄',['Java, C# & DBMS','Java, C# & DBMS'],['OOP, .NET, PostgreSQL, MongoDB and system design.','OOP, .NET, PostgreSQL, MongoDB, சிஸ்டம் டிசைன்.'],'Project: Banking API backend'],
 ['🌐',['Full Stack Engineering','Full Stack பொறியியல்'],['React, Node/Express, REST APIs, Docker and cloud deployment.','React, Node/Express, REST API, Docker, கிளவுட் வெளியீடு.'],'Project: Live SaaS web app'],
 ['📊',['SQL & Analytics','SQL & பகுப்பாய்வு'],['Joins, indexing, window functions and dashboards.','Joins, indexing, window functions, டாஷ்போர்டுகள்.'],'Project: Sales dashboard'],
 ['🧩',['DSA & Interview Prep','DSA & நேர்காணல் தயாரிப்பு'],['Arrays to graphs with weekly coding rounds.','Arrays முதல் graphs வரை; வாராந்திர கோடிங் சுற்றுகள்.'],'Weekly mock rounds'],
-['☁',['Git, Cloud & DevOps','Git, Cloud & DevOps'],['Branching, CI/CD and deploying on Vercel/Render.','Branching, CI/CD, Vercel/Render வெளியீடு.'],'Project: CI/CD pipeline']]};
-const HOW=[['01',['Pick your track','பாதையைத் தேர்வு செய்','' ],['Choose CBSE or College and your goal.','CBSE அல்லது கல்லூரி, உங்கள் இலக்கைத் தேர்வு செய்யுங்கள்.']],
+['☁',['Git, Cloud & DevOps','Git, Cloud & DevOps'],['Branching, CI/CD and deploying on Vercel/Render.','Branching, CI/CD, Vercel/Render வெளியீடு.'],'Project: CI/CD pipeline'],
+['🔐',['Selenium, RPA & CCNA','Selenium, RPA & CCNA'],['Automation testing, robotic process automation and networking fundamentals.','Automation testing, RPA, நெட்வொர்க்கிங் அடிப்படை.'],'Certification ready'],
+['📱',['Android & Flutter','Android & Flutter'],['Build mobile apps with Java/Kotlin and Flutter cross-platform.','Java/Kotlin & Flutter மூலம் மொபைல் செயலிகள்.'],'Project: Mobile app']
+],
+bsc:[
+['🐍',['Python & C Programming','Python & C Programming'],['Core programming, data structures, algorithms and problem solving.','அடிப்படை நிரலாக்கம், data structures, algorithms, சிக்கல் தீர்வு.'],'Python • C • DSA'],
+['🌐',['Full Stack Web Development','Full Stack வலை உருவாக்கம்'],['HTML, CSS, JavaScript, React, Node.js and MongoDB integration.','HTML, CSS, JavaScript, React, Node.js, MongoDB இணைப்பு.'],'Project: MERN app'],
+['🗄',['DBMS & SQL','DBMS & SQL'],['Relational design, normalization, joins and query optimization.','Relational design, normalization, joins, query optimization.'],'MySQL • PostgreSQL'],
+['🤖',['AI & Data Science','AI & Data Science'],['NumPy, Pandas, Scikit-Learn, visualization and model building.','NumPy, Pandas, Scikit-Learn, visualization, model building.'],'Project: ML model'],
+['🔐',['Cyber Security & Networking','Cyber Security & Networking'],['Network protocols, security fundamentals and CCNA basics.','Network protocols, security அடிப்படை, CCNA அடிப்படை.'],'CCNA • Security'],
+['☁',['Cloud & DevOps','Cloud & DevOps'],['AWS fundamentals, Docker, CI/CD and deployment strategies.','AWS அடிப்படை, Docker, CI/CD, deployment.'],'Project: Cloud deploy']
+],
+bca:[
+['💻',['C, C++ & Java','C, C++ & Java'],['Programming fundamentals, OOP, exception handling and collections.','நிரலாக்க அடிப்படை, OOP, exception handling, collections.'],'Core • Advanced Java'],
+['🌐',['Full Stack Development','Full Stack Development'],['MERN stack — MongoDB, Express, React, Node.js with REST APIs.','MERN stack — MongoDB, Express, React, Node.js, REST API.'],'Project: Full stack app'],
+['🗄',['RDBMS & NoSQL','RDBMS & NoSQL'],['MySQL, MongoDB, data modeling and database administration.','MySQL, MongoDB, data modeling, database administration.'],'SQL • MongoDB'],
+['🤖',['Data Science & AI/ML','Data Science & AI/ML'],['Python, statistics, machine learning and deep learning basics.','Python, statistics, machine learning, deep learning அடிப்படை.'],'Project: Analytics dashboard'],
+['📱',['Mobile App Development','மொபைல் ஆப் உருவாக்கம்'],['Android with Java/Kotlin and cross-platform Flutter.','Java/Kotlin உடன் Android, Flutter cross-platform.'],'Project: Android app'],
+['🧪',['Software Testing & Selenium','Software Testing & Selenium'],['Manual testing, automation with Selenium and test frameworks.','Manual testing, Selenium automation, test frameworks.'],'Certification ready']
+],
+btech:[
+['📐',['DSA & Algorithms','DSA & Algorithms'],['Arrays, linked lists, trees, graphs, sorting and searching.','Arrays, linked lists, trees, graphs, sorting, searching.'],'Core CS foundation'],
+['🌐',['Full Stack Development','Full Stack Development'],['React, Node.js, Express, Spring Boot and MongoDB/PostgreSQL.','React, Node.js, Express, Spring Boot, MongoDB/PostgreSQL.'],'Project: SaaS platform'],
+['🗄',['DBMS & System Design','DBMS & System Design'],['Normalization, indexing, transactions and scalable architecture.','Normalization, indexing, transactions, scalable architecture.'],'Project: Backend API'],
+['🤖',['AI/ML & Deep Learning','AI/ML & Deep Learning'],['PyTorch, TensorFlow, CNNs and deployment of ML models.','PyTorch, TensorFlow, CNN, ML model deployment.'],'Project: AI pipeline'],
+['☁',['Cloud, DevOps & Security','Cloud, DevOps & Security'],['AWS, Docker, Kubernetes, CI/CD and DevSecOps practices.','AWS, Docker, Kubernetes, CI/CD, DevSecOps.'],'Project: CI/CD pipeline'],
+['🧩',['Competitive Coding & Interviews','Competitive Coding & Interviews'],['Weekly coding rounds, mock interviews and placement prep.','வாராந்திர கோடிங் சுற்றுகள், mock interviews, placement prep.'],'Placement ready']
+]
+};
+
+/* ============ CURRICULUM DATA ============ */
+const CUR=[
+['💻',['Programming & Development','நிரலாக்கம் & மேம்பாடு'],
+ ['Java / J2EE','Python','C / C++','.NET','PHP','Angular','React','Node.js','Ionic','UI Development'],'text-cp'],
+['📊',['Data & AI','தரவு & AI'],
+ ['Data Science','Machine Learning','Artificial Intelligence','Deep Learning','Data Analytics','R Programming','Tableau','Power BI','Big Data / Hadoop','Data Warehousing','SAS'],'text-cc'],
+['☁',['Cloud & DevOps','கிளவுட் & DevOps'],
+ ['AWS','Microsoft Azure','DevOps','Cloud Computing','Linux','AWS Data Engineering'],'text-ng'],
+['🧪',['Testing & Automation','சோதனை & தானியங்கி'],
+ ['Software Testing','Selenium','RPA','Mobile Testing','ISTQB','API Automation','Performance Testing'],'text-np'],
+['🏢',['Enterprise & Emerging Tech','நிறுவன & வளர்ந்து வரும் தொழில்நுட்பம்'],
+ ['Oracle','Salesforce','SAP ABAP','SAP FICO','Pega','TIBCO','Talend','SharePoint','Blockchain','IoT','AR/VR','MATLAB','Unix / Shell Scripting','QlikView'],'text-cp']
+];
+
+/* Data Science curriculum: [en, ta, descEn, descTa] */
+const DS=[
+['Data Science Tools & Technologies','Data Science கருவிகள் & தொழில்நுட்பங்கள்','Jupyter, Anaconda, Git, IDEs and the full analyst toolkit.','Jupyter, Anaconda, Git, IDE மற்றும் முழு analyst கருவித்தொகுப்பு.'],
+['Statistics for Data Science','Data Science-க்கான புள்ளியியல்','Descriptive stats, probability and distributions.','விவரண புள்ளியியல், நிகழ்தகவு, பரவல்கள்.'],
+['Python for Data Science','Data Science-க்கான Python','NumPy, Pandas and clean, reusable code.','NumPy, Pandas மற்றும் சுத்தமான மீள்பயன்பாட்டு கோட்.'],
+['Exploratory Data Analysis','ஆய்வு தரவு பகுப்பாய்வு','Cleaning, shaping and finding patterns in raw data.','மூல தரவை சுத்தம் செய்து வடிவமைத்து வடிவங்களைக் கண்டறிதல்.'],
+['Advanced Statistics & Predictive Modeling','மேம்பட்ட புள்ளியியல் & முன்கணிப்பு மாதிரி','Regression, hypothesis testing and forecasting.','Regression, hypothesis testing, முன்கணிப்பு.'],
+['Dimensionality Reduction','பரிமாண குறைப்பு','PCA, t-SNE and feature engineering.','PCA, t-SNE, feature engineering.'],
+['Machine Learning','இயந்திர கற்றல்','Supervised & unsupervised models with scikit-learn.','scikit-learn மூலம் supervised & unsupervised மாதிரிகள்.'],
+['Deep Learning Fundamentals','டீப் லேர்னிங் அடிப்படை','Neural networks with TensorFlow and PyTorch.','TensorFlow & PyTorch மூலம் நியூரல் நெட்வொர்க்குகள்.'],
+['Data Visualization','தரவு காட்சிப்படுத்தல்','Matplotlib, Seaborn, Tableau and Power BI dashboards.','Matplotlib, Seaborn, Tableau, Power BI டாஷ்போர்டுகள்.'],
+['SQL','SQL','Joins, window functions and analytics queries.','Joins, window functions, பகுப்பாய்வு வினவல்கள்.'],
+['NLP (Natural Language Processing)','NLP (இயற்கை மொழி செயலாக்கம்)','Text cleaning, embeddings and sentiment models.','உரை சுத்தம், embeddings, உணர்வு மாதிரிகள்.'],
+['Generative AI & LLM Topics','Generative AI & LLM தலைப்புகள்','Prompting, RAG, fine-tuning and LLM APIs.','Prompting, RAG, fine-tuning, LLM API.']
+];
+
+const CERT=['Oracle','ISTQB','Scrum Master','PMP','ITIL','CBAP','CCBA','Network+','A+','Salesforce','RPA','IoT','Ionic','Data Science','DevOps','Azure','Data Warehousing','SAS','Datastage','Software Testing','Java/J2EE','.NET','PHP','Unix','Selenium','QlikView','SAP','Talend','Pega','TIBCO','Adobe CQ5','MATLAB','Informix'];
+
+const HOW=[
+['01',['Pick your track','பாதையைத் தேர்வு செய்'],['Choose CBSE (6-12), BSc, BCA or BE/BTech and your goal.','CBSE (6-12), BSc, BCA அல்லது BE/BTech, உங்கள் இலக்கைத் தேர்வு செய்யுங்கள்.']],
 ['02',['Attend a free demo','இலவச டெமோ'],['Try a live class and meet the mentors.','நேரடி வகுப்பில் பங்கேற்று வழிகாட்டிகளைச் சந்தியுங்கள்.']],
 ['03',['Learn by building','செய்து கற்றல்'],['Labs, projects and weekly doubt sessions.','லேப், புராஜெக்ட், வாராந்திர சந்தேக அமர்வுகள்.']],
-['04',['Show your results','முடிவுகளைக் காட்டுங்கள்'],['Boards, portfolio, interviews - measured progress.','தேர்வு, போர்ட்ஃபோலியோ, நேர்காணல் - அளவிடப்படும் முன்னேற்றம்.']]];
-const REV=[['Rohan S.',['CBSE Class 12 CS','CBSE 12 CS'],['Went from 62% in Class 11 to 97/100 in Boards. The Python logic breakdowns are unmatched.','11-ல் 62%-இலிருந்து போர்டில் 97/100. Python லாஜிக் விளக்கங்கள் அருமை.']],
+['04',['Show your results','முடிவுகளைக் காட்டுங்கள்'],['Boards, portfolio, interviews - measured progress.','தேர்வு, போர்ட்ஃபோலியோ, நேர்காணல் - அளவிடப்படும் முன்னேற்றம்.']]
+];
+
+const REV=[
+['Rohan S.',['CBSE Class 12 CS','CBSE 12 CS'],['Went from 62% in Class 11 to 97/100 in Boards. The Python logic breakdowns are unmatched.','11-ல் 62%-இலிருந்து போர்டில் 97/100. Python லாஜிக் விளக்கங்கள் அருமை.']],
 ['Priya M.',['B.Tech 2nd Year','B.Tech 2ஆம் ஆண்டு'],['Built my first live Full Stack AI project in 3 weeks. No tutorial hell, just building.','3 வாரத்தில் என் முதல் Full Stack AI புராஜெக்ட். வெறும் வீடியோ இல்லை, செய்து கற்றேன்.']],
-['Anish K.',['BCA Final Year','BCA இறுதியாண்டு'],['SQL sandbox queries made DBMS clear in 2 days. Cleared my technical interview!','SQL பயிற்சிகள் 2 நாளில் DBMS-ஐ தெளிவாக்கின. நேர்காணலில் தேர்ச்சி!']]];
-const FAQ=[[['Which classes and boards do you cover?','எந்த வகுப்புகள், போர்டுகள்?'],['CBSE Class 9-12 (Science and CS/IP) plus college-level technical courses.','CBSE 9-12 (அறிவியல் மற்றும் CS/IP), கூடவே கல்லூரி தொழில்நுட்பப் படிப்புகள்.']],
+['Anish K.',['BCA Final Year','BCA இறுதியாண்டு'],['SQL sandbox queries made DBMS clear in 2 days. Cleared my technical interview!','SQL பயிற்சிகள் 2 நாளில் DBMS-ஐ தெளிவாக்கின. நேர்காணலில் தேர்ச்சி!']],
+['Kavitha R.',['BSc Computer Science','BSc கணினி அறிவியல்'],['The MERN stack project gave me a portfolio that impressed my first employer.','MERN stack புராஜெக்ட் என் முதல் வேலைவாய்ப்பில் பெரும் தாக்கத்தை ஏற்படுத்தியது.']]
+];
+
+const FAQ=[
+[['Which classes and boards do you cover?','எந்த வகுப்புகள், போர்டுகள்?'],['CBSE Class 6-12 (Science and CS/IP) plus college-level BSc, BCA, BE/BTech technical courses.','CBSE 6-12 (அறிவியல் மற்றும் CS/IP), கூடவே கல்லூரி BSc, BCA, BE/BTech தொழில்நுட்பப் படிப்புகள்.']],
 [['Can I learn in Tamil?','தமிழில் கற்க முடியுமா?'],['Yes. Concepts and doubts can be explained in Tamil or English. Code and technical terms stay in English.','முடியும். கருத்துகள், சந்தேகங்கள் தமிழ் அல்லது ஆங்கிலத்தில் விளக்கப்படும். கோடும் தொழில்நுட்பச் சொற்களும் ஆங்கிலத்திலேயே இருக்கும்.']],
-[['Do I need prior coding experience?','முன் கோடிங் அனுபவம் தேவையா?'],['No. Every track starts from the basics.','தேவையில்லை. ஒவ்வொரு பாடமும் அடிப்படையிலிருந்து தொடங்கும்.']],
+[['Do I need prior coding experience?','முன் கோடிங் அனுபவம் தேவையா?'],['No. Every track starts from the basics — whether you are in Class 6 or college.','தேவையில்லை. 6-ஆம் வகுப்போ கல்லூரியோ — ஒவ்வொரு பாடமும் அடிப்படையிலிருந்து தொடங்கும்.']],
 [['How do I join a demo class?','டெமோ வகுப்பில் எப்படி சேர்வது?'],['Fill the form below and our team will contact you.','கீழே உள்ள படிவத்தை நிரப்புங்கள்; எங்கள் குழு தொடர்பு கொள்ளும்.']],
-[['Will I build real projects?','உண்மையான புராஜெக்ட்கள் செய்வேனா?'],['Yes. Every track ends with a deployable project or the CBSE practical project.','ஆம். ஒவ்வொரு பாடமும் வெளியிடக்கூடிய புராஜெக்ட் அல்லது CBSE practical புராஜெக்டுடன் முடியும்.']]];
-const SNIP={Python:["# SkillGenZ Python Lab\ndef aura(score, projects):\n    return score*10 + projects*250\n\nprint('Aura:', aura(98, 4))","[Python 3.11]\nAura: 1980\nProcess finished with exit code 0"],
+[['Will I build real projects?','உண்மையான புராஜெக்ட்கள் செய்வேனா?'],['Yes. Every track ends with a deployable project, CBSE practical project or a portfolio-ready capstone.','ஆம். ஒவ்வொரு பாடமும் வெளியிடக்கூடிய புராஜெக்ட், CBSE practical புராஜெக்ட் அல்லது portfolio-ready capstone உடன் முடியும்.']],
+[['What is covered in the Data Science track?','Data Science பாடத்தில் என்ன உள்ளது?'],['12 modules: Tools & Technologies, Statistics, Python, EDA, Advanced Statistics & Predictive Modeling, Dimensionality Reduction, Machine Learning, Deep Learning, Data Visualization, SQL, NLP and Generative AI/LLM topics.','12 தொகுதிகள்: கருவிகள் & தொழில்நுட்பங்கள், புள்ளியியல், Python, EDA, மேம்பட்ட புள்ளியியல் & முன்கணிப்பு மாதிரி, பரிமாண குறைப்பு, இயந்திர கற்றல், டீப் லேர்னிங், தரவு காட்சிப்படுத்தல், SQL, NLP, Generative AI/LLM தலைப்புகள்.']],
+[['Do you cover certification exams?','சான்றிதழ் தேர்வுகள் உள்ளதா?'],['Yes — prep for Oracle, ISTQB, Scrum Master, PMP, ITIL, CBAP, CCBA, Network+, A+, Salesforce, RPA, SAP, Talend, Pega, TIBCO, MATLAB and more.','ஆம் — Oracle, ISTQB, Scrum Master, PMP, ITIL, CBAP, CCBA, Network+, A+, Salesforce, RPA, SAP, Talend, Pega, TIBCO, MATLAB மற்றும் பலவற்றிற்கான தயாரிப்பு.']]
+];
+
+const SNIP={
+Python:["# SkillGenZ Python Lab\ndef aura(score, projects):\n    return score*10 + projects*250\n\nprint('Aura:', aura(98, 4))","[Python 3.11]\nAura: 1980\nProcess finished with exit code 0"],
 SQL:["-- Relational DB lab\nSELECT s.name, c.title, s.points\nFROM students s\nJOIN enrollments e ON s.id=e.student_id\nJOIN courses c ON e.course_id=c.id\nORDER BY s.points DESC;","[MySQL]\n| name  | title     | points |\n| Arjun | AI & ML   | 2450   |\n| Divya | DBMS      | 2390   |\n(2 rows in 4ms)"],
 Java:["// Java OOP lab\npublic class App {\n  public static void main(String[] a) {\n    System.out.println(\"Hello, SkillGenZ\");\n  }\n}","[javac App.java]\nHello, SkillGenZ\nExecution time: 18ms"],
-'AI/ML':["# ML lab\nfrom sklearn.ensemble import RandomForestClassifier\nmodel = RandomForestClassifier(n_estimators=100)\nmodel.fit(X_train, y_train)\nprint(model.score(X_test, y_test))","[scikit-learn]\nTraining 100 estimators...\n0.9442\nModel ready for REST API deployment."]};
-const RM={board:{g:['CBSE Board 95%+ Plan','CBSE போர்டு 95%+ திட்டம்'],s:[['Days 1-30','நாட்கள் 1-30',['NCERT + Python core','NCERT + Python அடிப்படை'],['Chapter drills, functions, lists and dictionaries.','பாடவாரிப் பயிற்சி, functions, lists, dictionaries.']],['Days 31-60','நாட்கள் 31-60',['Data structures & MySQL','Data structures & MySQL'],['Stacks, queues, joins and networking basics.','Stacks, queues, joins, நெட்வொர்க்கிங் அடிப்படை.']],['Days 61-90','நாட்கள் 61-90',['Sample papers & practicals','மாதிரித் தாள்கள் & practical'],['Timed mocks, viva prep and practical file.','நேரத் தேர்வுகள், viva, practical file.']]]},
+'AI/ML':["# ML lab\nfrom sklearn.ensemble import RandomForestClassifier\nmodel = RandomForestClassifier(n_estimators=100)\nmodel.fit(X_train, y_train)\nprint(model.score(X_test, y_test))","[scikit-learn]\nTraining 100 estimators...\n0.9442\nModel ready for REST API deployment."],
+'Full Stack':["// Express API lab\nconst express = require('express');\nconst app = express();\napp.get('/api/health', (req, res) => {\n  res.json({ status: 'ok', stack: 'MERN' });\n});\napp.listen(3000);","[node server.js]\nServer running on port 3000\nGET /api/health → 200 OK"],
+'C++':["// C++ DSA lab\n#include <iostream>\n#include <vector>\nusing namespace std;\nint main() {\n  vector<int> v = {5, 2, 8, 1};\n  sort(v.begin(), v.end());\n  for(int x : v) cout << x << ' ';\n}","[g++ -o app app.cpp]\n1 2 5 8\nCompilation successful."]
+};
+
+const RM={
+board:{g:['CBSE Board 95%+ Plan (6-12)','CBSE போர்டு 95%+ திட்டம் (6-12)'],s:[['Days 1-30','நாட்கள் 1-30',['NCERT + Python core','NCERT + Python அடிப்படை'],['Chapter drills, functions, lists and dictionaries.','பாடவாரிப் பயிற்சி, functions, lists, dictionaries.']],['Days 31-60','நாட்கள் 31-60',['Data structures & MySQL','Data structures & MySQL'],['Stacks, queues, joins and networking basics.','Stacks, queues, joins, நெட்வொர்க்கிங் அடிப்படை.']],['Days 61-90','நாட்கள் 61-90',['Sample papers & practicals','மாதிரித் தாள்கள் & practical'],['Timed mocks, viva prep and practical file.','நேரத் தேர்வுகள், viva, practical file.']]]},
 full:{g:['Full Stack Developer Plan','Full Stack டெவலப்பர் திட்டம்'],s:[['Days 1-30','நாட்கள் 1-30',['Web basics & Git','வலை அடிப்படை & Git'],['HTML, CSS, JavaScript and GitHub workflow.','HTML, CSS, JavaScript, GitHub பணிமுறை.']],['Days 31-60','நாட்கள் 31-60',['React + APIs','React + APIs'],['Build REST APIs with Node/Express and a database.','Node/Express மற்றும் டேட்டாபேஸுடன் REST API.']],['Days 61-90','நாட்கள் 61-90',['Capstone & deploy','Capstone & வெளியீடு'],['Ship a SaaS app with login on the cloud.','லாகின் உடன் SaaS செயலியை கிளவுடில் வெளியிடுங்கள்.']]]},
 data:{g:['Data Science & DBMS Plan','Data Science & DBMS திட்டம்'],s:[['Days 1-30','நாட்கள் 1-30',['Python + SQL','Python + SQL'],['NumPy, Pandas and relational design.','NumPy, Pandas, ரிலேஷனல் வடிவமைப்பு.']],['Days 31-60','நாட்கள் 31-60',['EDA & statistics','EDA & புள்ளியியல்'],['Cleaning, visualising and modelling data.','தரவைச் சுத்தம் செய்தல், காட்சிப்படுத்தல், மாடலிங்.']],['Days 61-90','நாட்கள் 61-90',['Dashboard project','டாஷ்போர்டு புராஜெக்ட்'],['Build and present an analytics dashboard.','பகுப்பாய்வு டாஷ்போர்டை உருவாக்கி வழங்குங்கள்.']]]},
-ai:{g:['AI / ML Specialist Plan','AI / ML நிபுணர் திட்டம்'],s:[['Days 1-30','நாட்கள் 1-30',['Math & Python for ML','ML-க்கான கணிதம் & Python'],['Linear algebra, probability, scikit-learn.','Linear algebra, probability, scikit-learn.']],['Days 31-60','நாட்கள் 31-60',['Deep learning','டீப் லேர்னிங்'],['PyTorch, CNNs and computer vision.','PyTorch, CNN, கணினிப் பார்வை.']],['Days 61-90','நாட்கள் 61-90',['LLM apps & portfolio','LLM செயலிகள் & portfolio'],['Build and deploy a GenAI app with APIs.','API மூலம் GenAI செயலியை உருவாக்கி வெளியிடுங்கள்.']]]}};
-const GR=[['CBSE Class 9-10','CBSE 9-10 வகுப்பு'],['CBSE Class 11-12','CBSE 11-12 வகுப்பு'],['College Year 1-2','கல்லூரி 1-2 ஆண்டு'],['College Year 3-4','கல்லூரி 3-4 ஆண்டு']];
-const GO=[['board','Ace CBSE Boards (95%+)','CBSE போர்டில் 95%+'],['full','Full Stack Developer','Full Stack டெவலப்பர்'],['data','Data Science & DBMS','Data Science & DBMS'],['ai','AI / ML Specialist','AI / ML நிபுணர்']];
+ai:{g:['AI / ML Specialist Plan','AI / ML நிபுணர் திட்டம்'],s:[['Days 1-30','நாட்கள் 1-30',['Math & Python for ML','ML-க்கான கணிதம் & Python'],['Linear algebra, probability, scikit-learn.','Linear algebra, probability, scikit-learn.']],['Days 31-60','நாட்கள் 31-60',['Deep learning','டீப் லேர்னிங்'],['PyTorch, CNNs and computer vision.','PyTorch, CNN, கணினிப் பார்வை.']],['Days 61-90','நாட்கள் 61-90',['LLM apps & portfolio','LLM செயலிகள் & portfolio'],['Build and deploy a GenAI app with APIs.','API மூலம் GenAI செயலியை உருவாக்கி வெளியிடுங்கள்.']]]},
+java:{g:['Java Full Stack Plan','Java Full Stack திட்டம்'],s:[['Days 1-30','நாட்கள் 1-30',['Core & Advanced Java','Core & Advanced Java'],['OOP, collections, exception handling and JDBC.','OOP, collections, exception handling, JDBC.']],['Days 31-60','நாட்கள் 31-60',['Spring Boot & REST','Spring Boot & REST'],['Build REST APIs with Spring Boot and PostgreSQL.','Spring Boot, PostgreSQL உடன் REST API.']],['Days 61-90','நாட்கள் 61-90',['React + Deploy','React + வெளியீடு'],['Front-end with React and cloud deployment.','React முன்-முனை மற்றும் கிளவுட் வெளியீடு.']]]},
+testing:{g:['Selenium & RPA Plan','Selenium & RPA திட்டம்'],s:[['Days 1-30','நாட்கள் 1-30',['Testing fundamentals','Testing அடிப்படை'],['Manual testing, test cases and bug reporting.','Manual testing, test cases, bug reporting.']],['Days 31-60','நாட்கள் 31-60',['Selenium automation','Selenium automation'],['WebDriver, frameworks and CI integration.','WebDriver, frameworks, CI integration.']],['Days 61-90','நாட்கள் 61-90',['RPA with UiPath','RPA with UiPath'],['Build automation bots and certification prep.','Automation bots உருவாக்கி சான்றிதழ் தயாராகுங்கள்.']]]}
+};
+
+const GR=[
+['CBSE Class 6-8','CBSE 6-8 வகுப்பு'],
+['CBSE Class 9-10','CBSE 9-10 வகுப்பு'],
+['CBSE Class 11-12','CBSE 11-12 வகுப்பு'],
+['BSc Computer Science','BSc கணினி அறிவியல்'],
+['BCA','BCA'],
+['BE / B.Tech','BE / B.Tech'],
+['College Year 1-2','கல்லூரி 1-2 ஆண்டு'],
+['College Year 3-4','கல்லூரி 3-4 ஆண்டு']
+];
+
+const GO=[
+['board','Ace CBSE Boards (95%+)','CBSE போர்டில் 95%+'],
+['full','Full Stack Developer','Full Stack டெவலப்பர்'],
+['data','Data Science & DBMS','Data Science & DBMS'],
+['ai','AI / ML Specialist','AI / ML நிபுணர்'],
+['java','Java Full Stack','Java Full Stack'],
+['testing','Selenium & RPA','Selenium & RPA']
+];
+
 let curTrack='cbse',curLang='Python',typeT,words=[['Lock In Your Tech Future.','உங்கள் தொழில்நுட்ப எதிர்காலத்தை உறுதி செய்யுங்கள்.'],['Code Real Projects.','உண்மையான புராஜெக்ட்கள் உருவாக்குங்கள்.'],['Ace Your Boards.','போர்டு தேர்வில் சாதியுங்கள்.'],['Get Placement Ready.','வேலைவாய்ப்புக்குத் தயாராகுங்கள்.']],wi=0;
 
 function pick(l){lang=l;try{localStorage.setItem('sgz-lang',l)}catch(e){}
 document.getElementById('gate').classList.add('out');setTimeout(()=>document.getElementById('gate').style.display='none',650);render()}
+
 function render(){const i=I();document.documentElement.lang=lang;document.body.classList.toggle('ta',i==1);
 document.getElementById('langBtn').textContent=i?'English':'தமிழ்';
 document.querySelectorAll('[data-k]').forEach(e=>e.innerHTML=S[e.dataset.k][i]);
 document.querySelectorAll('[data-ph]').forEach(e=>e.placeholder=S[e.dataset.ph][i]);
-document.getElementById('stats').innerHTML=STATS.map(s=>`<div class="gl card rounded-2xl p-5 text-left"><div class="text-3xl font-black ${s[3]}"><span data-n="${parseInt(s[0])}">${s[0]}</span>${s[1]||''}${s[0]==='10+'?'':''}</div><div class="text-xs sm:text-sm text-gray-400">${P(s[2])}</div></div>`).join('');
+
+document.getElementById('stats').innerHTML=STATS.map(s=>`<div class="gl card rounded-2xl p-5 text-left"><div class="text-3xl font-black ${s[3]}"><span>${s[0]}</span>${s[1]||''}</div><div class="text-xs sm:text-sm text-gray-400">${P(s[2])}</div></div>`).join('');
+
 document.getElementById('marq').innerHTML=[...TECH,...TECH].map(t=>`<span>◆ ${t}</span>`).join('');
 document.getElementById('why-grid').innerHTML=WHY.map(w=>`<div class="gl card rv rounded-2xl p-6"><div class="text-3xl mb-3">${w[0]}</div><h3 class="font-bold text-lg mb-1">${P(w[1])}</h3><p class="text-gray-400 text-sm">${P(w[2])}</p></div>`).join('');
+
 track(curTrack);
+
+/* ---- Curriculum rendering ---- */
+document.getElementById('cur-grid').innerHTML=CUR.map(c=>`<div class="gl card rv rounded-3xl p-6"><div class="text-3xl mb-3">${c[0]}</div><h3 class="font-bold text-xl mb-4 ${c[3]}">${P(c[1])}</h3><div class="flex flex-wrap gap-1.5">${c[2].map(x=>`<span class="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] mono text-gray-300 hover:text-white hover:border-cc/50 transition">${x}</span>`).join('')}</div></div>`).join('');
+
+document.getElementById('ds-grid').innerHTML=DS.map((d,n)=>`<div class="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-cc/40 transition flex gap-3 items-start"><span class="text-cc font-black text-sm mono shrink-0 pt-0.5">${String(n+1).padStart(2,'0')}</span><div><div class="font-bold text-sm mb-1">${P([d[0],d[1]])}</div><div class="text-gray-400 text-xs leading-relaxed">${P([d[2],d[3]])}</div></div></div>`).join('');
+
+document.getElementById('cert-grid').innerHTML=CERT.map(c=>`<span class="px-3 py-1.5 rounded-full gl text-xs font-semibold text-gray-300 hover:text-ng hover:border-ng/50 transition cursor-default">${c}</span>`).join('');
+
 document.getElementById('langTabs').innerHTML=Object.keys(SNIP).map(k=>`<button onclick="setLang('${k}')" class="px-3 py-1 rounded-lg text-xs font-semibold ${k===curLang?'bg-cp text-white':'text-gray-400 hover:text-white'}">${k}</button>`).join('');
 document.getElementById('code').textContent=SNIP[curLang][0];document.getElementById('out').textContent=SNIP[curLang][1];
+
 const rg=document.getElementById('rg'),rt=document.getElementById('rt'),a=rg.selectedIndex,b=rt.selectedIndex;
 rg.innerHTML=GR.map((g,n)=>`<option value="${n}">${P(g)}</option>`).join('');rt.innerHTML=GO.map(g=>`<option value="${g[0]}">${g[1+i]}</option>`).join('');
 rg.selectedIndex=Math.max(a,0)||1;rt.selectedIndex=Math.max(b,0);
 document.getElementById('fs').innerHTML=GR.map(g=>`<option>${P(g)}</option>`).join('');
+
 document.getElementById('how').innerHTML=HOW.map(h=>`<div class="gl card rv rounded-2xl p-6"><div class="text-4xl font-black tg mb-2">${h[0]}</div><h3 class="font-bold mb-1">${P(h[1])}</h3><p class="text-gray-400 text-sm">${P(h[2])}</p></div>`).join('');
 document.getElementById('rev').innerHTML=REV.map(r=>`<div class="gl card rv rounded-2xl p-6"><div class="text-yellow-400 text-xs mb-3">★★★★★</div><p class="text-gray-300 text-sm mb-4">"${P(r[2])}"</p><div class="flex justify-between text-xs"><b>${r[0]}</b><span class="text-cc">${P(r[1])}</span></div></div>`).join('');
 document.getElementById('faqs').innerHTML=FAQ.map(f=>`<details class="gl rounded-2xl p-5"><summary class="flex justify-between font-bold">${P(f[0])}<span class="pl text-cc text-xl">+</span></summary><p class="text-gray-400 text-sm mt-3">${P(f[1])}</p></details>`).join('');
 roadmap();obs();clearTimeout(typeT);type()}
+
 function track(t){curTrack=t;const on='bg-cp text-white',off='text-gray-400';
-['cbse','college'].forEach(k=>document.getElementById('tb-'+k).className='px-5 py-3 rounded-xl font-extrabold text-sm '+(k===t?on:off));
-document.getElementById('track-grid').innerHTML=TR[t].map(c=>`<div class="gl card rounded-3xl p-6"><div class="text-3xl mb-3">${c[0]}</div><h3 class="font-bold text-xl mb-2">${P(c[1])}</h3><p class="text-gray-400 text-sm mb-4">${P(c[2])}</p><span class="text-xs mono text-ng">${c[3]}</span></div>`).join('')}
+['cbse','college','bsc','bca','btech'].forEach(k=>{const el=document.getElementById('tb-'+k);if(el)el.className='px-5 py-3 rounded-xl font-extrabold text-sm '+(k===t?on:off)});
+document.getElementById('track-grid').innerHTML=(TR[t]||TR.cbse).map(c=>`<div class="gl card rounded-3xl p-6"><div class="text-3xl mb-3">${c[0]}</div><h3 class="font-bold text-xl mb-2">${P(c[1])}</h3><p class="text-gray-400 text-sm mb-4">${P(c[2])}</p><span class="text-xs mono text-ng">${c[3]}</span></div>`).join('')}
+
 function setLang(k){curLang=k;render()}
 function run(){const o=document.getElementById('out');const t=SNIP[curLang][1];o.textContent='';let n=0;const iv=setInterval(()=>{o.textContent=t.slice(0,n+=3);if(n>=t.length)clearInterval(iv)},18)}
 function roadmap(){const g=GR[document.getElementById('rg').value],d=RM[document.getElementById('rt').value],i=I(),c=['text-cp','text-cc','text-ng'];
+if(!d)return;
 document.getElementById('rm').innerHTML=`<div class="flex flex-wrap justify-between gap-2 border-b border-white/10 pb-3 mb-4"><h3 class="font-bold text-lg">${d.g[i]} <span class="text-gray-500 text-sm">• ${g[i]}</span></h3><span class="px-3 py-1 rounded-full bg-ng/20 text-ng text-xs font-extrabold">90-DAY</span></div><div class="grid sm:grid-cols-3 gap-3">${d.s.map((s,n)=>`<div class="p-4 rounded-xl bg-white/5"><div class="${c[n]} font-black text-sm">${s[i]}</div><div class="font-bold my-1">${s[2][i]}</div><div class="text-gray-400 text-xs">${s[3][i]}</div></div>`).join('')}</div>`}
 function type(){const w=words[wi][I()];let n=0,el=document.getElementById('typed');(function s(){el.textContent=w.slice(0,++n);if(n<w.length)typeT=setTimeout(s,60);else typeT=setTimeout(()=>{wi=(wi+1)%words.length;type()},2200)})()}
 function sub(e){e.preventDefault();const o=document.getElementById('ok');o.textContent=S.ok[I()];o.classList.remove('hidden')}
