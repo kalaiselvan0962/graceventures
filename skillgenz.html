@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SkillGenZ - Lock In Your Tech Future</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{cp:'#A855F7',cc:'#06B6D4',ng:'#22C55E',np:'#EC4899'}}}}</script>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600;800;900&family=Noto+Sans+Tamil:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050508;--fg:#F3F4F6;--mut:#9CA3AF;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+body{background:var(--bg);color:var(--fg);font-family:Inter,'Noto Sans Tamil',sans-serif;overflow-x:hidden;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:40px 40px}
+body.ta{font-family:'Noto Sans Tamil',Inter,sans-serif;line-height:1.7}
+.gl{background:rgba(18,20,32,.7);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08)}
+.tg{background:linear-gradient(135deg,#A855F7,#06B6D4 55%,#22C55E);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.rv{opacity:0;transform:translateY(24px);transition:.7s}.rv.in{opacity:1;transform:none}
+.card{transition:.3s}.card:hover{transform:translateY(-6px);border-color:rgba(168,85,247,.6);box-shadow:0 10px 40px -10px rgba(168,85,247,.5)}
+@keyframes mq{to{transform:translateX(-50%)}}.mq{animation:mq 28s linear infinite;width:max-content}
+@keyframes fl{50%{transform:translateY(-14px)}}.fl{animation:fl 5s ease-in-out infinite}
+.blob{position:fixed;border-radius:9999px;filter:blur(120px);pointer-events:none;z-index:0}
+pre,.mono{font-family:'Fira Code',monospace}
+details summary{cursor:pointer;list-style:none}details summary::-webkit-details-marker{display:none}
+details[open] .pl{transform:rotate(45deg)}
+.pl{transition:.3s}
+#gate{position:fixed;inset:0;z-index:100;background:#050508;display:flex;align-items:center;justify-content:center;transition:opacity .6s}
+#gate.out{opacity:0;pointer-events:none}
+#bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#A855F7,#06B6D4,#22C55E);z-index:60;width:0}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div class="blob w-96 h-96 bg-cp/20 top-0 left-1/4"></div><div class="blob w-96 h-96 bg-cc/15 bottom-1/4 right-1/4"></div>
+
+<!-- LANGUAGE GATE -->
+<div id="gate" class="px-4">
+  <div class="text-center max-w-lg w-full">
+    <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-cp via-cc to-ng flex items-center justify-center text-black font-black text-3xl fl mb-6">SZ</div>
+    <h1 class="text-4xl font-black mb-2">Skill<span class="tg">GenZ</span></h1>
+    <p class="text-gray-300 mb-1">Choose your language to continue</p>
+    <p class="text-gray-300 mb-8">தொடர உங்கள் மொழியைத் தேர்ந்தெடுக்கவும்</p>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <button onclick="pick('en')" class="card gl rounded-2xl p-6 border-cc/40"><div class="text-4xl mb-2">🇬🇧</div><div class="text-xl font-extrabold">English</div><div class="text-xs text-gray-400">Continue in English</div></button>
+      <button onclick="pick('ta')" class="card gl rounded-2xl p-6 border-cp/40"><div class="text-4xl mb-2">🌺</div><div class="text-xl font-extrabold">தமிழ்</div><div class="text-xs text-gray-400">தமிழில் தொடரவும்</div></button>
+    </div>
+    <p class="text-xs text-gray-500 mt-6">You can switch anytime • எப்போது வேண்டுமானாலும் மாற்றலாம்</p>
+  </div>
+</div>
+
+<nav class="sticky top-0 z-50 gl border-b border-white/10 px-4 py-3">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
+    <a href="#top" class="flex items-center gap-2"><span class="w-9 h-9 rounded-xl bg-gradient-to-br from-cp via-cc to-ng flex items-center justify-center text-black font-black">SZ</span><span class="text-xl font-extrabold">Skill<span class="tg">GenZ</span></span></a>
+    <div class="hidden lg:flex gap-6 text-sm font-semibold text-gray-300">
+      <a href="#why" data-k="n1" class="hover:text-cc"></a><a href="#tracks" data-k="n2" class="hover:text-cc"></a><a href="#lab" data-k="n3" class="hover:text-cc"></a><a href="#roadmap" data-k="n4" class="hover:text-cc"></a><a href="#faq" data-k="n5" class="hover:text-cc"></a>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="pick(lang==='en'?'ta':'en')" class="gl rounded-xl px-3 py-2 text-xs font-bold text-cc border-cc/40" id="langBtn">தமிழ்</button>
+      <a href="#demo" data-k="cta" class="px-4 py-2 rounded-xl font-bold text-sm text-black bg-gradient-to-r from-cc to-ng"></a>
+    </div>
+  </div>
+</nav>
+
+<main id="top" class="relative z-10">
+<!-- HERO -->
+<header class="px-4 pt-14 pb-16 max-w-7xl mx-auto text-center">
+  <div class="inline-flex items-center gap-2 gl rounded-full px-4 py-2 text-xs sm:text-sm font-semibold text-cp mb-8"><span class="w-2 h-2 rounded-full bg-ng animate-ping"></span><span data-k="badge"></span></div>
+  <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black leading-tight mb-5"><span data-k="h1a"></span><br><span class="tg" id="typed">&nbsp;</span><span class="text-cc animate-pulse">|</span></h1>
+  <p class="max-w-3xl mx-auto text-gray-400 text-base sm:text-lg mb-9" data-k="sub"></p>
+  <div class="flex flex-col sm:flex-row gap-3 justify-center mb-14">
+    <a href="#tracks" onclick="track('cbse')" data-k="b1" class="px-7 py-4 rounded-xl font-extrabold text-black bg-gradient-to-r from-cp via-cc to-ng"></a>
+    <a href="#tracks" onclick="track('college')" data-k="b2" class="px-7 py-4 rounded-xl font-extrabold gl border-cc/50 hover:bg-cc/10"></a>
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto" id="stats"></div>
+</header>
+
+<!-- MARQUEE -->
+<div class="overflow-hidden border-y border-white/10 py-4 bg-black/40"><div class="mq flex gap-10 text-gray-400 mono text-sm" id="marq"></div></div>
+
+<!-- WHY -->
+<section id="why" class="px-4 py-20 max-w-7xl mx-auto">
+  <div class="text-center mb-12 rv"><h2 class="text-3xl sm:text-5xl font-black mb-3"><span data-k="whyT"></span> <span class="tg" data-k="whyT2"></span></h2><p class="text-gray-400 max-w-2xl mx-auto" data-k="whyP"></p></div>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" id="why-grid"></div>
+</section>
+
+<!-- TRACKS -->
+<section id="tracks" class="px-4 py-20 max-w-7xl mx-auto">
+  <div class="text-center mb-10 rv"><h2 class="text-3xl sm:text-5xl font-black mb-3"><span data-k="trT"></span> <span class="tg" data-k="trT2"></span></h2>
+    <div class="inline-flex gl rounded-2xl p-1.5 gap-2 mt-4">
+      <button id="tb-cbse" onclick="track('cbse')" class="px-5 py-3 rounded-xl font-extrabold text-sm" data-k="tab1"></button>
+      <button id="tb-college" onclick="track('college')" class="px-5 py-3 rounded-xl font-extrabold text-sm" data-k="tab2"></button>
+    </div></div>
+  <div id="track-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+</section>
+
+<!-- LAB -->
+<section id="lab" class="px-4 py-20 max-w-7xl mx-auto">
+  <div class="gl rounded-3xl p-6 md:p-10 border-cp/30">
+    <div class="mb-6 rv"><span class="text-xs font-bold text-cc" data-k="labB"></span><h2 class="text-2xl sm:text-4xl font-black" data-k="labT"></h2><p class="text-gray-400 text-sm mt-2" data-k="labP"></p></div>
+    <div class="rounded-2xl bg-[#090A10] border border-white/10 overflow-hidden mono text-xs sm:text-sm">
+      <div class="bg-[#121420] px-4 py-3 flex items-center justify-between flex-wrap gap-2">
+        <div class="flex gap-1.5"><i class="w-3 h-3 rounded-full bg-red-500/80"></i><i class="w-3 h-3 rounded-full bg-yellow-500/80"></i><i class="w-3 h-3 rounded-full bg-green-500/80"></i></div>
+        <div class="flex gap-1" id="langTabs"></div>
+      </div>
+      <div class="grid md:grid-cols-2 md:divide-x divide-white/10 min-h-[260px]">
+        <pre id="code" class="p-5 text-cc overflow-x-auto"></pre>
+        <div class="p-5 flex flex-col justify-between bg-[#0A0C14]">
+          <div id="out" class="text-ng whitespace-pre-wrap"></div>
+          <button onclick="run()" class="mt-4 self-end px-4 py-2 rounded-lg bg-cc/20 text-cc font-bold hover:bg-cc/30">▶ <span data-k="run"></span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap" class="px-4 py-20 max-w-4xl mx-auto">
+  <div class="text-center mb-10 rv"><h2 class="text-3xl sm:text-5xl font-black mb-3"><span data-k="rmT"></span> <span class="tg" data-k="rmT2"></span></h2><p class="text-gray-400" data-k="rmP"></p></div>
+  <div class="gl rounded-3xl p-6 sm:p-10">
+    <div class="grid sm:grid-cols-2 gap-4 mb-5">
+      <select id="rg" class="bg-[#0D0F1A] border border-white/15 rounded-xl px-4 py-3 text-sm"></select>
+      <select id="rt" class="bg-[#0D0F1A] border border-white/15 rounded-xl px-4 py-3 text-sm"></select>
+    </div>
+    <button onclick="roadmap()" class="w-full py-4 rounded-xl font-extrabold text-black bg-gradient-to-r from-ng via-cc to-cp mb-6" data-k="rmB"></button>
+    <div id="rm" class="rounded-2xl bg-[#080912] border border-ng/30 p-5"></div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section class="px-4 py-20 max-w-7xl mx-auto">
+  <div class="text-center mb-12 rv"><h2 class="text-3xl sm:text-5xl font-black"><span data-k="hwT"></span> <span class="tg" data-k="hwT2"></span></h2></div>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5" id="how"></div>
+</section>
+
+<!-- REVIEWS -->
+<section id="outcomes" class="px-4 py-20 max-w-7xl mx-auto">
+  <div class="text-center mb-12 rv"><h2 class="text-3xl sm:text-5xl font-black"><span data-k="rvT"></span> <span class="tg" data-k="rvT2"></span></h2></div>
+  <div class="grid md:grid-cols-3 gap-5" id="rev"></div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="px-4 py-20 max-w-3xl mx-auto">
+  <div class="text-center mb-10 rv"><h2 class="text-3xl sm:text-5xl font-black"><span data-k="fqT"></span> <span class="tg" data-k="fqT2"></span></h2></div>
+  <div class="space-y-3" id="faqs"></div>
+</section>
+
+<!-- DEMO -->
+<section id="demo" class="px-4 py-20 max-w-3xl mx-auto">
+  <div class="gl rounded-3xl p-8 sm:p-12 text-center border-cc/30 rv">
+    <h2 class="text-3xl sm:text-5xl font-black mb-3"><span data-k="dmT"></span> <span class="tg" data-k="dmT2"></span></h2>
+    <p class="text-gray-400 mb-6" data-k="dmP"></p>
+    <form onsubmit="sub(event)" class="grid gap-3 text-left">
+      <input required id="fn" data-ph="phN" class="px-4 py-3 rounded-xl bg-black/60 border border-white/20 text-sm">
+      <input required type="email" data-ph="phE" class="px-4 py-3 rounded-xl bg-black/60 border border-white/20 text-sm">
+      <select id="fs" class="px-4 py-3 rounded-xl bg-black/60 border border-white/20 text-sm"></select>
+      <button class="py-3.5 rounded-xl font-extrabold text-black bg-gradient-to-r from-cc to-ng" data-k="dmB"></button>
+    </form>
+    <p id="ok" class="hidden mt-4 text-sm font-bold text-ng"></p>
+  </div>
+</section>
+</main>
+
+<footer class="relative z-10 border-t border-white/10 bg-[#030305] px-4 py-10 text-center text-xs text-gray-500">
+  <div class="font-bold text-gray-300 text-sm mb-1">SkillGenZ</div>© 2026 SkillGenZ • <span data-k="ft"></span>
+</footer>
+
+<script>
+let lang='en';const I=()=>lang==='ta'?1:0;const P=a=>a[I()];
+const S={
+n1:['Why Us','ஏன் நாங்கள்'],n2:['Tracks','பாடத்திட்டங்கள்'],n3:['Code Lab','கோட் லேப்'],n4:['Roadmap','வழிகாட்டி'],n5:['FAQ','கேள்விகள்'],
+cta:['Free Demo','இலவச டெமோ'],
+badge:['Admissions Open 2026-27','2026-27 சேர்க்கை தொடங்கிவிட்டது'],
+h1a:['Stop being an NPC.','சும்மா பார்வையாளராக இருக்காதீர்கள்.'],
+sub:['From CBSE Class 9-12 Boards & CS to College-level Full Stack, Data Science, DBMS and AI/ML. Real code, real projects, placement readiness.','CBSE 9-12 வகுப்பு பொதுத்தேர்வு & கணினி அறிவியல் முதல் கல்லூரி அளவிலான Full Stack, Data Science, DBMS, AI/ML வரை. உண்மையான கோடிங், உண்மையான புராஜெக்ட்கள், வேலைவாய்ப்புத் தயார்நிலை.'],
+b1:['🎓 CBSE Track (9th-12th)','🎓 CBSE பாடத்திட்டம் (9-12)'],b2:['💻 College Tech Track','💻 கல்லூரி தொழில்நுட்பம்'],
+whyT:['Why students pick','மாணவர்கள் ஏன் தேர்வு செய்கிறார்கள்:'],whyT2:['SkillGenZ','SkillGenZ'],
+whyP:['Everything is built around doing, not just watching.','எல்லாமே பார்ப்பதற்கல்ல, செய்து கற்பதற்காக வடிவமைக்கப்பட்டவை.'],
+trT:['Dual Track','இரட்டை'],trT2:['Learning Ecosystem','கற்றல் வழிகள்'],tab1:['CBSE 9th - 12th','CBSE 9 - 12'],tab2:['College & Technical','கல்லூரி & தொழில்நுட்பம்'],
+labB:['⌨ INTERACTIVE CODE LAB','⌨ நேரடி கோட் லேப்'],labT:['Learn by running real code','உண்மையான கோடை இயக்கி கற்றுக்கொள்ளுங்கள்'],labP:['No installs. Practice in the browser from day one.','எதையும் நிறுவ வேண்டாம். முதல் நாளிலிருந்தே உலாவியிலேயே பயிற்சி.'],run:['Re-run','மீண்டும் இயக்கு'],
+rmT:['Your 90-Day','உங்கள் 90 நாள்'],rmT2:['Lock-In Roadmap','வழிகாட்டி திட்டம்'],rmP:['Pick your level and goal for a custom plan.','உங்கள் நிலை மற்றும் இலக்கைத் தேர்ந்தெடுத்து திட்டம் பெறுங்கள்.'],rmB:['✨ Generate My 90-Day Plan','✨ என் 90 நாள் திட்டத்தை உருவாக்கு'],
+hwT:['How it','இது எப்படி'],hwT2:['works','செயல்படுகிறது'],
+rvT:['Student','மாணவர்'],rvT2:['Proof Points','அனுபவங்கள்'],
+fqT:['Got','உங்கள்'],fqT2:['Questions?','கேள்விகள்?'],
+dmT:['Book a','இலவச'],dmT2:['Free Demo Class','டெமோ வகுப்பை பதிவு செய்யுங்கள்'],dmP:['Leave your details and our team will reach out to you.','உங்கள் விவரங்களைத் தந்தால் எங்கள் குழு உங்களைத் தொடர்பு கொள்ளும்.'],
+phN:['Your name','உங்கள் பெயர்'],phE:['Email address','மின்னஞ்சல் முகவரி'],dmB:['Claim My Free Slot','என் இலவச இடத்தை உறுதி செய்'],
+ok:['🎉 You are on the priority list! We will contact you shortly.','🎉 முன்னுரிமைப் பட்டியலில் இணைந்துவிட்டீர்கள்! விரைவில் தொடர்பு கொள்வோம்.'],
+ft:['Made with ❤ for learners in English & தமிழ்','ஆங்கிலம் & தமிழ் கற்பவர்களுக்காக ❤ உடன் உருவாக்கப்பட்டது']
+};
+const STATS=[['9-12','CBSE',['Board Exam & CS Sprints','பொதுத்தேர்வு & CS பயிற்சி'],'text-cp'],['10+','',['Tech Stacks','தொழில்நுட்பங்கள்'],'text-cc'],['100','%',['Project-First Building','புராஜெக்ட் முறை கற்றல்'],'text-ng'],['2','',['Languages: English & தமிழ்','மொழிகள்: ஆங்கிலம் & தமிழ்'],'text-np']];
+const TECH=['Python','Java','C#','SQL','MySQL','PostgreSQL','MongoDB','React','Node.js','Docker','Git','NumPy','Pandas','PyTorch','TensorFlow','LLM APIs'];
+const WHY=[['🧠',['Concept-first teaching','கருத்து முதலில்'],['We explain the why before the how, so ideas stick.','எப்படி என்பதற்கு முன் ஏன் என்பதை விளக்குகிறோம்; அதனால் நினைவில் நிற்கும்.']],
+['🛠',['Project-based','புராஜெக்ட் அடிப்படை'],['Every module ends with something you can show.','ஒவ்வொரு தொகுதியும் காட்டக்கூடிய ஒன்றுடன் முடிகிறது.']],
+['🗣',['Learn in Tamil or English','தமிழ் அல்லது ஆங்கிலத்தில்'],['Doubts are explained in the language you are comfortable with.','உங்களுக்கு வசதியான மொழியில் சந்தேகங்களுக்கு விளக்கம்.']],
+['📝',['Board-exam focused','தேர்வு மையம்'],['NCERT drills, timed mocks and practical file support.','NCERT பயிற்சி, நேர மாதிரித் தேர்வுகள், practical file உதவி.']],
+['👩‍🏫',['Mentor feedback','வழிகாட்டி கருத்து'],['Code reviews and doubt-clearing, not just recorded videos.','பதிவு வீடியோக்கள் மட்டுமல்ல; கோட் ரிவ்யூ & சந்தேக தீர்வு.']],
+['🚀',['Placement ready','வேலைவாய்ப்புத் தயார்'],['GitHub portfolio, mock interviews and resume help.','GitHub போர்ட்ஃபோலியோ, மாதிரி நேர்காணல், ரெஸ்யூம் உதவி.']]];
+const TR={cbse:[['⚛',['Physics, Chemistry & Maths','இயற்பியல், வேதியியல், கணிதம்'],['NCERT chapter-wise clarity, question banks and board drills for Class 9-12.','9-12 வகுப்பு NCERT பாடவாரியான தெளிவு, வினா வங்கி, தேர்வுப் பயிற்சி.'],'Physics • Chemistry • Maths'],
+['🐍',['Class 11-12 CS / IP','11-12 CS / IP'],['Python, MySQL, stacks & queues and networking with live labs.','Python, MySQL, ஸ்டாக்/க்யூ, நெட்வொர்க்கிங் - நேரடி லேப்களுடன்.'],'Python • MySQL • Networks'],
+['📋',['Practical file & Capstone','Practical file & புராஜெக்ட்'],['Guidance for the practical record, viva and project work.','practical record, viva மற்றும் புராஜெக்ட் வழிகாட்டுதல்.'],'Viva • Project • Records'],
+['🎯',['Class 9-10 Foundation','9-10 அடிப்படை'],['Logic building and math problem solving to start strong.','வலுவான தொடக்கத்திற்கு லாஜிக் & கணிதத் தீர்வு.'],'Logic • Maths • Python basics'],
+['⏱',['Mock Exam Series','மாதிரித் தேர்வுகள்'],['Timed papers with assertion-reason and case-based practice.','நேர வரையறை தாள்கள்; assertion-reason, case-based பயிற்சி.'],'Mocks • Analysis'],
+['🏆',['Score Strategy','மதிப்பெண் உத்தி'],['Answer-writing techniques to maximise marks.','மதிப்பெண்ணை அதிகரிக்கும் விடை எழுதும் முறைகள்.'],'Presentation • Time']],
+college:[['🤖',['Python, Data Science & AI/ML','Python, Data Science & AI/ML'],['NumPy, Pandas, Scikit-Learn, PyTorch, neural nets and GenAI APIs.','NumPy, Pandas, Scikit-Learn, PyTorch, நியூரல் நெட்வொர்க், GenAI API.'],'Project: Deploy an AI model'],
+['🗄',['Java, C# & DBMS','Java, C# & DBMS'],['OOP, .NET, PostgreSQL, MongoDB and system design.','OOP, .NET, PostgreSQL, MongoDB, சிஸ்டம் டிசைன்.'],'Project: Banking API backend'],
+['🌐',['Full Stack Engineering','Full Stack பொறியியல்'],['React, Node/Express, REST APIs, Docker and cloud deployment.','React, Node/Express, REST API, Docker, கிளவுட் வெளியீடு.'],'Project: Live SaaS web app'],
+['📊',['SQL & Analytics','SQL & பகுப்பாய்வு'],['Joins, indexing, window functions and dashboards.','Joins, indexing, window functions, டாஷ்போர்டுகள்.'],'Project: Sales dashboard'],
+['🧩',['DSA & Interview Prep','DSA & நேர்காணல் தயாரிப்பு'],['Arrays to graphs with weekly coding rounds.','Arrays முதல் graphs வரை; வாராந்திர கோடிங் சுற்றுகள்.'],'Weekly mock rounds'],
+['☁',['Git, Cloud & DevOps','Git, Cloud & DevOps'],['Branching, CI/CD and deploying on Vercel/Render.','Branching, CI/CD, Vercel/Render வெளியீடு.'],'Project: CI/CD pipeline']]};
+const HOW=[['01',['Pick your track','பாதையைத் தேர்வு செய்','' ],['Choose CBSE or College and your goal.','CBSE அல்லது கல்லூரி, உங்கள் இலக்கைத் தேர்வு செய்யுங்கள்.']],
+['02',['Attend a free demo','இலவச டெமோ'],['Try a live class and meet the mentors.','நேரடி வகுப்பில் பங்கேற்று வழிகாட்டிகளைச் சந்தியுங்கள்.']],
+['03',['Learn by building','செய்து கற்றல்'],['Labs, projects and weekly doubt sessions.','லேப், புராஜெக்ட், வாராந்திர சந்தேக அமர்வுகள்.']],
+['04',['Show your results','முடிவுகளைக் காட்டுங்கள்'],['Boards, portfolio, interviews - measured progress.','தேர்வு, போர்ட்ஃபோலியோ, நேர்காணல் - அளவிடப்படும் முன்னேற்றம்.']]];
+const REV=[['Rohan S.',['CBSE Class 12 CS','CBSE 12 CS'],['Went from 62% in Class 11 to 97/100 in Boards. The Python logic breakdowns are unmatched.','11-ல் 62%-இலிருந்து போர்டில் 97/100. Python லாஜிக் விளக்கங்கள் அருமை.']],
+['Priya M.',['B.Tech 2nd Year','B.Tech 2ஆம் ஆண்டு'],['Built my first live Full Stack AI project in 3 weeks. No tutorial hell, just building.','3 வாரத்தில் என் முதல் Full Stack AI புராஜெக்ட். வெறும் வீடியோ இல்லை, செய்து கற்றேன்.']],
+['Anish K.',['BCA Final Year','BCA இறுதியாண்டு'],['SQL sandbox queries made DBMS clear in 2 days. Cleared my technical interview!','SQL பயிற்சிகள் 2 நாளில் DBMS-ஐ தெளிவாக்கின. நேர்காணலில் தேர்ச்சி!']]];
+const FAQ=[[['Which classes and boards do you cover?','எந்த வகுப்புகள், போர்டுகள்?'],['CBSE Class 9-12 (Science and CS/IP) plus college-level technical courses.','CBSE 9-12 (அறிவியல் மற்றும் CS/IP), கூடவே கல்லூரி தொழில்நுட்பப் படிப்புகள்.']],
+[['Can I learn in Tamil?','தமிழில் கற்க முடியுமா?'],['Yes. Concepts and doubts can be explained in Tamil or English. Code and technical terms stay in English.','முடியும். கருத்துகள், சந்தேகங்கள் தமிழ் அல்லது ஆங்கிலத்தில் விளக்கப்படும். கோடும் தொழில்நுட்பச் சொற்களும் ஆங்கிலத்திலேயே இருக்கும்.']],
+[['Do I need prior coding experience?','முன் கோடிங் அனுபவம் தேவையா?'],['No. Every track starts from the basics.','தேவையில்லை. ஒவ்வொரு பாடமும் அடிப்படையிலிருந்து தொடங்கும்.']],
+[['How do I join a demo class?','டெமோ வகுப்பில் எப்படி சேர்வது?'],['Fill the form below and our team will contact you.','கீழே உள்ள படிவத்தை நிரப்புங்கள்; எங்கள் குழு தொடர்பு கொள்ளும்.']],
+[['Will I build real projects?','உண்மையான புராஜெக்ட்கள் செய்வேனா?'],['Yes. Every track ends with a deployable project or the CBSE practical project.','ஆம். ஒவ்வொரு பாடமும் வெளியிடக்கூடிய புராஜெக்ட் அல்லது CBSE practical புராஜெக்டுடன் முடியும்.']]];
+const SNIP={Python:["# SkillGenZ Python Lab\ndef aura(score, projects):\n    return score*10 + projects*250\n\nprint('Aura:', aura(98, 4))","[Python 3.11]\nAura: 1980\nProcess finished with exit code 0"],
+SQL:["-- Relational DB lab\nSELECT s.name, c.title, s.points\nFROM students s\nJOIN enrollments e ON s.id=e.student_id\nJOIN courses c ON e.course_id=c.id\nORDER BY s.points DESC;","[MySQL]\n| name  | title     | points |\n| Arjun | AI & ML   | 2450   |\n| Divya | DBMS      | 2390   |\n(2 rows in 4ms)"],
+Java:["// Java OOP lab\npublic class App {\n  public static void main(String[] a) {\n    System.out.println(\"Hello, SkillGenZ\");\n  }\n}","[javac App.java]\nHello, SkillGenZ\nExecution time: 18ms"],
+'AI/ML':["# ML lab\nfrom sklearn.ensemble import RandomForestClassifier\nmodel = RandomForestClassifier(n_estimators=100)\nmodel.fit(X_train, y_train)\nprint(model.score(X_test, y_test))","[scikit-learn]\nTraining 100 estimators...\n0.9442\nModel ready for REST API deployment."]};
+const RM={board:{g:['CBSE Board 95%+ Plan','CBSE போர்டு 95%+ திட்டம்'],s:[['Days 1-30','நாட்கள் 1-30',['NCERT + Python core','NCERT + Python அடிப்படை'],['Chapter drills, functions, lists and dictionaries.','பாடவாரிப் பயிற்சி, functions, lists, dictionaries.']],['Days 31-60','நாட்கள் 31-60',['Data structures & MySQL','Data structures & MySQL'],['Stacks, queues, joins and networking basics.','Stacks, queues, joins, நெட்வொர்க்கிங் அடிப்படை.']],['Days 61-90','நாட்கள் 61-90',['Sample papers & practicals','மாதிரித் தாள்கள் & practical'],['Timed mocks, viva prep and practical file.','நேரத் தேர்வுகள், viva, practical file.']]]},
+full:{g:['Full Stack Developer Plan','Full Stack டெவலப்பர் திட்டம்'],s:[['Days 1-30','நாட்கள் 1-30',['Web basics & Git','வலை அடிப்படை & Git'],['HTML, CSS, JavaScript and GitHub workflow.','HTML, CSS, JavaScript, GitHub பணிமுறை.']],['Days 31-60','நாட்கள் 31-60',['React + APIs','React + APIs'],['Build REST APIs with Node/Express and a database.','Node/Express மற்றும் டேட்டாபேஸுடன் REST API.']],['Days 61-90','நாட்கள் 61-90',['Capstone & deploy','Capstone & வெளியீடு'],['Ship a SaaS app with login on the cloud.','லாகின் உடன் SaaS செயலியை கிளவுடில் வெளியிடுங்கள்.']]]},
+data:{g:['Data Science & DBMS Plan','Data Science & DBMS திட்டம்'],s:[['Days 1-30','நாட்கள் 1-30',['Python + SQL','Python + SQL'],['NumPy, Pandas and relational design.','NumPy, Pandas, ரிலேஷனல் வடிவமைப்பு.']],['Days 31-60','நாட்கள் 31-60',['EDA & statistics','EDA & புள்ளியியல்'],['Cleaning, visualising and modelling data.','தரவைச் சுத்தம் செய்தல், காட்சிப்படுத்தல், மாடலிங்.']],['Days 61-90','நாட்கள் 61-90',['Dashboard project','டாஷ்போர்டு புராஜெக்ட்'],['Build and present an analytics dashboard.','பகுப்பாய்வு டாஷ்போர்டை உருவாக்கி வழங்குங்கள்.']]]},
+ai:{g:['AI / ML Specialist Plan','AI / ML நிபுணர் திட்டம்'],s:[['Days 1-30','நாட்கள் 1-30',['Math & Python for ML','ML-க்கான கணிதம் & Python'],['Linear algebra, probability, scikit-learn.','Linear algebra, probability, scikit-learn.']],['Days 31-60','நாட்கள் 31-60',['Deep learning','டீப் லேர்னிங்'],['PyTorch, CNNs and computer vision.','PyTorch, CNN, கணினிப் பார்வை.']],['Days 61-90','நாட்கள் 61-90',['LLM apps & portfolio','LLM செயலிகள் & portfolio'],['Build and deploy a GenAI app with APIs.','API மூலம் GenAI செயலியை உருவாக்கி வெளியிடுங்கள்.']]]}};
+const GR=[['CBSE Class 9-10','CBSE 9-10 வகுப்பு'],['CBSE Class 11-12','CBSE 11-12 வகுப்பு'],['College Year 1-2','கல்லூரி 1-2 ஆண்டு'],['College Year 3-4','கல்லூரி 3-4 ஆண்டு']];
+const GO=[['board','Ace CBSE Boards (95%+)','CBSE போர்டில் 95%+'],['full','Full Stack Developer','Full Stack டெவலப்பர்'],['data','Data Science & DBMS','Data Science & DBMS'],['ai','AI / ML Specialist','AI / ML நிபுணர்']];
+let curTrack='cbse',curLang='Python',typeT,words=[['Lock In Your Tech Future.','உங்கள் தொழில்நுட்ப எதிர்காலத்தை உறுதி செய்யுங்கள்.'],['Code Real Projects.','உண்மையான புராஜெக்ட்கள் உருவாக்குங்கள்.'],['Ace Your Boards.','போர்டு தேர்வில் சாதியுங்கள்.'],['Get Placement Ready.','வேலைவாய்ப்புக்குத் தயாராகுங்கள்.']],wi=0;
+
+function pick(l){lang=l;try{localStorage.setItem('sgz-lang',l)}catch(e){}
+document.getElementById('gate').classList.add('out');setTimeout(()=>document.getElementById('gate').style.display='none',650);render()}
+function render(){const i=I();document.documentElement.lang=lang;document.body.classList.toggle('ta',i==1);
+document.getElementById('langBtn').textContent=i?'English':'தமிழ்';
+document.querySelectorAll('[data-k]').forEach(e=>e.innerHTML=S[e.dataset.k][i]);
+document.querySelectorAll('[data-ph]').forEach(e=>e.placeholder=S[e.dataset.ph][i]);
+document.getElementById('stats').innerHTML=STATS.map(s=>`<div class="gl card rounded-2xl p-5 text-left"><div class="text-3xl font-black ${s[3]}"><span data-n="${parseInt(s[0])}">${s[0]}</span>${s[1]||''}${s[0]==='10+'?'':''}</div><div class="text-xs sm:text-sm text-gray-400">${P(s[2])}</div></div>`).join('');
+document.getElementById('marq').innerHTML=[...TECH,...TECH].map(t=>`<span>◆ ${t}</span>`).join('');
+document.getElementById('why-grid').innerHTML=WHY.map(w=>`<div class="gl card rv rounded-2xl p-6"><div class="text-3xl mb-3">${w[0]}</div><h3 class="font-bold text-lg mb-1">${P(w[1])}</h3><p class="text-gray-400 text-sm">${P(w[2])}</p></div>`).join('');
+track(curTrack);
+document.getElementById('langTabs').innerHTML=Object.keys(SNIP).map(k=>`<button onclick="setLang('${k}')" class="px-3 py-1 rounded-lg text-xs font-semibold ${k===curLang?'bg-cp text-white':'text-gray-400 hover:text-white'}">${k}</button>`).join('');
+document.getElementById('code').textContent=SNIP[curLang][0];document.getElementById('out').textContent=SNIP[curLang][1];
+const rg=document.getElementById('rg'),rt=document.getElementById('rt'),a=rg.selectedIndex,b=rt.selectedIndex;
+rg.innerHTML=GR.map((g,n)=>`<option value="${n}">${P(g)}</option>`).join('');rt.innerHTML=GO.map(g=>`<option value="${g[0]}">${g[1+i]}</option>`).join('');
+rg.selectedIndex=Math.max(a,0)||1;rt.selectedIndex=Math.max(b,0);
+document.getElementById('fs').innerHTML=GR.map(g=>`<option>${P(g)}</option>`).join('');
+document.getElementById('how').innerHTML=HOW.map(h=>`<div class="gl card rv rounded-2xl p-6"><div class="text-4xl font-black tg mb-2">${h[0]}</div><h3 class="font-bold mb-1">${P(h[1])}</h3><p class="text-gray-400 text-sm">${P(h[2])}</p></div>`).join('');
+document.getElementById('rev').innerHTML=REV.map(r=>`<div class="gl card rv rounded-2xl p-6"><div class="text-yellow-400 text-xs mb-3">★★★★★</div><p class="text-gray-300 text-sm mb-4">"${P(r[2])}"</p><div class="flex justify-between text-xs"><b>${r[0]}</b><span class="text-cc">${P(r[1])}</span></div></div>`).join('');
+document.getElementById('faqs').innerHTML=FAQ.map(f=>`<details class="gl rounded-2xl p-5"><summary class="flex justify-between font-bold">${P(f[0])}<span class="pl text-cc text-xl">+</span></summary><p class="text-gray-400 text-sm mt-3">${P(f[1])}</p></details>`).join('');
+roadmap();obs();clearTimeout(typeT);type()}
+function track(t){curTrack=t;const on='bg-cp text-white',off='text-gray-400';
+['cbse','college'].forEach(k=>document.getElementById('tb-'+k).className='px-5 py-3 rounded-xl font-extrabold text-sm '+(k===t?on:off));
+document.getElementById('track-grid').innerHTML=TR[t].map(c=>`<div class="gl card rounded-3xl p-6"><div class="text-3xl mb-3">${c[0]}</div><h3 class="font-bold text-xl mb-2">${P(c[1])}</h3><p class="text-gray-400 text-sm mb-4">${P(c[2])}</p><span class="text-xs mono text-ng">${c[3]}</span></div>`).join('')}
+function setLang(k){curLang=k;render()}
+function run(){const o=document.getElementById('out');const t=SNIP[curLang][1];o.textContent='';let n=0;const iv=setInterval(()=>{o.textContent=t.slice(0,n+=3);if(n>=t.length)clearInterval(iv)},18)}
+function roadmap(){const g=GR[document.getElementById('rg').value],d=RM[document.getElementById('rt').value],i=I(),c=['text-cp','text-cc','text-ng'];
+document.getElementById('rm').innerHTML=`<div class="flex flex-wrap justify-between gap-2 border-b border-white/10 pb-3 mb-4"><h3 class="font-bold text-lg">${d.g[i]} <span class="text-gray-500 text-sm">• ${g[i]}</span></h3><span class="px-3 py-1 rounded-full bg-ng/20 text-ng text-xs font-extrabold">90-DAY</span></div><div class="grid sm:grid-cols-3 gap-3">${d.s.map((s,n)=>`<div class="p-4 rounded-xl bg-white/5"><div class="${c[n]} font-black text-sm">${s[i]}</div><div class="font-bold my-1">${s[2][i]}</div><div class="text-gray-400 text-xs">${s[3][i]}</div></div>`).join('')}</div>`}
+function type(){const w=words[wi][I()];let n=0,el=document.getElementById('typed');(function s(){el.textContent=w.slice(0,++n);if(n<w.length)typeT=setTimeout(s,60);else typeT=setTimeout(()=>{wi=(wi+1)%words.length;type()},2200)})()}
+function sub(e){e.preventDefault();const o=document.getElementById('ok');o.textContent=S.ok[I()];o.classList.remove('hidden')}
+let io;function obs(){io&&io.disconnect();io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}}),{threshold:.12});document.querySelectorAll('.rv').forEach(e=>io.observe(e))}
+addEventListener('scroll',()=>{const h=document.documentElement;document.getElementById('bar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%'});
+document.getElementById('rg').addEventListener('change',roadmap);document.getElementById('rt').addEventListener('change',roadmap);
+render();
+</script>
+</body>
+</html>
