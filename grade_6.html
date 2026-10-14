@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gesture Controlled SmartLight — Complete Code Per Session</title>
+<style>
+  :root{
+    --bg:#000000;
+    --panel:#0a0a0c;
+    --panel2:#101013;
+    --line:#1a1a1f;
+    --line2:#26262e;
+    --text:#ececf1;
+    --muted:#8b8b96;
+    --accent:#00e5a0;
+    --accent-dim:rgba(0,229,160,.10);
+    --violet:#8b5cf6;
+    --amber:#ffb020;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(900px 520px at 50% -12%, rgba(0,229,160,.075), transparent 70%),
+      radial-gradient(720px 420px at 92% 8%, rgba(139,92,246,.06), transparent 70%);
+  }
+  .wrap{max-width:1020px;margin:0 auto;padding:0 22px;position:relative;z-index:1}
+
+  header{
+    position:sticky;top:0;z-index:60;
+    background:rgba(0,0,0,.78);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--line);
+  }
+  .head-inner{max-width:1020px;margin:0 auto;padding:16px 22px 12px}
+  .kicker{
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;margin-bottom:6px;
+  }
+  h1{
+    font-size:clamp(19px,2.6vw,26px);
+    font-weight:800;letter-spacing:-.02em;line-height:1.2;
+  }
+  h1 span{
+    background:linear-gradient(92deg,#00e5a0 0%,#57d4ff 55%,#8b5cf6 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .sub{color:var(--muted);font-size:13px;margin-top:6px}
+  .filters{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .pill{
+    font:inherit;font-size:12.5px;font-weight:600;
+    padding:7px 14px;border-radius:999px;cursor:pointer;
+    background:var(--panel2);color:var(--muted);
+    border:1px solid var(--line2);
+    transition:.18s ease;
+  }
+  .pill:hover{color:var(--text);border-color:#3a3a44}
+  .pill.active{
+    background:var(--accent-dim);color:var(--accent);
+    border-color:rgba(0,229,160,.35);
+    box-shadow:0 0 0 3px rgba(0,229,160,.06);
+  }
+
+  .note{
+    margin:28px 0 8px;
+    border:1px solid var(--line2);
+    background:linear-gradient(180deg,#0b0b0e,#070709);
+    border-radius:16px;padding:16px 18px;
+    font-size:13.5px;color:#b6b6c0;
+  }
+  .note b{color:var(--text)}
+  .note .row{display:flex;gap:10px;align-items:flex-start;margin-top:8px}
+  .note .row:first-of-type{margin-top:0}
+  .ico{color:var(--accent);flex-shrink:0}
+
+  main{padding:26px 0 80px}
+  .card{
+    display:grid;grid-template-columns:60px 1fr;gap:0;
+    padding-bottom:30px;
+    animation:fade .45s ease both;
+  }
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .card.hidden{display:none}
+  .rail{position:relative;display:flex;justify-content:center}
+  .rail::before{
+    content:'';position:absolute;top:48px;bottom:-30px;width:1px;
+    background:linear-gradient(180deg,var(--line2),var(--line));
+  }
+  .card:last-child .rail::before{display:none}
+  .dot{
+    position:relative;z-index:1;
+    width:46px;height:46px;border-radius:15px;
+    background:#0d0d10;border:1px solid var(--line2);
+    display:grid;place-items:center;
+    font-weight:800;font-size:14.5px;color:var(--accent);
+    box-shadow:0 0 0 4px #000;
+  }
+  .card[data-track="arduino"] .dot{color:var(--violet)}
+  .card[data-track="both"] .dot{color:var(--amber)}
+
+  .body{
+    background:linear-gradient(180deg,#0b0b0e 0%,#08080a 100%);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:20px 22px 22px;
+    margin-left:12px;
+    transition:border-color .2s ease;
+  }
+  .body:hover{border-color:#2c2c36}
+
+  .phase{
+    display:inline-block;
+    font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+    padding:4px 10px;border-radius:999px;
+    background:rgba(0,229,160,.08);color:var(--accent);
+    border:1px solid rgba(0,229,160,.18);
+    margin-bottom:10px;
+  }
+  .phase.v{background:rgba(139,92,246,.10);color:#b39aff;border-color:rgba(139,92,246,.22)}
+  .phase.a{background:rgba(255,176,32,.10);color:var(--amber);border-color:rgba(255,176,32,.22)}
+
+  h2{
+    font-size:clamp(16px,2.1vw,19px);
+    font-weight:750;letter-spacing:-.01em;line-height:1.3;
+  }
+  .goal{color:#a9a9b4;font-size:13.5px;margin-top:8px;max-width:72ch}
+
+  .skills{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .skills span{
+    font-size:11px;font-weight:600;color:#9a9aa6;
+    background:#111116;border:1px solid var(--line2);
+    padding:3.5px 9px;border-radius:7px;
+  }
+
+  .codeblock{
+    margin-top:15px;
+    border:1px solid var(--line2);
+    border-radius:13px;
+    overflow:hidden;
+    background:#040406;
+  }
+  .blockbar{
+    display:flex;align-items:center;gap:9px;
+    padding:9px 12px;
+    background:#0e0e12;
+    border-bottom:1px solid var(--line);
+  }
+  .fname{
+    font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:11.5px;color:#8f8f9c;letter-spacing:.01em;
+  }
+  .badge{
+    font-size:9.5px;font-weight:800;letter-spacing:.1em;
+    padding:3px 8px;border-radius:999px;
+    background:rgba(0,229,160,.10);color:var(--accent);
+    border:1px solid rgba(0,229,160,.22);
+  }
+  .badge.full{background:rgba(87,212,255,.10);color:#57d4ff;border-color:rgba(87,212,255,.24)}
+  .badge.setup{background:rgba(255,176,32,.10);color:var(--amber);border-color:rgba(255,176,32,.24)}
+  .badge.struct{background:rgba(139,92,246,.12);color:#b39aff;border-color:rgba(139,92,246,.26)}
+  .copy{
+    margin-left:auto;
+    font:inherit;font-size:11.5px;font-weight:700;
+    padding:5px 12px;border-radius:8px;cursor:pointer;
+    background:#17171d;color:#b9b9c4;
+    border:1px solid var(--line2);
+    transition:.16s ease;
+  }
+  .copy:hover{background:#1e1e26;color:#fff;border-color:#3a3a46}
+  .copy.ok{background:rgba(0,229,160,.14);color:var(--accent);border-color:rgba(0,229,160,.4)}
+
+  pre{
+    margin:0;padding:16px 16px 18px;
+    overflow-x:auto;
+    font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:12.6px;line-height:1.68;
+    tab-size:4;
+  }
+  pre::-webkit-scrollbar{height:9px}
+  pre::-webkit-scrollbar-track{background:#0a0a0d}
+  pre::-webkit-scrollbar-thumb{background:#23232b;border-radius:9px}
+  pre::-webkit-scrollbar-thumb:hover{background:#33333e}
+  code{font-family:inherit;color:#d6d6de;white-space:pre}
+
+  .tok-c{color:#5d6775;font-style:italic}
+  .tok-s{color:#7ee787}
+  .tok-k{color:#ff7b72}
+  .tok-n{color:#f0a35e}
+  .tok-p{color:#c792ea}
+
+  .tip{
+    margin-top:14px;
+    display:flex;gap:10px;align-items:flex-start;
+    font-size:12.8px;color:#a4a4b0;
+    background:#0e0e12;
+    border:1px solid var(--line);
+    border-left:2px solid var(--accent);
+    border-radius:0 11px 11px 0;
+    padding:11px 14px;
+  }
+  .card[data-track="arduino"] .tip{border-left-color:var(--violet)}
+  .tip b{color:#e6e6ec}
+
+  .tasks{margin-top:14px;display:flex;flex-direction:column;gap:8px;padding:0}
+  .tasks li{
+    list-style:none;font-size:13px;color:#a4a4b0;
+    display:flex;gap:10px;align-items:flex-start;
+    background:#0e0e12;border:1px solid var(--line);
+    border-radius:11px;padding:10px 13px;
+  }
+  .tasks li::before{
+    content:'▸';color:var(--accent);font-weight:800;flex-shrink:0;
+  }
+
+  /* ---------- Lock / Password gate ---------- */
+  .lock-banner{
+    display:inline-flex;align-items:center;gap:7px;
+    font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+    padding:5px 11px;border-radius:999px;
+    background:rgba(255,176,32,.10);color:var(--amber);
+    border:1px solid rgba(255,176,32,.28);
+    margin-left:8px;
+  }
+  .lock-banner.unlocked{
+    background:rgba(0,229,160,.10);color:var(--accent);
+    border-color:rgba(0,229,160,.28);
+  }
+  .lock-overlay-static{
+    margin-top:15px;
+    border:1px solid rgba(255,176,32,.22);
+    background:linear-gradient(180deg,#100c10,#07060a);
+    border-radius:14px;
+    padding:34px 22px;
+    display:grid;place-items:center;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .lock-overlay-static::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(420px 200px at 50% 0%, rgba(255,176,32,.08), transparent 70%);
+  }
+  .lock-card{
+    position:relative;z-index:1;
+    max-width:400px;width:100%;
+    text-align:center;
+  }
+  .lock-icon{
+    font-size:30px;line-height:1;margin-bottom:10px;
+    filter:drop-shadow(0 0 18px rgba(255,176,32,.5));
+  }
+  .lock-card h3{
+    font-size:15.5px;font-weight:800;color:var(--amber);
+    letter-spacing:.02em;
+  }
+  .lock-card p{
+    font-size:12.8px;color:#9a9aa6;margin-top:7px;line-height:1.55;
+  }
+  .lock-input-row{
+    display:flex;gap:8px;margin-top:16px;
+  }
+  .lock-input-row input{
+    flex:1;min-width:0;
+    font:inherit;font-size:13px;
+    padding:10px 13px;border-radius:10px;
+    background:#07070a;color:#fff;
+    border:1px solid #26262e;outline:none;
+    transition:.15s;
+  }
+  .lock-input-row input:focus{
+    border-color:rgba(255,176,32,.55);
+    box-shadow:0 0 0 3px rgba(255,176,32,.10);
+  }
+  .lock-input-row button{
+    font:inherit;font-size:12.5px;font-weight:800;
+    padding:10px 18px;border-radius:10px;cursor:pointer;
+    background:linear-gradient(180deg,#ffb020,#e08e00);
+    color:#1a1000;border:none;
+    transition:.15s;
+    white-space:nowrap;
+  }
+  .lock-input-row button:hover{filter:brightness(1.1)}
+  .lock-input-row button:active{transform:translateY(1px)}
+  .lock-error{
+    font-size:11.5px;color:#ff7b72;
+    margin-top:9px;min-height:15px;font-weight:600;
+  }
+  .lock-hint{
+    font-size:11px;color:#5f5f6b;margin-top:10px;
+  }
+
+  footer{
+    border-top:1px solid var(--line);
+    padding:26px 0 50px;
+    text-align:center;color:#5f5f6b;font-size:12px;
+  }
+
+  @media (max-width:640px){
+    .card{grid-template-columns:40px 1fr}
+    .dot{width:36px;height:36px;border-radius:12px;font-size:12.5px}
+    .rail::before{top:38px}
+    .body{padding:16px 15px 18px;margin-left:8px;border-radius:15px}
+    pre{font-size:11.7px;padding:13px}
+    .filters{gap:6px}
+    .pill{font-size:11.5px;padding:6px 11px}
+    .lock-input-row{flex-direction:column}
+    .lock-input-row button{width:100%}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-inner">
+    <div class="kicker">Gesture Controlled SmartLight</div>
+    <h1>Complete <span>Code Per Session</span> · Class 9 → Class 20</h1>
+    <div class="sub">Every session shows the FULL file. Copy the whole block and paste it over your previous version — no partial edits needed.</div>
+    <div class="filters">
+      <button class="pill active" data-filter="all">All Sessions</button>
+      <button class="pill" data-filter="python">Phase I · Python</button>
+      <button class="pill" data-filter="arduino">Phase II · Arduino / ESP32</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="note">
+    <div class="row"><span class="ico">◆</span><span><b>How to use:</b> open <code>gesture.py</code> (Phase I) or <code>gesture_grade6.ino</code> (Phase II) in VS Code / Arduino IDE. For each session, click <b>Copy</b> and paste the <b>entire</b> block over your old file.</span></div>
+    <div class="row"><span class="ico">◆</span><span><b>Grand Finale is locked.</b> The Session 20 code blocks are hidden until you enter the class password. Your instructor will share it with you. Sessions 9–19 are open to everyone.</span></div>
+  </div>
+</div>
+
+<main class="wrap" id="timeline"></main>
+
+<footer>Hand Gesture Controlled SmartLight · Phase I + Phase II · Happy Building 🚀</footer>
+
+<script>
+/* =========================================================
+   WEB PASSWORD GATE  (only here — NOT in the Python / Arduino code)
+   ========================================================= */
+const WEB_PASSWORD = "smartlight123";
+let grandFinaleUnlocked = (sessionStorage.getItem('gf_unlocked') === '1');
+
+/* =========================================================
+   CODE STORE (raw text for copy)
+   ========================================================= */
+const CODE_STORE = [];
+
+/* =========================================================
+   SYNTAX HIGHLIGHTER
+   ========================================================= */
+function escapeHTML(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlight(code, lang){
+  let src = escapeHTML(code);
+  if(lang === 'text') return src;
+
+  let re, map;
+
+  if(lang === 'python'){
+    re = /(#[^\n]*)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')|\b(def|import|from|as|if|elif|else|while|for|in|break|continue|return|global|True|False|None|and|or|not|print|pass|try|except|lambda|with|exit|input)\b|\b(\d+)\b/g;
+    map = ['c','s','k','n'];
+  } else {
+    re = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')|(#\s*\w+)|\b(void|int|uint8_t|String|bool|for|if|else|while|return|break|continue|const|char|byte|unsigned|long|true|false|HIGH|LOW|OUTPUT|INPUT|setup|loop|delay)\b|\b(\d+)\b/g;
+    map = ['c','s','p','k','n'];
+  }
+
+  return src.replace(re, function(m){
+    const groups = Array.prototype.slice.call(arguments, 1, 1 + map.length);
+    for(let i = 0; i < groups.length; i++){
+      if(groups[i] !== undefined){
+        return '<span class="tok-' + map[i] + '">' + m + '</span>';
+      }
+    }
+    return m;
+  });
+}
+
+/* =========================================================
+   SESSION DATA
+   ========================================================= */
+const SESSIONS = [
+
+/* ---------------- SESSION 9 ---------------- */
+{
+  n: 9,
+  track: 'python',
+  phase: 'Phase I · Introduction',
+  phaseClass: '',
+  title: 'Introduction to Hand Gesture Controlled SmartLight',
+  goal: 'Understand home automation through real-life examples (automatic lights, doors) and get a high-level map of the whole project before writing a single line of code.',
+  skills: ['Systems Thinking','Observation Skills','Conceptual Understanding'],
+  blocks: [],
+  tasks: [
+    'Draw the project flow chart: Camera → Hand Detection → Gesture → Serial (Python) → ESP32 → NeoPixel Light',
+    'Research 3 real-time applications of gesture controlled devices (smart TVs, sensor taps, car infotainment, hospital touchless switches)',
+    'Open VS Code, explore the Explorer panel, the Terminal panel and the Extensions panel'
+  ],
+  tip: '<b>No code today.</b> Today you build the mental model. Every session from 10 onwards hangs on the flow chart you draw today.'
+},
+
+/* ---------------- SESSION 10 ---------------- */
+{
+  n: 10,
+  track: 'python',
+  phase: 'Phase I · Camera Basics',
+  phaseClass: '',
+  title: 'From Print to Pictures: First Steps with Camera Frame',
+  goal: 'Create and save your first Python file, install the required libraries, and capture one single camera frame.',
+  skills: ['Digital Literacy','Tool Usage','Programming Readiness'],
+  blocks: [
+    {
+      file: 'VS Code Terminal',
+      badge: 'RUN ONCE',
+      badgeClass: 'setup',
+      lang: 'text',
+      code:
+`pip install opencv-python
+pip install cvzone
+pip install pyserial`
+    },
+    {
+      file: 'gesture.py',
+      badge: 'COMPLETE FILE',
+      badgeClass: 'full',
+      lang: 'python',
+      code:
+`# -------------------------
+# Hand Gesture Controlled SmartLight
+# Phase I : Session 10 - Print & First Camera Frame
+# -------------------------
+
+# Step 1: Import Libraries
+import cv2
+
+# Step 2: Print statement in VS Code
+print("Hello! My Hand Gesture Project has started.")
+
+# Step 3: Open the camera (0 = default webcam)
+cap = cv2.VideoCapture(0)
+
+# Step 4: Read ONE frame from the camera
+success, img = cap.read()
+print("Camera frame captured:", success)
+
+# Step 5: Show the captured frame
+cv2.imshow("My First Frame", img)
+cv2.waitKey(0)
+
+# Step 6: Release the camera
+cap.release()
+cv2.destroyAllWindows()`
+    }
+  ],
+  tip: '<b>Camera index:</b> <code>0</code> is the built-in webcam. If you use an external USB camera, try <code>1</code> or <code>2</code>. If <code>success</code> prints <code>False</code>, your camera is busy in another app.'
+},
+
+/* ---------------- SESSION 11 ---------------- */
+{
+  n: 11,
+  track: 'python',
+  phase: 'Phase I · Camera Basics',
+  phaseClass: '',
+  title: 'Say Cheese: Capturing Live Video',
+  goal: 'Check camera accessibility and use a loop to capture a live camera feed instead of a single still frame.',
+  skills: ['Looping Logic','Resource Management','Debugging Basics'],
+  blocks: [
+    {
+      file: 'gesture.py',
+      badge: 'COMPLETE FILE',
+      badgeClass: 'full',
+      lang: 'python',
+      code:
+`# -------------------------
+# Hand Gesture Controlled SmartLight
+# Phase I : Session 11 - Live Video
+# -------------------------
+
+# Step 1: Import Libraries
+import cv2
+
+# Step 2: Print statement in VS Code
+print("Hello! My Hand Gesture Project has started.")
+
+# Step 3: Open the camera (0 = default webcam)
+cap = cv2.VideoCapture(0)
+
+# Step 4: Loop to capture LIVE video
+while True:
+    success, img = cap.read()
+
+    # Step 4a: Check camera accessibility
+    if not success:
+        print("Camera not accessible")
+        break
+
+    # Step 4b: Display the live feed
+    cv2.imshow("Live Camera Feed", img)
+
+    # Step 4c: Keyboard Interrupt -> press 'q' to quit
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# Step 5: Release resources
+cap.release()
+cv2.destroyAllWindows()
+print("Camera released. Program ended.")`
+    }
+  ],
+  tip: '<b>Frame-by-frame:</b> every loop iteration grabs one picture from the camera and shows it. Many frames per second = smooth video. <code>cv2.waitKey(1)</code> is what keeps the window responding.'
+},
+
+/* ---------------- SESSION 12 ---------------- */
+{
+  n: 12,
+  track: 'python',
+  phase: 'Phase I · AI Detection',
+  phaseClass: '',
+  title: 'Detecting Hands using Hand Detector',
+  goal: 'Configure the Hand Detector module and draw 21 landmarks on the palm in the live feed.',
+  skills: ['Input Handling','AI Awareness','System Safety'],
+  blocks: [
+    {
+      file: 'gesture.py',
+      badge: 'COMPLETE FILE',
+      badgeClass: 'full',
+      lang: 'python',
+      code:
+`# -------------------------
+# Hand Gesture Controlled SmartLight
+# Phase I : Session 12 - Hand Detection
+# -------------------------
+
+# Step 1: Import Libraries
+import cv2
+from cvzone.HandTrackingModule import HandDetector
+
+# Step 2: Print statement
+print("Hello! My Hand Gesture Project has started.")
+
+# Step 3: Open the camera
+cap = cv2.VideoCapture(0)
+
+# Step 4: Create the Hand Detector
+detector = HandDetector(maxHands=1, detectionCon=0.8)
+
+# Step 5: Loop to capture LIVE video
+while True:
+    success, img = cap.read()
+    if not success:
+        print("Camera not accessible")
+        break
+
+    # Step 6: Detect hands and draw landmarks on the frame
+    hands, img = detector.findHands(img)
+
+    # Step 7: Display the live feed
+    cv2.imshow("Live Camera Feed", img)
+
+    # Step 8: Exit on 'q'
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# Step 9: Release resources
+cap.release()
+cv2.destroyAllWindows()
+print("Camera released. Program ended.")`
+    }
+  ],
+  tip: '<b>maxHands=1</b> keeps the program fast and avoids confusion. <b>detectionCon=0.8</b> means the AI must be 80% confident before it draws a hand.'
+},
+
+/* ---------------- SESSION 13 ---------------- */
+{
+  n: 13,
+  track: 'python',
+  phase: 'Phase I · Gesture Logic',
+  phaseClass: '',
+  title: 'Gesture Recognition and Debounce Logic',
+  goal: 'Map finger positions to gestures ONE–FIVE and add debounce logic so a gesture must stay stable before it triggers anything.',
+  skills: ['Code Structuring','Logical Organization','Function Design'],
+  blocks: [
+    {
+      file: 'gesture.py',
+      badge: 'COMPLETE FILE',
+      badgeClass: 'full',
+      lang: 'python',
+      code:
+`# -------------------------
+# Hand Gesture Controlled SmartLight
+# Phase I : Session 13 - Gesture Recognition & Debounce
+# -------------------------
+
+# Step 1: Import Libraries
+import cv2
+from cvzone.HandTrackingModule import HandDetector
+
+# Step 2: Print statement
+print("Hello! My Hand Gesture Project has started.")
+
+# Step 3: Open the camera
+cap = cv2.VideoCapture(0)
+
+# Step 4: Create the Hand Detector
+detector = HandDetector(maxHands=1, detectionCon=0.8)
+
+# Step 5: Debounce logic variables
+STABLE_FRAMES_REQUIRED = 10
+gesture_counter = 0
+current_gesture = ""
+
+# Step 6: Main Loop
+while True:
+    success, img = cap.read()
+    if not success:
+        print("Camera not accessible")
+        break
+
+    # Step 6a: Detect hands
+    hands, img = detector.findHands(img)
+
+    # Step 6b: Finger counting and gesture mapping
+    if hands:
+        hand1 = hands[0]
+        fingers = detector.fingersUp(hand1)
+        print("Fingers Up:", fingers)
+
+        if fingers == [0, 1, 0, 0, 0]:
+            gesture = "ONE"
+        elif fingers == [0, 1, 1, 0, 0]:
+            gesture = "TWO"
+        elif fingers == [0, 1, 1, 1, 0]:
+            gesture = "THREE"
+        elif fingers == [0, 1, 1, 1, 1]:
+            gesture = "FOUR"
+        elif fingers == [1, 1, 1, 1, 1]:
+            gesture = "FIVE"
+        else:
+            gesture = "UNKNOWN"
+
+        # Step 6c: Debounce
+        if gesture == current_gesture:
+            gesture_counter += 1
+        else:
+            current_gesture = gesture
+            gesture_counter = 1
+
+        print("Gesture:", gesture, "| Stable for", gesture_counter, "frames")
+
+    else:
+        # Step 6d: No hand detected
+        current_gesture = ""
+        gesture_counter = 0
+        print("No hand detected")
+
+    # Step 6e: Show live video
+    cv2.imshow("Live Camera Feed", img)
+
+    # Step 6f: Exit on 'q'
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# Step 7: Release resources
+cap.release()
+cv2.destroyAllWindows()
+print("Camera released. Program ended.")`
+    }
+  ],
+  tip: '<b>Why debounce?</b> The camera flickers between gestures for a few frames. Without debounce the light would flicker too. <b>Common bug:</b> forgetting <code>fingers = detector.fingersUp(hand1)</code> gives a NameError.'
+},
+
+/* ---------------- SESSION 14 ---------------- */
+{
+  n: 14,
+  track: 'python',
+  phase: 'Phase I · Visual Feedback',
+  phaseClass: '',
+  title: 'Displaying the Recognised Gesture on Screen',
+  goal: 'Write a helper function that draws the detected gesture name onto the video frame so the user can see what the system understood.',
+  skills: ['Human–Computer Interaction','UI Awareness','Visual Communication'],
+  blocks: [
+    {
+      file: 'gesture.py',
+      badge: 'COMPLETE FILE',
+      badgeClass: 'full',
+      lang: 'python',
+      code:
+`# -------------------------
+# Hand Gesture Controlled SmartLight
+# Phase I : Session 14 - Display Gesture on Screen
+# -------------------------
+
+# Step 1: Import Libraries
+import cv2
+from cvzone.HandTrackingModule import HandDetector
+
+# Step 2: Print statement
+print("Hello! My Hand Gesture Project has started.")
+
+# Step 3: Open the camera
+cap = cv2.VideoCapture(0)
+
+# Step 4: Create the Hand Detector
+detector = HandDetector(maxHands=1, detectionCon=0.8)
+
+# Step 5: Debounce logic variables
+STABLE_FRAMES_REQUIRED = 10
+gesture_counter = 0
+current_gesture = ""
+
+# Step 6: Helper function to display the gesture on screen
+def draw_gesture_label(image, gesture):
+    cv2.putText(image, gesture, (20, 50),
+                cv2.FONT_HERSHEY_SIMPLEX, 2,
+                (0, 255, 0), 3)
+
+# Step 7: Main Loop
+while True:
+    success, img = cap.read()
+    if not success:
+        print("Camera not accessible")
+        break
+
+    # Step 7a: Detect hands
+    hands, img = detector.findHands(img)
+
+    # Step 7b: Finger counting and gesture mapping
+    if hands:
+        hand1 = hands[0]
+        fingers = detector.fingersUp(hand1)
+
+        if fingers == [0, 1, 0, 0, 0]:
+            gesture = "ONE"
+        elif fingers == [0, 1, 1, 0, 0]:
+            gesture = "TWO"
+        elif fingers == [0, 1, 1, 1, 0]:
+            gesture = "THREE"
+        elif fingers == [0, 1, 1, 1, 1]:
+            gesture = "FOUR"
+        elif fingers == [1, 1, 1, 1, 1]:
+            gesture = "FIVE"
+        else:
+            gesture = "UNKNOWN"
+
+        # Step 7c: Debounce
+        if gesture == current_gesture:
+            gesture_counter += 1
+        else:
+            current_gesture = gesture
+            gesture_counter = 1
+
+        # Step 7d: Show the recognised gesture on screen
+        draw_gesture_label(img, gesture)
+
+    else:
+        # Step 7e: No hand detected -> reset
+        current_gesture = ""
+        gesture_counter = 0
+
+    # Step 7f: Show live video
+    cv2.imshow("Live Camera Feed", img)
+
+    # Step 7g: Exit on 'q'
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# Step 8: Release resources
+cap.release()
+cv2.destroyAllWindows()
+print("Camera released. Program ended.")`
+    }
+  ],
+  tip: '<b>Helper functions</b> keep the main loop readable. If you want a bigger label, change the font scale <code>2</code>; for a different colour change <code>(0, 255, 0)</code> — remember OpenCV uses <b>BGR</b>, not RGB.'
+},
+
+/* ---------------- SESSION 15 ---------------- */
+{
+  n: 15,
+  track: 'python',
+  phase: 'Phase I · Serial Communication',
+  phaseClass: '',
+  title: 'Sending Gesture Commands to ESP32 using Python',
+  goal: 'Open a serial connection with the ESP32 using pyserial and send stable gesture commands through the USB cable.',
+  skills: ['Code Reading Skills','Attention to Detail','Debugging Awareness'],
+  blocks: [
+    {
+      file: 'gesture.py',
+      badge: 'COMPLETE FILE',
+      badgeClass: 'full',
+      lang: 'python',
+      code:
+`# -------------------------
+# Hand Gesture Controlled SmartLight
+# Phase I : Session 15 - Sending Commands to ESP32
+# -------------------------
+
+# Step 1: Import Libraries
+import cv2
+from cvzone.HandTrackingModule import HandDetector
+import serial
+import time
+
+# Step 2: Setup ESP32 Serial Connection
+esp = serial.Serial('COM6', 9600)   # Replace COM6 with your ESP32 port
+time.sleep(2)                       # Wait for the ESP32 to initialize
+
+last_sent_command = ""
+
+def send_command(command):
+    """Send a gesture command to the ESP32 only if it is new"""
+    global last_sent_command
+    if command != last_sent_command:
+        esp.write((command + "\\n").encode())
+        print("Sent to ESP32:", command)
+        last_sent_command = command
+
+# Step 3: Setup Camera and Hand Detector
+cap = cv2.VideoCapture(0)
+detector = HandDetector(maxHands=1, detectionCon=0.8)
+
+# Step 4: Debounce Logic Variables
+STABLE_FRAMES_REQUIRED = 10
+gesture_counter = 0
+current_gesture = ""
+
+# Step 5: Helper Function to Display Gesture
+def draw_gesture_label(image, gesture):
+    cv2.putText(image, gesture, (20, 50),
+                cv2.FONT_HERSHEY_SIMPLEX, 2,
+                (0, 255, 0), 3)
+
+# Step 6: Main Loop
+while True:
+    success, img = cap.read()
+    if not success:
+        print("Camera not accessible")
+        break
+
+    hands, img = detector.findHands(img)
+
+    if hands:
+        hand1 = hands[0]
+        fingers = detector.fingersUp(hand1)
+
+        if fingers == [0, 1, 0, 0, 0]:
+            gesture = "ONE"
+        elif fingers == [0, 1, 1, 0, 0]:
+            gesture = "TWO"
+        elif fingers == [0, 1, 1, 1, 0]:
+            gesture = "THREE"
+        elif fingers == [0, 1, 1, 1, 1]:
+            gesture = "FOUR"
+        elif fingers == [1, 1, 1, 1, 1]:
+            gesture = "FIVE"
+        else:
+            gesture = "UNKNOWN"
+
+        if gesture == current_gesture:
+            gesture_counter += 1
+        else:
+            current_gesture = gesture
+            gesture_counter = 1
+
+        # Send only STABLE gestures
+        if gesture_counter >= STABLE_FRAMES_REQUIRED and gesture != "UNKNOWN":
+            send_command(gesture)
+
+        draw_gesture_label(img, gesture)
+
+    else:
+        current_gesture = ""
+        gesture_counter = 0
+
+    cv2.imshow("Live Camera Feed", img)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# Step 7: Release Resources
+cap.release()
+cv2.destroyAllWindows()
+esp.close()
+print("Program ended, serial port closed.")`
+    }
+  ],
+  tip: '<b>Find your COM port:</b> Device Manager → Ports (COM &amp; LPT). <b>Baud rate 9600</b> must match on both sides. Keep the ESP32 unplugged while you edit the port number, plug it back before running.'
+},
+
+/* ---------------- SESSION 16 ---------------- */
+{
+  n: 16,
+  track: 'arduino',
+  phase: 'Phase II · Arduino IDE',
+  phaseClass: 'v',
+  title: 'Introduction to Arduino IDE',
+  goal: 'Move from Phase I to Phase II: meet the ESP32, the Arduino IDE, and the structure of every Arduino program.',
+  skills: ['Control Flow','Input Processing','Logical Sequencing'],
+  blocks: [
+    {
+      file: 'Arduino Program Structure (reference only)',
+      badge: 'STRUCTURE',
+      badgeClass: 'struct',
+      lang: 'cpp',
+      code:
+`// This is the skeleton of EVERY Arduino program
+
+void setup() {
+  // Runs ONCE when the board powers up
+}
+
+void loop() {
+  // Runs AGAIN and AGAIN, forever
+}`
+    }
+  ],
+  tip: '<b>Verify</b> compiles the code (checks for mistakes). <b>Upload</b> sends it to the ESP32. If the port does not appear, install the CP210x / CH340 USB driver. Boards Manager → ESP32 must be installed before you can select the board.'
+},
+
+/* ---------------- SESSION 17 ---------------- */
+{
+  n: 17,
+  track: 'arduino',
+  phase: 'Phase II · First Program',
+  phaseClass: 'v',
+  title: 'Getting Started with Arduino Program',
+  goal: 'Write your first Arduino program, include the NeoPixel library, initialise the SmartLight module and verify hardware connectivity.',
+  skills: ['Decision Making','Conditional Logic','Problem Solving'],
+  blocks: [
+    {
+      file: 'gesture_grade6.ino',
+      badge: 'COMPLETE FILE',
+      badgeClass: 'full',
+      lang: 'cpp',
+      code:
+`#include <Adafruit_NeoPixel.h>
+
+/* ---------------- Pin Definitions ---------------- */
+#define LED_PIN     22     // NeoPixel data pin
+#define NUM_PIXELS  7      // Number of NeoPixels
+
+/* ---------------- Objects ---------------- */
+Adafruit_NeoPixel strip(NUM_PIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
+
+/* ---------------- Setup ---------------- */
+void setup() {
+    Serial.begin(9600);   // Start serial communication with Python
+
+    strip.begin();        // Initialize the NeoPixel strip
+    strip.show();         // Turn OFF all LEDs
+}
+
+/* ---------------- Main Loop ---------------- */
+void loop() {
+    // We will fill this in the next session
+}`
+    }
+  ],
+  tip: '<b>Board setup:</b> Library Manager → install <b>Adafruit NeoPixel</b>. Tools → Board → ESP32 Dev Module. Tools → Port → your COM port. Then hit <b>Verify</b>, then <b>Upload</b>.'
+},
+
+/* ---------------- SESSION 18 ---------------- */
+{
+  n: 18,
+  track: 'arduino',
+  phase: 'Phase II · Functions',
+  phaseClass: 'v',
+  title: 'Writing Functions in Arduino — setColor()',
+  goal: 'Build a reusable setColor() function that lights all 7 NeoPixels in any chosen colour.',
+  skills: ['System Reliability','Logical Reasoning','Code Reuse'],
+  blocks: [
+    {
+      file: 'gesture_grade6.ino',
+      badge: 'COMPLETE FILE',
+      badgeClass: 'full',
+      lang: 'cpp',
+      code:
+`#include <Adafruit_NeoPixel.h>
+
+/* ---------------- Pin Definitions ---------------- */
+#define LED_PIN     22     // NeoPixel data pin
+#define NUM_PIXELS  7      // Number of NeoPixels
+
+/* ---------------- Objects ---------------- */
+Adafruit_NeoPixel strip(NUM_PIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
+
+/* ---------------- Setup ---------------- */
+void setup() {
+    Serial.begin(9600);
+
+    strip.begin();
+    strip.show();   // Turn OFF all LEDs
+}
+
+/* ---------------- Test Loop ---------------- */
+void loop() {
+    setColor(255, 0, 0);   // Red
+    delay(1000);
+    setColor(0, 255, 0);   // Green
+    delay(1000);
+    setColor(0, 0, 255);   // Blue
+    delay(1000);
+}
+
+/* ---------------- setColor Function ---------------- */
+void setColor(uint8_t red, uint8_t green, uint8_t blue) {
+    for (int i = 0; i < NUM_PIXELS; i++) {
+        strip.setPixelColor(i, strip.Color(red, green, blue));
+    }
+    strip.show();   // Push the colours to the LEDs
+}`
+    }
+  ],
+  tip: '<b>Function reusability:</b> write the LED logic once, call it anywhere. Colour values are 0–255 per channel — Purple = (255, 0, 255), Yellow = (255, 255, 0), Off = (0, 0, 0).'
+},
+
+/* ---------------- SESSION 19 ---------------- */
+{
+  n: 19,
+  track: 'arduino',
+  phase: 'Phase II · Serial Commands',
+  phaseClass: 'v',
+  title: 'Reading Commands from Python over Serial',
+  goal: 'Make the ESP32 listen on the serial port, read text commands like ONE / TWO / THREE and change the light colour.',
+  skills: ['System Reliability','Logical Reasoning','Serial Protocol'],
+  blocks: [
+    {
+      file: 'gesture_grade6.ino',
+      badge: 'COMPLETE FILE',
+      badgeClass: 'full',
+      lang: 'cpp',
+      code:
+`#include <Adafruit_NeoPixel.h>
+
+/* ---------------- Pin Definitions ---------------- */
+#define LED_PIN     22     // NeoPixel data pin
+#define NUM_PIXELS  7      // Number of NeoPixels
+
+/* ---------------- Objects & Variables ---------------- */
+Adafruit_NeoPixel strip(NUM_PIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
+String lastCommand = "";
+
+/* ---------------- Setup ---------------- */
+void setup() {
+    Serial.begin(9600);
+
+    strip.begin();
+    strip.show();   // Turn OFF all LEDs
+}
+
+/* ---------------- Main Loop ---------------- */
+void loop() {
+    if (Serial.available() > 0) {
+        String command = Serial.readStringUntil('\\n');
+        command.trim();
+
+        // Execute only if the command has changed
+        if (command != lastCommand) {
+            lastCommand = command;
+
+            if (command == "ONE") {
+                setColor(255, 0, 0);        // Red
+            }
+            else if (command == "TWO") {
+                setColor(0, 255, 0);        // Green
+            }
+            else if (command == "THREE") {
+                setColor(0, 0, 255);        // Blue
+            }
+            else if (command == "FOUR") {
+                setColor(255, 255, 255);    // White
+            }
+            else if (command == "FIVE") {
+                setColor(0, 0, 0);          // OFF
+            }
+            else {
+                Serial.println("Invalid Command");
+            }
+        }
+    }
+}
+
+/* ---------------- setColor Function ---------------- */
+void setColor(uint8_t red, uint8_t green, uint8_t blue) {
+    for (int i = 0; i < NUM_PIXELS; i++) {
+        strip.setPixelColor(i, strip.Color(red, green, blue));
+    }
+    strip.show();
+}`
+    }
+  ],
+  tip: '<b>Test it alone first:</b> open Tools → Serial Monitor, set the baud rate to <b>9600</b>, type <code>ONE</code> and press Enter — the LEDs must turn red. This proves the Arduino half works before Python is involved.'
+},
+
+/* ---------------- SESSION 20 ---------------- */
+{
+  n: 20,
+  track: 'both',
+  phase: 'Grand Finale · Integration',
+  phaseClass: 'a',
+  title: 'Grand Finale: Controlling SmartLight Using Gestures',
+  goal: 'Run both halves together: Python detects the gesture → serial → ESP32 → NeoPixel. The code blocks below are locked behind the class password.',
+  skills: ['Program Management','Debugging Awareness','Responsible Coding'],
+  locked: true,
+  blocks: [
+    {
+      file: 'gesture.py',
+      badge: 'COMPLETE FILE',
+      badgeClass: 'full',
+      lang: 'python',
+      code:
+`# -------------------------
+# Hand Gesture to ESP32
+# Phase I : Detection + Gesture Display + Serial Communication
+# -------------------------
+
+# Step 1: Import Libraries
+import cv2
+from cvzone.HandTrackingModule import HandDetector
+import serial
+import time
+
+# -------------------------
+# Step 2: Setup ESP32 Serial Connection
+# -------------------------
+esp = serial.Serial('COM6', 9600)   # Replace COM6 with your ESP32 port
+time.sleep(2)                       # Wait for the ESP32 to initialize
+
+last_sent_command = ""
+
+def send_command(command):
+    """Send a gesture command to the ESP32 only if it is new"""
+    global last_sent_command
+    if command != last_sent_command:
+        esp.write((command + "\\n").encode())
+        print("Sent to ESP32:", command)
+        last_sent_command = command
+
+# -------------------------
+# Step 3: Setup Camera and Hand Detector
+# -------------------------
+cap = cv2.VideoCapture(0)
+detector = HandDetector(maxHands=1, detectionCon=0.8)
+
+# -------------------------
+# Step 4: Debounce Logic Variables
+# -------------------------
+STABLE_FRAMES_REQUIRED = 10
+gesture_counter = 0
+current_gesture = ""
+
+# -------------------------
+# Step 5: Helper Function to Display Gesture
+# -------------------------
+def draw_gesture_label(image, gesture):
+    """Display the detected gesture text on the video frame"""
+    cv2.putText(image, gesture, (20, 50),
+                cv2.FONT_HERSHEY_SIMPLEX, 2,
+                (0, 255, 0), 3)
+
+# -------------------------
+# Step 6: Main Loop
+# -------------------------
+while True:
+    success, img = cap.read()
+    if not success:
+        print("Camera not accessible")
+        break
+
+    hands, img = detector.findHands(img)
+
+    if hands:
+        hand1 = hands[0]
+        fingers = detector.fingersUp(hand1)
+
+        if fingers == [0, 1, 0, 0, 0]:
+            gesture = "ONE"
+        elif fingers == [0, 1, 1, 0, 0]:
+            gesture = "TWO"
+        elif fingers == [0, 1, 1, 1, 0]:
+            gesture = "THREE"
+        elif fingers == [0, 1, 1, 1, 1]:
+            gesture = "FOUR"
+        elif fingers == [1, 1, 1, 1, 1]:
+            gesture = "FIVE"
+        else:
+            gesture = "UNKNOWN"
+
+        if gesture == current_gesture:
+            gesture_counter += 1
+        else:
+            current_gesture = gesture
+            gesture_counter = 1
+
+        if gesture_counter >= STABLE_FRAMES_REQUIRED and gesture != "UNKNOWN":
+            send_command(gesture)
+
+        draw_gesture_label(img, gesture)
+
+    else:
+        current_gesture = ""
+        gesture_counter = 0
+
+    cv2.imshow("Live Camera Feed", img)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# -------------------------
+# Step 7: Release Resources
+# -------------------------
+cap.release()
+cv2.destroyAllWindows()
+esp.close()
+print("Program ended, serial port closed.")`
+    },
+    {
+      file: 'gesture_grade6.ino',
+      badge: 'COMPLETE FILE',
+      badgeClass: 'full',
+      lang: 'cpp',
+      code:
+`#include <Adafruit_NeoPixel.h>
+
+/* ---------------- Pin Definitions ---------------- */
+#define LED_PIN     22     // NeoPixel data pin
+#define NUM_PIXELS  7      // Number of NeoPixels
+
+/* ---------------- Objects & Variables ---------------- */
+Adafruit_NeoPixel strip(NUM_PIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
+String lastCommand = "";
+
+/* ---------------- Setup ---------------- */
+void setup() {
+    Serial.begin(9600);
+
+    strip.begin();
+    strip.show();   // Turn OFF all LEDs
+}
+
+/* ---------------- Main Loop ---------------- */
+void loop() {
+    if (Serial.available() > 0) {
+        String command = Serial.readStringUntil('\\n');
+        command.trim();
+
+        // Execute only if the command has changed
+        if (command != lastCommand) {
+            lastCommand = command;
+
+            if (command == "ONE") {
+                setColor(255, 0, 0);        // Red
+            }
+            else if (command == "TWO") {
+                setColor(0, 255, 0);        // Green
+            }
+            else if (command == "THREE") {
+                setColor(0, 0, 255);        // Blue
+            }
+            else if (command == "FOUR") {
+                setColor(255, 255, 255);    // White
+            }
+            else if (command == "FIVE") {
+                setColor(0, 0, 0);          // OFF
+            }
+            else {
+                Serial.println("Invalid Command");
+            }
+        }
+    }
+}
+
+/* ---------------- setColor Function ---------------- */
+void setColor(uint8_t red, uint8_t green, uint8_t blue) {
+    for (int i = 0; i < NUM_PIXELS; i++) {
+        strip.setPixelColor(i, strip.Color(red, green, blue));
+    }
+    strip.show();
+}`
+    }
+  ],
+  tasks: [
+    'Upload the .ino file FIRST, wait 2 seconds, then run gesture.py',
+    'Show ONE → Red, TWO → Green, THREE → Blue, FOUR → White, FIVE → OFF',
+    'Reflection: suggest 2 improvements (e.g. more gestures, brighter LEDs, faster response, better cable management)'
+  ],
+  tip: '<b>Grand Finale checklist:</b> ① Is the COM port correct in <code>gesture.py</code>? ② Is the Serial Monitor CLOSED (it blocks the port)? ③ Do both sides use 9600 baud? ④ Is the NeoPixel data pin really GPIO 22? ⑤ Is the ESP32 powered properly?'
+}
+
+];
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function codeBlockHTML(b){
+  const idx = CODE_STORE.push(b.code) - 1;
+  const badgeClass = 'badge ' + (b.badgeClass || '');
+  return (
+    '<div class="codeblock">' +
+      '<div class="blockbar">' +
+        '<span class="fname">' + b.file + '</span>' +
+        (b.badge ? '<span class="' + badgeClass + '">' + b.badge + '</span>' : '') +
+        '<button class="copy" data-i="' + idx + '">Copy</button>' +
+      '</div>' +
+      '<pre><code>' + highlight(b.code, b.lang) + '</code></pre>' +
+    '</div>'
+  );
+}
+
+function lockCardHTML(){
+  return (
+    '<div class="lock-overlay-static">' +
+      '<div class="lock-card">' +
+        '<div class="lock-icon">🔒</div>' +
+        '<h3>Grand Finale Locked</h3>' +
+        '<p>Enter the class password to reveal and copy the final Python &amp; Arduino code.</p>' +
+        '<div class="lock-input-row">' +
+          '<input type="password" id="lockInput" placeholder="Enter password" autocomplete="off" spellcheck="false">' +
+          '<button id="unlockBtn">Unlock</button>' +
+        '</div>' +
+        '<div class="lock-error" id="lockError"></div>' +
+        '<div class="lock-hint">Ask your instructor if you do not have the password.</div>' +
+      '</div>' +
+    '</div>'
+  );
+}
+
+function cardHTML(s){
+  const isLocked = s.locked && !grandFinaleUnlocked;
+
+  let blocksHTML;
+  if(isLocked){
+    blocksHTML = lockCardHTML();
+  } else {
+    blocksHTML = (s.blocks || []).map(codeBlockHTML).join('');
+  }
+
+  const tasksHTML = (s.tasks && s.tasks.length)
+    ? '<ul class="tasks">' + s.tasks.map(t => '<li>' + t + '</li>').join('') + '</ul>'
+    : '';
+  const skillsHTML = (s.skills || []).map(k => '<span>' + k + '</span>').join('');
+  const tipHTML = s.tip ? '<div class="tip"><span>💡</span><span>' + s.tip + '</span></div>' : '';
+
+  let bannerHTML = '';
+  if(s.locked){
+    bannerHTML = grandFinaleUnlocked
+      ? '<span class="lock-banner unlocked">🔓 Unlocked</span>'
+      : '<span class="lock-banner">🔒 Locked</span>';
+  }
+
+  return (
+    '<article class="card" data-track="' + s.track + '">' +
+      '<div class="rail"><span class="dot">' + s.n + '</span></div>' +
+      '<div class="body">' +
+        '<span class="phase ' + (s.phaseClass || '') + '">' + s.phase + '</span>' +
+        bannerHTML +
+        '<h2>' + s.title + '</h2>' +
+        '<p class="goal">' + s.goal + '</p>' +
+        '<div class="skills">' + skillsHTML + '</div>' +
+        blocksHTML +
+        tasksHTML +
+        tipHTML +
+      '</div>' +
+    '</article>'
+  );
+}
+
+function render(){
+  CODE_STORE.length = 0;
+  document.getElementById('timeline').innerHTML = SESSIONS.map(cardHTML).join('');
+}
+
+render();
+
+/* =========================================================
+   UNLOCK HANDLER
+   ========================================================= */
+document.addEventListener('click', function(e){
+  if(e.target.id === 'unlockBtn'){
+    const input = document.getElementById('lockInput');
+    const err = document.getElementById('lockError');
+    if(!input || !err) return;
+
+    if(input.value === WEB_PASSWORD){
+      grandFinaleUnlocked = true;
+      sessionStorage.setItem('gf_unlocked', '1');
+      render();
+    } else {
+      err.textContent = 'Wrong password. Try again.';
+      input.value = '';
+      input.focus();
+    }
+  }
+});
+
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Enter' && e.target && e.target.id === 'lockInput'){
+    const btn = document.getElementById('unlockBtn');
+    if(btn) btn.click();
+  }
+});
+
+/* =========================================================
+   COPY BUTTON
+   ========================================================= */
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('.copy');
+  if(!btn) return;
+  const text = CODE_STORE[Number(btn.dataset.i)] || '';
+
+  const done = () => {
+    btn.textContent = 'Copied ✓';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1500);
+  };
+
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else {
+    fallbackCopy(text, done);
+  }
+});
+
+function fallbackCopy(text, cb){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); cb(); } catch(err) { alert('Copy failed — please select manually.'); }
+  document.body.removeChild(ta);
+}
+
+/* =========================================================
+   FILTER PILLS
+   ========================================================= */
+const pills = document.querySelectorAll('.pill');
+pills.forEach(function(p){
+  p.addEventListener('click', function(){
+    pills.forEach(x => x.classList.remove('active'));
+    p.classList.add('active');
+    const f = p.dataset.filter;
+
+    document.querySelectorAll('.card').forEach(function(card){
+      const t = card.dataset.track;
+      let show = true;
+      if(f === 'python')  show = (t === 'python'  || t === 'both');
+      if(f === 'arduino') show = (t === 'arduino' || t === 'both');
+      card.classList.toggle('hidden', !show);
+    });
+  });
+});
+</script>
+</body>
+</html>
