@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weather Station Web App — Complete Code Per Session</title>
+<style>
+  :root{--bg:#000;--panel2:#101013;--line:#1a1a1f;--line2:#26262e;--text:#ececf1;--muted:#8b8b96;--accent:#00e5a0;--accent-dim:rgba(0,229,160,.10);--violet:#8b5cf6;--amber:#ffb020;--sky:#57d4ff}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.55;min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(900px 520px at 50% -12%,rgba(0,229,160,.075),transparent 70%),radial-gradient(720px 420px at 92% 8%,rgba(139,92,246,.06),transparent 70%)}
+  .wrap{max-width:1020px;margin:0 auto;padding:0 22px;position:relative;z-index:1}
+  header{position:sticky;top:0;z-index:60;background:rgba(0,0,0,.78);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+  .head-inner{max-width:1020px;margin:0 auto;padding:16px 22px 12px}
+  .kicker{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:6px}
+  h1{font-size:clamp(19px,2.6vw,26px);font-weight:800;letter-spacing:-.02em;line-height:1.2}
+  h1 span{background:linear-gradient(92deg,#00e5a0 0%,#57d4ff 55%,#8b5cf6 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:13px;margin-top:6px}
+  .filters{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .pill{font:inherit;font-size:12.5px;font-weight:600;padding:7px 14px;border-radius:999px;cursor:pointer;background:var(--panel2);color:var(--muted);border:1px solid var(--line2);transition:.18s}
+  .pill.active{background:var(--accent-dim);color:var(--accent);border-color:rgba(0,229,160,.35)}
+  .note{margin:28px 0 8px;border:1px solid var(--line2);background:linear-gradient(180deg,#0b0b0e,#070709);border-radius:16px;padding:16px 18px;font-size:13.5px;color:#b6b6c0}
+  .note b{color:var(--text)}
+  .note .row{display:flex;gap:10px;align-items:flex-start;margin-top:8px}
+  .ico{color:var(--accent)}
+  main{padding:26px 0 80px}
+  .card{display:grid;grid-template-columns:60px 1fr;padding-bottom:30px}
+  .card.hidden{display:none}
+  .rail{position:relative;display:flex;justify-content:center}
+  .rail::before{content:'';position:absolute;top:48px;bottom:-30px;width:1px;background:linear-gradient(180deg,var(--line2),var(--line))}
+  .card:last-child .rail::before{display:none}
+  .dot{position:relative;z-index:1;width:46px;height:46px;border-radius:15px;background:#0d0d10;border:1px solid var(--line2);display:grid;place-items:center;font-weight:800;font-size:14.5px;color:var(--accent);box-shadow:0 0 0 4px #000}
+  .card[data-track="js"] .dot{color:var(--violet)}
+  .card[data-track="both"] .dot{color:var(--amber)}
+  .body{background:linear-gradient(180deg,#0b0b0e,#08080a);border:1px solid var(--line);border-radius:18px;padding:20px 22px;margin-left:12px}
+  .phase{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:rgba(0,229,160,.08);color:var(--accent);border:1px solid rgba(0,229,160,.18);margin-bottom:10px}
+  .phase.v{background:rgba(139,92,246,.10);color:#b39aff;border-color:rgba(139,92,246,.22)}
+  .phase.a{background:rgba(255,176,32,.10);color:var(--amber);border-color:rgba(255,176,32,.22)}
+  h2{font-size:clamp(16px,2.1vw,19px);font-weight:750;line-height:1.3}
+  .goal{color:#a9a9b4;font-size:13.5px;margin-top:8px}
+  .skills{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .skills span{font-size:11px;font-weight:600;color:#9a9aa6;background:#111116;border:1px solid var(--line2);padding:3.5px 9px;border-radius:7px}
+  .codeblock{margin-top:15px;border:1px solid var(--line2);border-radius:13px;overflow:hidden;background:#040406}
+  .blockbar{display:flex;align-items:center;gap:9px;padding:9px 12px;background:#0e0e12;border-bottom:1px solid var(--line)}
+  .fname{font-family:monospace;font-size:11.5px;color:#8f8f9c}
+  .badge{font-size:9.5px;font-weight:800;padding:3px 8px;border-radius:999px;background:rgba(0,229,160,.10);color:var(--accent);border:1px solid rgba(0,229,160,.22)}
+  .badge.html{background:rgba(255,123,114,.10);color:#ff7b72;border-color:rgba(255,123,114,.24)}
+  .badge.css{background:rgba(199,146,234,.10);color:#c792ea;border-color:rgba(199,146,234,.24)}
+  .badge.js{background:rgba(255,220,100,.10);color:#ffdc64;border-color:rgba(255,220,100,.24)}
+  .copy{margin-left:auto;font:inherit;font-size:11.5px;font-weight:700;padding:5px 12px;border-radius:8px;cursor:pointer;background:#17171d;color:#b9b9c4;border:1px solid var(--line2)}
+  .copy.ok{background:rgba(0,229,160,.14);color:var(--accent)}
+  pre{margin:0;padding:16px;overflow-x:auto;font-family:monospace;font-size:12.6px;line-height:1.68}
+  code{font-family:inherit;color:#d6d6de;white-space:pre}
+  .tip{margin-top:14px;display:flex;gap:10px;font-size:12.8px;color:#a4a4b0;background:#0e0e12;border:1px solid var(--line);border-left:2px solid var(--accent);border-radius:0 11px 11px 0;padding:11px 14px}
+  .tip b{color:#e6e6ec}
+  .tasks{margin-top:14px;display:flex;flex-direction:column;gap:8px;padding:0}
+  .tasks li{list-style:none;font-size:13px;color:#a4a4b0;display:flex;gap:10px;background:#0e0e12;border:1px solid var(--line);border-radius:11px;padding:10px 13px}
+  .tasks li::before{content:'▸';color:var(--accent);font-weight:800}
+  .lock-banner{display:inline-flex;align-items:center;gap:7px;font-size:10.5px;font-weight:800;padding:5px 11px;border-radius:999px;background:rgba(255,176,32,.10);color:var(--amber);border:1px solid rgba(255,176,32,.28);margin-left:8px}
+  .lock-banner.unlocked{background:rgba(0,229,160,.10);color:var(--accent)}
+  .lock-overlay-static{margin-top:15px;border:1px solid rgba(255,176,32,.22);background:linear-gradient(180deg,#100c10,#07060a);border-radius:14px;padding:34px 22px;display:grid;place-items:center;text-align:center}
+  .lock-card{max-width:400px;width:100%}
+  .lock-icon{font-size:30px;margin-bottom:10px}
+  .lock-card h3{font-size:15.5px;font-weight:800;color:var(--amber)}
+  .lock-card p{font-size:12.8px;color:#9a9aa6;margin-top:7px}
+  .lock-input-row{display:flex;gap:8px;margin-top:16px}
+  .lock-input-row input{flex:1;font:inherit;font-size:13px;padding:10px 13px;border-radius:10px;background:#07070a;color:#fff;border:1px solid #26262e;outline:none}
+  .lock-input-row button{font:inherit;font-size:12.5px;font-weight:800;padding:10px 18px;border-radius:10px;cursor:pointer;background:linear-gradient(180deg,#ffb020,#e08e00);color:#1a1000;border:none}
+  .lock-error{font-size:11.5px;color:#ff7b72;margin-top:9px;min-height:15px;font-weight:600}
+  .lock-hint{font-size:11px;color:#5f5f6b;margin-top:10px}
+  footer{border-top:1px solid var(--line);padding:26px 0 50px;text-align:center;color:#5f5f6b;font-size:12px}
+  .hidden-data{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-inner">
+    <div class="kicker">Weather Station Web App</div>
+    <h1>Complete <span>Code Per Session</span> · Class 3 → Class 19</h1>
+    <div class="sub">Every session shows the FULL file. Copy the whole block and paste it over your previous version — no partial edits needed.</div>
+    <div class="filters">
+      <button class="pill active" data-filter="all">All Sessions</button>
+      <button class="pill" data-filter="html">HTML &amp; CSS</button>
+      <button class="pill" data-filter="js">JavaScript</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="note">
+    <div class="row"><span class="ico">◆</span><span><b>How to use:</b> open <code>index.html</code>, <code>style.css</code>, and <code>script.js</code> in VS Code. For each session, click <b>Copy</b> and paste the <b>entire</b> block over your old file.</span></div>
+    <div class="row"><span class="ico">◆</span><span><b>Final project is locked.</b> The complete working weather station app (Session 19) is hidden until you enter the class password.</span></div>
+  </div>
+</div>
+
+<main class="wrap" id="timeline"></main>
+
+<footer>Weather Station Web App · HTML + CSS + JavaScript · Happy Building 🌤️</footer>
+
+<!-- ======================= CODE STORAGE (hidden textareas) ======================= -->
+<div class="hidden-data">
+
+<textarea id="c-s3-html">
+<html>
+<head>
+    <title>Weather Station</title>
+</head>
+<body>
+    <h1>Welcome to my Weather Station</h1>
+    <h2>WizIOT Components are</h2>
+    <h3>Weather Station, OLED etc</h3>
+
+    <p>This project is all about using a Weather Station (DHT11) sensor.
+    The DHT11 is commonly used as a temperature and humidity sensor.</p>
+
+    <p>A weather station is a set of tools and devices used to measure
+    and record various weather conditions, like temperature, humidity,
+    and heat index.</p>
+
+    <p>Weather stations help us understand and predict the weather.
+    They play a crucial role in weather forecasting and climate studies.</p>
+</body>
+</html>
+</textarea>
+
+<textarea id="c-s4-html">
+<html>
+<head>
+    <title>Weather Station</title>
+    <style>
+        body { background-color: rgb(243, 189, 107); }
+        h1   { color: #d63384; font-family: Arial, sans-serif; }
+        h2   { color: rgb(0, 100, 200); font-family: 'Courier New', monospace; }
+        h3   { color: #8b5cf6; font-family: Verdana, sans-serif; }
+        p    { color: #333333; font-size: 16px; font-family: Georgia, serif; }
+    </style>
+</head>
+<body>
+    <h1>Welcome to my Weather Station</h1>
+    <h2>WizIOT Components are</h2>
+    <h3>Weather Station, OLED etc</h3>
+
+    <p>This project is all about using a Weather Station (DHT11) sensor.
+    The DHT11 is commonly used as a temperature and humidity sensor.</p>
+
+    <p>A weather station is a set of tools and devices used to measure
+    and record various weather conditions, like temperature, humidity,
+    and heat index.</p>
+
+    <p>Weather stations help us understand and predict the weather.
+    They play a crucial role in weather forecasting and climate studies.</p>
+</body>
+</html>
+</textarea>
+
+<textarea id="c-s5-html">
+<html>
+<head>
+    <title>Weather Station</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Welcome to my Weather Station</h1>
+    <h2>WizIOT Components are</h2>
+    <h3>Weather Station, OLED etc</h3>
+
+    <p>This project is all about using a Weather Station (DHT11) sensor.
+    The DHT11 is commonly used as a temperature and humidity sensor.</p>
+
+    <p>A weather station is a set of tools and devices used to measure
+    and record various weather conditions, like temperature, humidity,
+    and heat index.</p>
+
+    <p>Weather stations help us understand and predict the weather.
+    They play a crucial role in weather forecasting and climate studies.</p>
+</body>
+</html>
+</textarea>
+
+<textarea id="c-s5-css">
+body {
+    background-color: rgb(243, 189, 107);
+}
+
+h1 {
+    color: #d63384;
+    font-family: Arial, sans-serif;
+}
+
+h2 {
+    color: rgb(0, 100, 200);
+    font-family: 'Courier New', monospace;
+}
+
+h3 {
+    color: #8b5cf6;
+    font-family: Verdana, sans-serif;
+}
+
+p {
+    color: #333333;
+    font-size: 16px;
+    font-family: Georgia, serif;
+}
+</textarea>
+
+<textarea id="c-s6-html">
+<html>
+<head>
+    <title>Weather Station</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome to my Weather Station</h1>
+        <h2>WizIOT Components are</h2>
+    </header>
+
+    <hr>
+
+    <div>
+        <h3>Weather Station, OLED etc</h3>
+        <img src="https://wizklub.com/drive/files/20efa16d-d023-44d0-9e0e-3c1b41dbdc36"
+             alt="weather station" width="70%">
+        <p>This project is all about using a Weather Station (DHT11) sensor.
+        The DHT11 is commonly used as a temperature and humidity sensor.</p>
+    </div>
+
+    <hr>
+
+    <footer>
+        <p>&copy; 2024 My Name. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+</textarea>
+
+<textarea id="c-s6-css">
+body {
+    background-color: rgb(243, 189, 107);
+}
+
+header {
+    background-color: rgb(250, 187, 187);
+}
+
+footer {
+    background-color: rgb(250, 209, 246);
+}
+
+h1 {
+    color: #d63384;
+    font-family: Arial, sans-serif;
+}
+
+h2 {
+    color: rgb(0, 100, 200);
+    font-family: 'Courier New', monospace;
+}
+
+h3 {
+    color: #8b5cf6;
+    font-family: Verdana, sans-serif;
+}
+
+p {
+    color: #333333;
+    font-size: 16px;
+    font-family: Georgia, serif;
+}
+</textarea>
+
+<textarea id="c-s7-html">
+<html>
+<head>
+    <title>Weather Station</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="iot-header">
+        <img src="https://assets.wizklub.com/images/logo-v2.svg"
+             alt="wizklub-logo" height="100" width="200">
+        <h1>Welcome to my webpage</h1>
+        <h2>WizIOT Components are</h2>
+    </div>
+
+    <hr>
+
+    <div class="content">
+        <h3>Weather Station, OLED etc</h3>
+        <img src="https://wizklub.com/drive/files/20efa16d-d023-44d0-9e0e-3c1b41dbdc36"
+             alt="weather station" width="70%" height="50%">
+        <p>This project is all about using a Weather Station (DHT11) sensor.
+        The DHT11 is commonly used as a temperature and humidity sensor.</p>
+    </div>
+
+    <hr>
+
+    <footer>
+        <p>&copy; 2024 ishwarya. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+</textarea>
+
+<textarea id="c-s7-css">
+body {
+    background-color: rgb(243, 189, 107);
+}
+
+.iot-header {
+    background-color: rgb(250, 187, 187);
+}
+
+.content {
+    background-color: #00d9ffa1;
+}
+
+footer {
+    background-color: rgb(250, 209, 246);
+}
+
+h1 {
+    color: #d63384;
+    font-family: Arial, sans-serif;
+}
+
+h2 {
+    color: rgb(0, 100, 200);
+    font-family: 'Courier New', monospace;
+}
+
+h3 {
+    color: #8b5cf6;
+    font-family: Verdana, sans-serif;
+}
+
+p {
+    color: #333333;
+    font-size: 16px;
+    font-family: Georgia, serif;
+}
+</textarea>
+
+<textarea id="c-s8-html">
+<html>
+<head>
+    <title>Weather Station</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="iot-header">
+        <img src="https://assets.wizklub.com/images/logo-v2.svg"
+             alt="wizklub-logo" height="100" width="200">
+        <h1>Welcome to my webpage</h1>
+        <h2>WizIOT Components are</h2>
+    </div>
+
+    <hr>
+
+    <div class="content">
+        <h3>Weather Station, OLED etc</h3>
+        <img src="https://wizklub.com/drive/files/20efa16d-d023-44d0-9e0e-3c1b41dbdc36"
+             alt="weather station" width="70%" height="50%">
+        <p>This project is all about using a Weather Station (DHT11) sensor.
+        The DHT11 is commonly used as a temperature and humidity sensor.</p>
+
+        <button>Read Temperature</button>
+    </div>
+
+    <hr>
+
+    <footer>
+        <p>&copy; 2024 ishwarya. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+</textarea>
+
+<textarea id="c-s8-css">
+body {
+    background-color: rgb(243, 189, 107);
+}
+
+.iot-header {
+    background-color: rgb(250, 187, 187);
+}
+
+.content {
+    background-color: #00d9ffa1;
+}
+
+footer {
+    background-color: rgb(250, 209, 246);
+}
+
+h1 { color: #d63384; font-family: Arial, sans-serif; }
+h2 { color: rgb(0, 100, 200); font-family: 'Courier New', monospace; }
+h3 { color: #8b5cf6; font-family: Verdana, sans-serif; }
+p  { color: #333333; font-size: 16px; font-family: Georgia, serif; }
+
+button {
+    color: #e354f0;
+    font-weight: bold;
+    background-color: blue;
+    padding: 10px 10px;
+    border: 2px solid red;
+    border-radius: 10px;
+    cursor: pointer;
+}
+</textarea>
+
+<textarea id="c-s9-html">
+<html>
+<head>
+    <title>Weather Station</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="iot-header">
+        <img src="https://assets.wizklub.com/images/logo-v2.svg"
+             alt="wizklub-logo" height="100" width="200">
+        <h1>Welcome to my webpage</h1>
+        <h2>WizIOT Components are</h2>
+    </div>
+
+    <hr>
+
+    <div class="content">
+        <h3>Weather Station, OLED etc</h3>
+        <img src="https://wizklub.com/drive/files/20efa16d-d023-44d0-9e0e-3c1b41dbdc36"
+             alt="weather station" width="70%" height="50%">
+        <p>This project is all about using a Weather Station (DHT11) sensor.
+        The DHT11 is commonly used as a temperature and humidity sensor.</p>
+
+        <button id="my_button">Read Temperature</button>
+        <span id="output"></span>
+    </div>
+
+    <hr>
+
+    <footer>
+        <p>&copy; 2024 ishwarya. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+</textarea>
+
+<textarea id="c-s9-css">
+body { background-color: rgb(243, 189, 107); }
+.iot-header { background-color: rgb(250, 187, 187); }
+.content { background-color: #00d9ffa1; }
+footer { background-color: rgb(250, 209, 246); }
+
+h1 { color: #d63384; font-family: Arial, sans-serif; }
+h2 { color: rgb(0, 100, 200); font-family: 'Courier New', monospace; }
+h3 { color: #8b5cf6; font-family: Verdana, sans-serif; }
+p  { color: #333333; font-size: 16px; font-family: Georgia, serif; }
+
+#my_button {
+    color: #e354f0;
+    font-weight: bold;
+    background-color: blue;
+    padding: 10px 10px;
+    border: 2px solid red;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#output {
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: bold;
+    margin-left: 15px;
+    font-family: 'Courier New', monospace;
+}
+</textarea>
+
+<textarea id="c-s10-html">
+<html>
+<head>
+    <title>Weather Station</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="iot-header">
+        <img src="https://assets.wizklub.com/images/logo-v2.svg"
+             alt="wizklub-logo" height="100" width="200">
+        <h1>Welcome to my webpage</h1>
+        <h2>WizIOT Components are</h2>
+    </div>
+
+    <hr>
+
+    <div class="content">
+        <h3>Weather Station, OLED etc</h3>
+        <img src="https://wizklub.com/drive/files/20efa16d-d023-44d0-9e0e-3c1b41dbdc36"
+             alt="weather station" width="70%" height="50%">
+        <p>This project is all about using a Weather Station (DHT11) sensor.
+        The DHT11 is commonly used as a temperature and humidity sensor.</p>
+
+        <button id="my_button">Read Temperature</button>
+        <span id="output"></span>
+    </div>
+
+    <hr>
+
+    <footer>
+        <p>&copy; 2024 ishwarya. All rights reserved.</p>
+    </footer>
+
+    <script>
+        alert("Welcome to JavaScript!");
+    </script>
+</body>
+</html>
+</textarea>
+
+<textarea id="c-s11-html">
+<html>
+<head>
+    <title>Weather Station</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="iot-header">
+        <img src="https://assets.wizklub.com/images/logo-v2.svg"
+             alt="wizklub-logo" height="100" width="200">
+        <h1>Welcome to my webpage</h1>
+        <h2>WizIOT Components are</h2>
+    </div>
+
+    <hr>
+
+    <div class="content">
+        <h3>Weather Station, OLED etc</h3>
+        <img src="https://wizklub.com/drive/files/20efa16d-d023-44d0-9e0e-3c1b41dbdc36"
+             alt="weather station" width="70%" height="50%">
+        <p>This project is all about using a Weather Station (DHT11) sensor.
+        The DHT11 is commonly used as a temperature and humidity sensor.</p>
+
+        <button id="my_button">Read Temperature</button>
+        <span id="output"></span>
+    </div>
+
+    <hr>
+
+    <footer>
+        <p>&copy; 2024 ishwarya. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+</textarea>
+
+<textarea id="c-s11-js">
+// Welcome message
+alert("Welcome to JavaScript!");
+
+// Print messages to the browser console
+console.log("Welcome to JavaScript!");
+console.log("This is my Weather Station project.");
+</textarea>
+
+<textarea id="c-s12-html">
+<html>
+<head>
+    <title>Weather Station</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="iot-header">
+        <img src="https://assets.wizklub.com/images/logo-v2.svg"
+             alt="wizklub-logo" height="100" width="200">
+        <h1>Welcome to my webpage</h1>
+        <h2>WizIOT Components are</h2>
+    </div>
+
+    <hr>
+
+    <div class="content">
+        <h3>Weather Station, OLED etc</h3>
+        <img src="https://wizklub.com/drive/files/20efa16d-d023-44d0-9e0e-3c1b41dbdc36"
+             alt="weather station" width="70%" height="50%">
+        <p>This project is all about using a Weather Station (DHT11) sensor.
+        The DHT11 is commonly used as a temperature and humidity sensor.</p>
+
+        <button id="my_button">Read Temperature</button>
+        <span id="output"></span>
+    </div>
+
+    <hr>
+
+    <footer>
+        <p>&copy; 2024 ishwarya. All rights reserved.</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+</textarea>
+
+<textarea id="c-s12-js">
+// Session 12: $(document).ready + variables + getElementById
+$(document).ready(function(){
+
+    var accesskey = "QlZQQlpOUmhxOUpFTTZib2M0UXQ=";
+    var secretkey = "ak84TVA4bUszV19MQ240NzV0eFZROExnQmVob2dPNkVQZw==";
+    var deviceid  = "jananika01_IoT_device";
+
+    var outputdoc = document.getElementById("output");
+
+    function startWeatherStation(){
+        console.log("Weather station started");
+        outputdoc.innerHTML = "Weather station started...";
+    }
+
+    $('#my_button').click(function(){
+        startWeatherStation();
+    });
+});
+</textarea>
+
+<textarea id="c-s13-js">
+// Session 13: Variables for weather data + simulated data
+$(document).ready(function(){
+
+    var accesskey = "QlZQQlpOUmhxOUpFTTZib2M0UXQ=";
+    var secretkey = "ak84TVA4bUszV19MQ240NzV0eFZROExnQmVob2dPNkVQZw==";
+    var deviceid  = "jananika01_IoT_device";
+
+    var outputdoc = document.getElementById("output");
+
+    var temperature = 0;
+    var humidity    = 0;
+    var pressure    = 0;
+
+    function startWeatherStation(){
+        console.log("Weather station started");
+        outputdoc.innerHTML = "Weather station started...";
+
+        temperature = 25;
+        humidity    = 60;
+        pressure    = 1013;
+
+        console.log("Temperature:", temperature, "C");
+        console.log("Humidity:", humidity, "%");
+        console.log("Pressure:", pressure, "hPa");
+    }
+
+    $('#my_button').click(function(){
+        startWeatherStation();
+    });
+});
+</textarea>
+
+<textarea id="c-s14-js">
+// Session 14: AJAX to start the weather station
+$(document).ready(function(){
+
+    var accesskey = "QlZQQlpOUmhxOUpFTTZib2M0UXQ=";
+    var secretkey = "ak84TVA4bUszV19MQ240NzV0eFZROExnQmVob2dPNkVQZw==";
+    var deviceid  = "jananika01_IoT_device";
+
+    var outputdoc = document.getElementById("output");
+
+    function startWeatherStation(){
+        var startsettings = {
+            "url": "https://wizklub.com/api/secured/wiziot-poll-request/",
+            "method": "POST",
+            "dataType": "json",
+            "contentType": "application/json; charset=utf-8",
+            "headers": {
+                "Api-Access-Key": accesskey,
+                "Api-Secret-Key": secretkey,
+                "Content-Type": "application/json"
+            },
+            "data": JSON.stringify({
+                "mode": "WRITE",
+                "device_id": deviceid,
+                "source": "API",
+                "api": "sensor",
+                "sensor": "weather",
+                "state": "start"
+            })
+        };
+
+        $.ajax(startsettings).done(function(response){
+            console.log(response);
+            outputdoc.innerHTML = "Weather station started...";
+        });
+    }
+
+    $('#my_button').click(function(){
+        startWeatherStation();
+    });
+});
+</textarea>
+
+<textarea id="c-s15-js">
+// Session 15: fetchTemp + startWeatherStation
+$(document).ready(function(){
+
+    var accesskey = "QlZQQlpOUmhxOUpFTTZib2M0UXQ=";
+    var secretkey = "ak84TVA4bUszV19MQ240NzV0eFZROExnQmVob2dPNkVQZw==";
+    var deviceid  = "jananika01_IoT_device";
+
+    var outputdoc = document.getElementById("output");
+
+    function startWeatherStation(){
+        var startsettings = {
+            "url": "https://wizklub.com/api/secured/wiziot-poll-request/",
+            "method": "POST",
+            "dataType": "json",
+            "contentType": "application/json; charset=utf-8",
+            "headers": {
+                "Api-Access-Key": accesskey,
+                "Api-Secret-Key": secretkey,
+                "Content-Type": "application/json"
+            },
+            "data": JSON.stringify({
+                "mode": "WRITE",
+                "device_id": deviceid,
+                "source": "API",
+                "api": "sensor",
+                "sensor": "weather",
+                "state": "start"
+            })
+        };
+
+        $.ajax(startsettings).done(function(response){
+            console.log(response);
+        });
+    }
+
+    function fetchTemp(){
+        var fetchsettings = {
+            "url": "https://wizklub.com/api/secured/wiziot-poll-request/",
+            "method": "POST",
+            "dataType": "json",
+            "contentType": "application/json; charset=utf-8",
+            "headers": {
+                "Api-Access-Key": accesskey,
+                "Api-Secret-Key": secretkey,
+                "Content-Type": "application/json"
+            },
+            "data": JSON.stringify({
+                "mode": "READ",
+                "device_id": deviceid,
+                "source": "API",
+                "api": "sensor",
+                "sensor": "weather"
+            })
+        };
+
+        $.ajax(fetchsettings).done(function(response){
+            console.log(response);
+
+            let temp = response.response.worker_response.iot.value.temperature;
+            let tempString = "Temperature is: " + temp + " C";
+            console.log(tempString);
+
+            outputdoc.innerHTML = tempString;
+        });
+    }
+
+    $('#my_button').click(function(){
+        startWeatherStation();
+        fetchTemp();
+    });
+});
+</textarea>
+
+<textarea id="c-s16-js">
+// Session 16: displayTemp -> sends text to the OLED via the API
+$(document).ready(function(){
+
+    var accesskey = "QlZQQlpOUmhxOUpFTTZib2M0UXQ=";
+    var secretkey = "ak84TVA4bUszV19MQ240NzV0eFZROExnQmVob2dPNkVQZw==";
+    var deviceid  = "jananika01_IoT_device";
+
+    var outputdoc = document.getElementById("output");
+
+    function startWeatherStation(){
+        var startsettings = {
+            "url": "https://wizklub.com/api/secured/wiziot-poll-request/",
+            "method": "POST",
+            "dataType": "json",
+            "contentType": "application/json; charset=utf-8",
+            "headers": {
+                "Api-Access-Key": accesskey,
+                "Api-Secret-Key": secretkey,
+                "Content-Type": "application/json"
+            },
+            "data": JSON.stringify({
+                "mode": "WRITE",
+                "device_id": deviceid,
+                "source": "API",
+                "api": "sensor",
+                "sensor": "weather",
+                "state": "start"
+            })
+        };
+
+        $.ajax(startsettings).done(function(response){
+            console.log(response);
+        });
+    }
+
+    function fetchTemp(){
+        var fetchsettings = {
+            "url": "https://wizklub.com/api/secured/wiziot-poll-request/",
+            "method": "POST",
+            "dataType": "json",
+            "contentType": "application/json; charset=utf-8",
+            "headers": {
+                "Api-Access-Key": accesskey,
+                "Api-Secret-Key": secretkey,
+                "Content-Type": "application/json"
+            },
+            "data": JSON.stringify({
+                "mode": "READ",
+                "device_id": deviceid,
+                "source": "API",
+                "api": "sensor",
+                "sensor": "weather"
+            })
+        };
+
+        $.ajax(fetchsettings).done(function(response){
+            console.log(response);
+
+            let temp = response.response.worker_response.iot.value.temperature;
+            let tempString = "Temperature is: " + temp + " C";
+            console.log(tempString);
+
+            displayTemp(tempString);
+            outputdoc.innerHTML = tempString;
+        });
+    }
+
+    function displayTemp(tempString){
+        var settings = {
+            "url": "https://wizklub.com/api/secured/wiziot-poll-request/",
+            "method": "POST",
+            "dataType": "json",
+            "contentType": "application/json; charset=utf-8",
+            "headers": {
+                "Api-Access-Key": accesskey,
+                "Api-Secret-Key": secretkey,
+                "Content-Type": "application/json"
+            },
+            "data": JSON.stringify({
+                "mode": "WRITE",
+                "device_id": "aws_device_id",
+                "source": "API",
+                "api": "oled",
+                "type": tempString,
+                "msg_to_write": "",
+                "x_axis": "0",
+                "y_axis": "0"
+            })
+        };
+
+        $.ajax(settings).done(function(response){
+            console.log(response);
+        });
+    }
+
+    $('#my_button').click(function(){
+        startWeatherStation();
+        fetchTemp();
+    });
+});
+</textarea>
+
+<textarea id="c-s17-js">
+// Session 17: Full integration of Start + Fetch + OLED display
+$(document).ready(function(){
+
+    var accesskey = "QlZQQlpOUmhxOUpFTTZib2M0UXQ=";
+    var secretkey = "ak84TVA4bUszV19MQ240NzV0eFZROExnQmVob2dPNkVQZw==";
+    var deviceid  = "jananika01_IoT_device";
+
+    var outputdoc = document.getElementById("output");
+
+    function startWeatherStation(){
+        var startsettings = {
+            "url": "https://wizklub.com/api/secured/wiziot-poll-request/",
+            "method": "POST",
+            "dataType": "json",
+            "contentType": "application/json; charset=utf-8",
+            "headers": {
+                "Api-Access-Key": accesskey,
+                "Api-Secret-Key": secretkey,
+                "Content-Type": "application/json"
+            },
+            "data": JSON.stringify({
+                "mode": "WRITE",
+                "device_id": deviceid,
+                "source": "API",
+                "api": "sensor",
+                "sensor": "weather",
+                "state": "start"
+            })
+        };
+
+        $.ajax(startsettings).done(function(response){
+            console.log("Started:", response);
+        });
+    }
+
+    function fetchTemp(){
+        var fetchsettings = {
+            "url": "https://wizklub.com/api/secured/wiziot-poll-request/",
+            "method": "POST",
+            "dataType": "json",
+            "contentType": "application/json; charset=utf-8",
+            "headers": {
+                "Api-Access-Key": accesskey,
+                "Api-Secret-Key": secretkey,
+                "Content-Type": "application/json"
+            },
+            "data": JSON.stringify({
+                "mode": "READ",
+                "device_id": deviceid,
+                "source": "API",
+                "api": "sensor",
+                "sensor": "weather"
+            })
+        };
+
+        $.ajax(fetchsettings).done(function(response){
+            console.log(response);
+
+            let temp = response.response.worker_response.iot.value.temperature;
+            let tempString = "Temperature is: " + temp + " C";
+            console.log(tempString);
+
+            displayTemp(tempString);
+            outputdoc.innerHTML = tempString;
+        });
+    }
+
+    function displayTemp(tempString){
+        var settings = {
+            "url": "https://wizklub.com/api/secured/wiziot-poll-request/",
+            "method": "POST",
+            "dataType": "json",
+            "contentType": "application/json; charset=utf-8",
+            "headers": {
+                "Api-Access-Key": accesskey,
+                "Api-Secret-Key": secretkey,
+                "Content-Type": "application/json"
+            },
+            "data": JSON.stringify({
+                "mode": "WRITE",
+                "device_id": "aws_device_id",
+                "source": "API",
+                "api": "oled",
+                "type": tempString,
+                "msg_to_write": "",
+                "x_axis": "0",
+                "y_axis": "0"
+            })
+        };
+
+        $.ajax(settings).done(function(response){
+            console.log("OLED:", response);
+        });
+    }
+
+    $('#my_button').click(function(){
+        startWeatherStation();
+        fetchTemp();
+    });
+
+    outputdoc.innerHTML = "";
+});
+</textarea>
+
+<textarea id="c-s18-css">
+body {
+    background-color: rgb(243, 189, 107);
+}
+
+.iot-header {
+    background-color: rgb(250, 187, 187);
+    padding: 10px;
+    text-align: center;
+}
+
+.content {
+    background-color: #00d9ffa1;
+    padding: 20px;
+    text-align: center;
+}
+
+footer {
+    background-color: rgb(250, 209, 246);
+    text-align: center;
+    padding: 10px;
+}
+
+h1 { color: #d63384; font-family: Arial, sans-serif; }
+h2 { color: rgb(0, 100, 200); font-family: 'Courier New', monospace; }
+h3 { color: #8b5cf6; font-family: Verdana, sans-serif; }
+p  { color: #333333; font-size: 16px; font-family: Georgia, serif; }
+
+#my_button {
+    color: #e354f0;
+    font-weight: bold;
+    background-color: blue;
+    padding: 10px 20px;
+    border: 2px solid red;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+#my_button:hover {
+    color: #b3ff00;
+    background-color: crimson;
+    transform: scale(1.05);
+}
+
+#output {
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: bold;
+    margin-left: 15px;
+    font-family: 'Courier New', monospace;
+}
+
+@media (max-width: 768px) {
+    body { font-size: 14px; }
+    h1 { font-size: 24px; }
+    h2 { font-size: 20px; }
+    h3 { font-size: 18px; }
+    .content img { width: 100%; height: auto; }
+    .iot-header img { height: 60px; width: 120px; }
+    #my_button { padding: 8px 14px; font-size: 14px; }
+    #output {
+        display: block;
+        margin-left: 0;
+        margin-top: 10px;
+    }
+}
+</textarea>
+
+<textarea id="c-s19-html">
+<html>
+<head>
+    <title>Weather Station</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="script.js"></script>
+</head>
+<body>
+    <div class="iot-header">
+        <img src="https://assets.wizklub.com/images/logo-v2.svg"
+             alt="wizklub-logo" height="100" width="200">
+        <h1>Welcome to my webpage</h1>
+        <h2>WizIOT Components are</h2>
+    </div>
+
+    <hr>
+
+    <div class="content">
+        <h3>Weather Station, OLED etc</h3>
+        <img src="https://wizklub.com/drive/files/20efa16d-d023-44d0-9e0e-3c1b41dbdc36"
+             alt="weather station" width="70%" height="50%">
+        <p>This project is all about using a Weather Station (DHT11) sensor.
+        The DHT11 is commonly used as a temperature and humidity sensor.</p>
+
+        <button id="my_button">Read Temperature</button>
+        <span id="output"></span>
+    </div>
+
+    <hr>
+
+    <footer>
+        <p>&copy; 2024 ishwarya. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+</textarea>
+
+<textarea id="c-s19-css">
+body {
+    background-color: rgb(243, 189, 107);
+    margin: 0;
+    font-family: Georgia, serif;
+}
+
+.iot-header {
+    background-color: rgb(250, 187, 187);
+    padding: 15px;
+    text-align: center;
+}
+
+.content {
+    background-color: #00d9ffa1;
+    padding: 20px;
+    text-align: center;
+}
+
+footer {
+    background-color: rgb(250, 209, 246);
+    text-align: center;
+    padding: 12px;
+}
+
+h1 { color: #d63384; font-family: Arial, sans-serif; }
+h2 { color: rgb(0, 100, 200); font-family: 'Courier New', monospace; }
+h3 { color: #8b5cf6; font-family: Verdana, sans-serif; }
+p  { color: #333333; font-size: 16px; line-height: 1.6; }
+
+#my_button {
+    color: #e354f0;
+    font-weight: bold;
+    background-color: blue;
+    padding: 12px 22px;
+    border: 2px solid red;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+#my_button:hover {
+    color: #b3ff00;
+    background-color: crimson;
+    transform: scale(1.05);
+}
+
+#output {
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: bold;
+    margin-left: 15px;
+    font-family: 'Courier New', monospace;
+}
+
+@media (max-width: 768px) {
+    body { font-size: 14px; }
+    h1 { font-size: 24px; }
+    h2 { font-size: 20px; }
+    h3 { font-size: 18px; }
+    .content img { width: 100%; height: auto; }
+    .iot-header img { height: 60px; width: 120px; }
+    #my_button { padding: 10px 16px; font-size: 14px; }
+    #output {
+        display: block;
+        margin-left: 0;
+        margin-top: 10px;
+    }
+}
+</textarea>
+
+<textarea id="c-s19-js">
+// Final Weather Station Script
+$(document).ready(function(){
+
+    var accesskey = "QlZQQlpOUmhxOUpFTTZib2M0UXQ=";
+    var secretkey = "ak84TVA4bUszV19MQ240NzV0eFZROExnQmVob2dPNkVQZw==";
+    var deviceid  = "jananika01_IoT_device";
+
+    var outputdoc = document.getElementById("output");
+
+    function startWeatherStation(){
+        var startsettings = {
+            "url": "https://wizklub.com/api/secured/wiziot-poll-request/",
+            "method": "POST",
+            "dataType": "json",
+            "contentType": "application/json; charset=utf-8",
+            "headers": {
+                "Api-Access-Key": accesskey,
+                "Api-Secret-Key": secretkey,
+                "Content-Type": "application/json"
+            },
+            "data": JSON.stringify({
+                "mode": "WRITE",
+                "device_id": deviceid,
+                "source": "API",
+                "api": "sensor",
+                "sensor": "weather",
+                "state": "start"
+            })
+        };
+
+        $.ajax(startsettings).done(function(response){
+            console.log("Started:", response);
+        });
+    }
+
+    function fetchTemp(){
+        var fetchsettings = {
+            "url": "https://wizklub.com/api/secured/wiziot-poll-request/",
+            "method": "POST",
+            "dataType": "json",
+            "contentType": "application/json; charset=utf-8",
+            "headers": {
+                "Api-Access-Key": accesskey,
+                "Api-Secret-Key": secretkey,
+                "Content-Type": "application/json"
+            },
+            "data": JSON.stringify({
+                "mode": "READ",
+                "device_id": deviceid,
+                "source": "API",
+                "api": "sensor",
+                "sensor": "weather"
+            })
+        };
+
+        $.ajax(fetchsettings).done(function(response){
+            console.log(response);
+
+            let temp = response.response.worker_response.iot.value.temperature;
+            let tempString = "Temperature is: " + temp + " C";
+            console.log(tempString);
+
+            displayTemp(tempString);
+            outputdoc.innerHTML = tempString;
+        });
+    }
+
+    function displayTemp(tempString){
+        var settings = {
+            "url": "https://wizklub.com/api/secured/wiziot-poll-request/",
+            "method": "POST",
+            "dataType": "json",
+            "contentType": "application/json; charset=utf-8",
+            "headers": {
+                "Api-Access-Key": accesskey,
+                "Api-Secret-Key": secretkey,
+                "Content-Type": "application/json"
+            },
+            "data": JSON.stringify({
+                "mode": "WRITE",
+                "device_id": "aws_device_id",
+                "source": "API",
+                "api": "oled",
+                "type": tempString,
+                "msg_to_write": "",
+                "x_axis": "0",
+                "y_axis": "0"
+            })
+        };
+
+        $.ajax(settings).done(function(response){
+            console.log("OLED:", response);
+        });
+    }
+
+    $('#my_button').click(function(){
+        startWeatherStation();
+        fetchTemp();
+    });
+
+    outputdoc.innerHTML = "";
+});
+</textarea>
+
+</div>
+<!-- ======================= END CODE STORAGE ======================= -->
+
+<script>
+/* ============================================================
+   SESSION DATA (metadata only — code lives in textareas above)
+   ============================================================ */
+const SESSIONS = [
+  { n:3, track:'html', phase:'HTML · Structure', phaseClass:'',
+    title:'Crafting Web Page with HTML',
+    goal:'Apply heading tags to create titles and subtitles. Use paragraph tags to add text content. Build the very first version of the Weather Station webpage.',
+    skills:['Critical Thinking','Problem Solving','HTML Basics'],
+    blocks:[{file:'index.html', badge:'COMPLETE FILE', badgeClass:'html', lang:'html', codeId:'c-s3-html'}],
+    tasks:['Create a new project folder and an <code>index.html</code> file in it',
+           'Type the code above and open the file in a browser to see your first webpage',
+           'Practice: add one more heading and one more paragraph about your favourite weather'],
+    tip:'<b>&lt;h1&gt;</b> is the biggest heading, <b>&lt;h6&gt;</b> the smallest. Use only ONE <code>&lt;h1&gt;</code> per page.'
+  },
+  { n:4, track:'html', phase:'CSS · Introduction', phaseClass:'',
+    title:'Introduction to CSS',
+    goal:'Describe what CSS is and use colours and fonts to make the webpage look attractive. Explore RGB and Hex colour codes.',
+    skills:['Critical Thinking','Problem Solving','Colour Theory'],
+    blocks:[{file:'index.html', badge:'COMPLETE FILE', badgeClass:'html', lang:'html', codeId:'c-s4-html'}],
+    tasks:['Try different RGB values — <code>rgb(255, 0, 0)</code> is red',
+           'Try different Hex codes — <code>#FF0000</code> is red',
+           'Change the background colour and observe the difference'],
+    tip:'<b>RGB</b> uses three numbers (0–255). <b>Hex</b> uses <code>#RRGGBB</code>. Internal CSS goes inside <code>&lt;style&gt;</code> in <code>&lt;head&gt;</code>.'
+  },
+  { n:5, track:'html', phase:'CSS · External Stylesheet', phaseClass:'',
+    title:'Design with CSS',
+    goal:'Create an external CSS file, link it to the HTML page, and apply custom colours and fonts to headings.',
+    skills:['Critical Thinking','Problem Solving','File Organisation'],
+    blocks:[
+      {file:'index.html', badge:'COMPLETE FILE', badgeClass:'html', lang:'html', codeId:'c-s5-html'},
+      {file:'style.css', badge:'NEW FILE', badgeClass:'css', lang:'css', codeId:'c-s5-css'}
+    ],
+    tasks:['Create <code>style.css</code> in the same folder as <code>index.html</code>',
+           'Link it using <code>&lt;link rel="stylesheet" href="style.css"&gt;</code>',
+           'Change the colours and fonts — refresh the browser to see the updates'],
+    tip:'<b>External CSS</b> is better than internal CSS because one stylesheet can style many pages.'
+  },
+  { n:6, track:'html', phase:'HTML · Structuring Tags', phaseClass:'',
+    title:'Essential HTML Tags for Structuring Webpages',
+    goal:'Use div, img, hr, header, and footer to organise the page and insert images and horizontal lines.',
+    skills:['Critical Thinking','Problem Solving','Layout Awareness'],
+    blocks:[
+      {file:'index.html', badge:'COMPLETE FILE', badgeClass:'html', lang:'html', codeId:'c-s6-html'},
+      {file:'style.css', badge:'COMPLETE FILE', badgeClass:'css', lang:'css', codeId:'c-s6-css'}
+    ],
+    tasks:['Add a second image using another <code>&lt;img&gt;</code> tag',
+           'Use <code>&lt;hr&gt;</code> between sections to separate them visually',
+           'Change the footer text to your own name'],
+    tip:'<b>&lt;div&gt;</b> is a generic container. <b>&lt;header&gt;</b> and <b>&lt;footer&gt;</b> are semantic tags.'
+  },
+  { n:7, track:'html', phase:'HTML · Layout', phaseClass:'',
+    title:'Structuring Webpages with HTML Tags',
+    goal:'Use the div tag with classes to organise content. Add the Wizklub logo and a content section.',
+    skills:['Critical Thinking','Problem Solving','CSS Classes'],
+    blocks:[
+      {file:'index.html', badge:'COMPLETE FILE', badgeClass:'html', lang:'html', codeId:'c-s7-html'},
+      {file:'style.css', badge:'COMPLETE FILE', badgeClass:'css', lang:'css', codeId:'c-s7-css'}
+    ],
+    tasks:['Add another <code>&lt;div class="content"&gt;</code> section below with new content',
+           'Try changing the <code>iot-header</code> background colour',
+           'Add a logo image at the top of the page'],
+    tip:'<b>CSS classes</b> are written as <code>.classname</code> in the stylesheet and used as <code>class="classname"</code> in the HTML.'
+  },
+  { n:8, track:'html', phase:'CSS · Buttons', phaseClass:'',
+    title:'CSS Beyond the Basics',
+    goal:'Add a button to the webpage and style it using CSS properties like colour, padding, border, and border-radius.',
+    skills:['Critical Thinking','Problem Solving','UI Design'],
+    blocks:[
+      {file:'index.html', badge:'COMPLETE FILE', badgeClass:'html', lang:'html', codeId:'c-s8-html'},
+      {file:'style.css', badge:'COMPLETE FILE', badgeClass:'css', lang:'css', codeId:'c-s8-css'}
+    ],
+    tasks:['Change the button colours — try <code>background-color: green;</code>',
+           'Adjust the padding — <code>padding: 12px 20px;</code> makes it wider',
+           'Change <code>border-radius</code> to <code>0</code> or <code>50px</code> to see the effect'],
+    tip:'<b>Padding</b> adds space inside the button. <b>Border-radius</b> rounds the corners.'
+  },
+  { n:9, track:'html', phase:'CSS · Ids & Spans', phaseClass:'',
+    title:'Mastering the Styles',
+    goal:'Use CSS ids to target specific elements. Add a span to display the temperature reading and style it.',
+    skills:['Critical Thinking','Problem Solving','Selectors'],
+    blocks:[
+      {file:'index.html', badge:'COMPLETE FILE', badgeClass:'html', lang:'html', codeId:'c-s9-html'},
+      {file:'style.css', badge:'COMPLETE FILE', badgeClass:'css', lang:'css', codeId:'c-s9-css'}
+    ],
+    tasks:['Click the button — nothing happens yet, but the structure is ready',
+           'Try changing the <code>#output</code> colour and font-size',
+           'Understand the difference between <code>.class</code> and <code>#id</code>'],
+    tip:'<b>Ids</b> are written as <code>#idname</code> in CSS. An id must be unique.'
+  },
+  { n:10, track:'js', phase:'JavaScript · Introduction', phaseClass:'v',
+    title:'Introduction to JavaScript',
+    goal:'Define JavaScript, understand its role as the brain of the webpage, and use the script tag to show an alert.',
+    skills:['Critical Thinking','Analytical Reasoning','JS Basics'],
+    blocks:[{file:'index.html', badge:'COMPLETE FILE', badgeClass:'html', lang:'html', codeId:'c-s10-html'}],
+    tasks:['Refresh the page — an alert box should pop up',
+           'Change the message inside the alert',
+           'Open the browser console (F12 → Console) to see what happens'],
+    tip:'<b>JavaScript</b> is the "brain" of the webpage. <b>alert()</b> shows a pop-up box.'
+  },
+  { n:11, track:'js', phase:'JavaScript · Integration', phaseClass:'v',
+    title:'JavaScript Integration Lab: An API Introduction',
+    goal:'Move JavaScript to an external file and use console.log to print messages. Get introduced to APIs.',
+    skills:['Critical Thinking','Analytical Reasoning','API Awareness'],
+    blocks:[
+      {file:'index.html', badge:'COMPLETE FILE', badgeClass:'html', lang:'html', codeId:'c-s11-html'},
+      {file:'script.js', badge:'NEW FILE', badgeClass:'js', lang:'javascript', codeId:'c-s11-js'}
+    ],
+    tasks:['Create <code>script.js</code> in the same folder as <code>index.html</code>',
+           'Link it with <code>&lt;script src="script.js"&gt;&lt;/script&gt;</code>',
+           'Open the console and check that both messages appear'],
+    tip:'<b>APIs</b> are like waiters — you ask for data, the API brings it back.'
+  },
+  { n:12, track:'js', phase:'JavaScript · Functions', phaseClass:'v',
+    title:'Functions in JavaScript',
+    goal:'Understand $(document).ready(), variables, and document.getElementById(). Write your first function.',
+    skills:['Critical Thinking','Analytical Reasoning','Function Design'],
+    blocks:[
+      {file:'index.html', badge:'COMPLETE FILE', badgeClass:'html', lang:'html', codeId:'c-s12-html'},
+      {file:'script.js', badge:'COMPLETE FILE', badgeClass:'js', lang:'javascript', codeId:'c-s12-js'}
+    ],
+    tasks:['Add the jQuery CDN <code>&lt;script&gt;</code> tag BEFORE <code>script.js</code>',
+           'Click the button — the span should show <b>Weather station started...</b>',
+           'Change the message inside <code>startWeatherStation()</code>'],
+    tip:'<b>$(document).ready()</b> waits until the HTML is fully loaded.'
+  },
+  { n:13, track:'js', phase:'JavaScript · Functions Lab', phaseClass:'v',
+    title:'Functions in JavaScript – Lab Edition',
+    goal:'Define the ready function and develop a function to start the weather station with simulated data.',
+    skills:['Critical Thinking','Analytical Reasoning','Simulation'],
+    blocks:[
+      {file:'index.html', badge:'COMPLETE FILE', badgeClass:'html', lang:'html', codeId:'c-s12-html'},
+      {file:'script.js', badge:'COMPLETE FILE', badgeClass:'js', lang:'javascript', codeId:'c-s13-js'}
+    ],
+    tasks:['Click the button and open the console to see the simulated values',
+           'Change the simulated values to something realistic',
+           'Add <code>console.log("Ready!")</code> at the very top of the ready function'],
+    tip:'<b>Simulation</b> is a great way to build and test your code before connecting to a real API.'
+  },
+  { n:14, track:'js', phase:'JavaScript · AJAX', phaseClass:'v',
+    title:'Mastering Functions in JavaScript',
+    goal:'Describe AJAX and use it inside startWeatherStation() to send a request to the weather station API.',
+    skills:['Critical Thinking','Analytical Reasoning','AJAX'],
+    blocks:[
+      {file:'index.html', badge:'COMPLETE FILE', badgeClass:'html', lang:'html', codeId:'c-s12-html'},
+      {file:'script.js', badge:'COMPLETE FILE', badgeClass:'js', lang:'javascript', codeId:'c-s14-js'}
+    ],
+    tasks:['Click the button and check the console for the API response',
+           'Open the Network tab (F12) to see the AJAX request being sent',
+           'Observe how the response comes back without reloading the page'],
+    tip:'<b>AJAX</b> lets the page fetch data in the background — no full reload.'
+  },
+  { n:15, track:'js', phase:'JavaScript · AJAX Lab', phaseClass:'v',
+    title:'JavaScript Functions: Hands-on Lab',
+    goal:'Add a second AJAX call — fetchTemp() — to read the temperature from the weather station and show it on screen.',
+    skills:['Critical Thinking','Analytical Reasoning','AJAX'],
+    blocks:[
+      {file:'index.html', badge:'COMPLETE FILE', badgeClass:'html', lang:'html', codeId:'c-s12-html'},
+      {file:'script.js', badge:'COMPLETE FILE', badgeClass:'js', lang:'javascript', codeId:'c-s15-js'}
+    ],
+    tasks:['Click the button — the temperature should appear next to it',
+           'Look at the console to understand the shape of the API response',
+           'Try changing the label "Temperature is: " to something else'],
+    tip:'Always <b>start</b> the weather station before you <b>read</b> the data.'
+  },
+  { n:16, track:'js', phase:'JavaScript · OLED', phaseClass:'v',
+    title:'OLED as Display Device',
+    goal:'Understand what an OLED display is and write a function to send text to it via the API.',
+    skills:['Problem Solving','Critical Thinking','Analytical Reasoning'],
+    blocks:[
+      {file:'index.html', badge:'COMPLETE FILE', badgeClass:'html', lang:'html', codeId:'c-s12-html'},
+      {file:'script.js', badge:'COMPLETE FILE', badgeClass:'js', lang:'javascript', codeId:'c-s16-js'}
+    ],
+    tasks:['Click the button and observe the OLED showing the temperature',
+           'Change the text sent to the OLED inside <code>displayTemp()</code>',
+           'Notice that <code>displayTemp()</code> is called from inside <code>fetchTemp()</code>'],
+    tip:'<b>OLED</b> is a small screen that can display text. The API call uses the <code>"api": "oled"</code> field.'
+  },
+  { n:17, track:'js', phase:'JavaScript · Full Integration', phaseClass:'v',
+    title:'OLED Displays: AJAX and jQuery Integration',
+    goal:'Complete the full pipeline — button click → start → fetch → display on web + OLED.',
+    skills:['Problem Solving','Analytical Reasoning','System Integration'],
+    blocks:[
+      {file:'index.html', badge:'COMPLETE FILE', badgeClass:'html', lang:'html', codeId:'c-s12-html'},
+      {file:'script.js', badge:'COMPLETE FILE', badgeClass:'js', lang:'javascript', codeId:'c-s17-js'}
+    ],
+    tasks:['Click the button — you should see the temperature on both webpage and OLED',
+           'Check the console for all three API calls (start, fetch, OLED)',
+           'Try changing the OLED text to include the word "Today:"'],
+    tip:'<b>The pipeline:</b> click → <code>startWeatherStation()</code> → <code>fetchTemp()</code> → <code>displayTemp()</code>.'
+  },
+  { n:18, track:'both', phase:'CSS · Advanced', phaseClass:'a',
+    title:'Advanced CSS Properties',
+    goal:'Apply the hover property to make the button interactive and use media queries to make the page responsive.',
+    skills:['Problem Solving','Critical Thinking','Analytical Reasoning'],
+    blocks:[{file:'style.css', badge:'COMPLETE FILE', badgeClass:'css', lang:'css', codeId:'c-s18-css'}],
+    tasks:['Hover over the button — the colour should change and it should grow slightly',
+           'Resize the browser window to see the responsive layout kick in',
+           'Try a different <code>max-width</code> value (e.g. <code>600px</code>)'],
+    tip:'<b>:hover</b> applies styles when the mouse is over an element. <b>Media queries</b> apply styles only when the screen width matches.'
+  },
+  { n:19, track:'both', phase:'Final Project · Locked', phaseClass:'a',
+    title:'Responsive Web Design and Hover Property — Final Project',
+    goal:'Test the weather station web app, refine responsiveness, and view the complete working files. This session is password protected.',
+    skills:['Problem Solving','Critical Thinking','Analytical Reasoning','System Testing'],
+    locked:true,
+    blocks:[
+      {file:'index.html', badge:'FINAL', badgeClass:'html', lang:'html', codeId:'c-s19-html'},
+      {file:'style.css', badge:'FINAL', badgeClass:'css', lang:'css', codeId:'c-s19-css'},
+      {file:'script.js', badge:'FINAL', badgeClass:'js', lang:'javascript', codeId:'c-s19-js'}
+    ],
+    tasks:['Upload/run the complete app and click "Read Temperature"',
+           'Confirm the temperature appears on the webpage and on the OLED',
+           'Test the app on different screen sizes',
+           'Reflection: suggest 2 improvements'],
+    tip:'<b>Final checklist:</b> ① jQuery CDN before script.js ② filename in link is style.css ③ open console (F12) to see API responses.'
+  }
+];
+
+const WEB_PASSWORD = "weather123";
+let grandFinaleUnlocked = (sessionStorage.getItem('ws_unlocked') === '1');
+const CODE_STORE = [];
+
+function escapeHTML(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlight(code, lang){
+  let src = escapeHTML(code);
+  if(lang === 'text') return src;
+  let re, map;
+  if(lang === 'javascript'){
+    re = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')|\b(var|let|const|function|return|if|else|for|while|new|true|false|null|undefined|this|typeof|instanceof)\b|\b(\d+)\b/g;
+    map = ['c','s','k','n'];
+  } else if(lang === 'css'){
+    re = /(\/\*[\s\S]*?\*\/)|("(?:[^"\\\n]|\\.)*")|([.#]?[\w-]+(?=\s*\{))|([\w-]+(?=\s*:))|\b(\d+(?:\.\d+)?(?:px|%|em|rem|vh|vw|s)?)\b/g;
+    map = ['c','s','t','p','n'];
+  } else {
+    re = /(<!--[\s\S]*?-->)|("(?:[^"\\\n]|\\.)*")|([\w-]+(?=\s*=))/g;
+    map = ['c','s','a'];
+  }
+  return src.replace(re, function(m){
+    const groups = Array.prototype.slice.call(arguments, 1, 1 + map.length);
+    for(let i = 0; i < groups.length; i++){
+      if(groups[i] !== undefined) return '<span class="tok-' + map[i] + '">' + m + '</span>';
+    }
+    return m;
+  });
+}
+
+function getCode(codeId){
+  const el = document.getElementById(codeId);
+  return el ? el.value.replace(/^\n/, '').replace(/\n$/, '') : '';
+}
+
+function codeBlockHTML(b){
+  const code = getCode(b.codeId);
+  const idx = CODE_STORE.push(code) - 1;
+  const badgeClass = 'badge ' + (b.badgeClass || '');
+  return '<div class="codeblock"><div class="blockbar">' +
+    '<span class="fname">' + b.file + '</span>' +
+    (b.badge ? '<span class="' + badgeClass + '">' + b.badge + '</span>' : '') +
+    '<button class="copy" data-i="' + idx + '">Copy</button></div>' +
+    '<pre><code>' + highlight(code, b.lang) + '</code></pre></div>';
+}
+
+function lockCardHTML(){
+  return '<div class="lock-overlay-static"><div class="lock-card">' +
+    '<div class="lock-icon">🔒</div><h3>Final Project Locked</h3>' +
+    '<p>Enter the class password to reveal and copy the complete <b>index.html</b>, <b>style.css</b>, and <b>script.js</b>.</p>' +
+    '<div class="lock-input-row"><input type="password" id="lockInput" placeholder="Enter password" autocomplete="off">' +
+    '<button id="unlockBtn">Unlock</button></div>' +
+    '<div class="lock-error" id="lockError"></div>' +
+    '<div class="lock-hint">Ask your instructor if you do not have the password.</div>' +
+    '</div></div>';
+}
+
+function cardHTML(s){
+  const isLocked = s.locked && !grandFinaleUnlocked;
+  let blocksHTML = isLocked ? lockCardHTML() : (s.blocks || []).map(codeBlockHTML).join('');
+  const tasksHTML = (s.tasks && s.tasks.length) ? '<ul class="tasks">' + s.tasks.map(t => '<li>' + t + '</li>').join('') + '</ul>' : '';
+  const skillsHTML = (s.skills || []).map(k => '<span>' + k + '</span>').join('');
+  const tipHTML = s.tip ? '<div class="tip"><span>💡</span><span>' + s.tip + '</span></div>' : '';
+  let bannerHTML = '';
+  if(s.locked){
+    bannerHTML = grandFinaleUnlocked ? '<span class="lock-banner unlocked">🔓 Unlocked</span>' : '<span class="lock-banner">🔒 Locked</span>';
+  }
+  return '<article class="card" data-track="' + s.track + '">' +
+    '<div class="rail"><span class="dot">' + s.n + '</span></div>' +
+    '<div class="body"><span class="phase ' + (s.phaseClass || '') + '">' + s.phase + '</span>' +
+    bannerHTML + '<h2>' + s.title + '</h2><p class="goal">' + s.goal + '</p>' +
+    '<div class="skills">' + skillsHTML + '</div>' + blocksHTML + tasksHTML + tipHTML + '</div></article>';
+}
+
+function render(){
+  CODE_STORE.length = 0;
+  document.getElementById('timeline').innerHTML = SESSIONS.map(cardHTML).join('');
+}
+
+render();
+
+document.addEventListener('click', function(e){
+  if(e.target.id === 'unlockBtn'){
+    const input = document.getElementById('lockInput');
+    const err = document.getElementById('lockError');
+    if(!input || !err) return;
+    if(input.value === WEB_PASSWORD){
+      grandFinaleUnlocked = true;
+      sessionStorage.setItem('ws_unlocked', '1');
+      render();
+    } else {
+      err.textContent = 'Wrong password. Try again.';
+      input.value = ''; input.focus();
+    }
+  }
+});
+
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Enter' && e.target && e.target.id === 'lockInput'){
+    const btn = document.getElementById('unlockBtn');
+    if(btn) btn.click();
+  }
+});
+
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('.copy');
+  if(!btn) return;
+  const text = CODE_STORE[Number(btn.dataset.i)] || '';
+  const done = () => { btn.textContent = 'Copied ✓'; btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1500); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else fallbackCopy(text, done);
+});
+
+function fallbackCopy(text, cb){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); cb(); } catch(err) { alert('Copy failed.'); }
+  document.body.removeChild(ta);
+}
+
+const pills = document.querySelectorAll('.pill');
+pills.forEach(function(p){
+  p.addEventListener('click', function(){
+    pills.forEach(x => x.classList.remove('active'));
+    p.classList.add('active');
+    const f = p.dataset.filter;
+    document.querySelectorAll('.card').forEach(function(card){
+      const t = card.dataset.track;
+      let show = true;
+      if(f === 'html') show = (t === 'html' || t === 'both');
+      if(f === 'js')   show = (t === 'js'   || t === 'both');
+      card.classList.toggle('hidden', !show);
+    });
+  });
+});
+</script>
+</body>
+</html>
