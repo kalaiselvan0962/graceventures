@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PT Camera with Arduino — Complete Code Per Session</title>
+<style>
+  :root{--bg:#000;--panel2:#101013;--line:#1a1a1f;--line2:#26262e;--text:#ececf1;--muted:#8b8b96;--accent:#00e5a0;--accent-dim:rgba(0,229,160,.10);--violet:#8b5cf6;--amber:#ffb020;--sky:#57d4ff}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(900px 520px at 50% -12%,rgba(0,229,160,.075),transparent 70%),radial-gradient(720px 420px at 92% 8%,rgba(139,92,246,.06),transparent 70%)}
+  .wrap{max-width:1020px;margin:0 auto;padding:0 22px;position:relative;z-index:1}
+  header{position:sticky;top:0;z-index:60;background:rgba(0,0,0,.78);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+  .head-inner{max-width:1020px;margin:0 auto;padding:16px 22px 12px}
+  .kicker{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:6px}
+  h1{font-size:clamp(19px,2.6vw,26px);font-weight:800;letter-spacing:-.02em;line-height:1.2}
+  h1 span{background:linear-gradient(92deg,#00e5a0 0%,#57d4ff 55%,#8b5cf6 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:13px;margin-top:6px}
+  .filters{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .pill{font:inherit;font-size:12.5px;font-weight:600;padding:7px 14px;border-radius:999px;cursor:pointer;background:var(--panel2);color:var(--muted);border:1px solid var(--line2);transition:.18s}
+  .pill:hover{color:var(--text);border-color:#3a3a44}
+  .pill.active{background:var(--accent-dim);color:var(--accent);border-color:rgba(0,229,160,.35)}
+  .note{margin:28px 0 8px;border:1px solid var(--line2);background:linear-gradient(180deg,#0b0b0e,#070709);border-radius:16px;padding:16px 18px;font-size:13.5px;color:#b6b6c0}
+  .note b{color:var(--text)}
+  .note .row{display:flex;gap:10px;align-items:flex-start;margin-top:8px}
+  .note .row:first-of-type{margin-top:0}
+  .ico{color:var(--accent);flex-shrink:0}
+  main{padding:26px 0 80px}
+  .card{display:grid;grid-template-columns:60px 1fr;padding-bottom:30px;animation:fade .45s ease both}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .card.hidden{display:none}
+  .rail{position:relative;display:flex;justify-content:center}
+  .rail::before{content:'';position:absolute;top:48px;bottom:-30px;width:1px;background:linear-gradient(180deg,var(--line2),var(--line))}
+  .card:last-child .rail::before{display:none}
+  .dot{position:relative;z-index:1;width:46px;height:46px;border-radius:15px;background:#0d0d10;border:1px solid var(--line2);display:grid;place-items:center;font-weight:800;font-size:14.5px;color:var(--accent);box-shadow:0 0 0 4px #000}
+  .card[data-track="led"] .dot{color:var(--violet)}
+  .card[data-track="joy"] .dot{color:var(--sky)}
+  .card[data-track="both"] .dot{color:var(--amber)}
+  .body{background:linear-gradient(180deg,#0b0b0e,#08080a);border:1px solid var(--line);border-radius:18px;padding:20px 22px 22px;margin-left:12px;transition:border-color .2s}
+  .body:hover{border-color:#2c2c36}
+  .phase{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:rgba(0,229,160,.08);color:var(--accent);border:1px solid rgba(0,229,160,.18);margin-bottom:10px}
+  .phase.v{background:rgba(139,92,246,.10);color:#b39aff;border-color:rgba(139,92,246,.22)}
+  .phase.s{background:rgba(87,212,255,.10);color:var(--sky);border-color:rgba(87,212,255,.22)}
+  .phase.a{background:rgba(255,176,32,.10);color:var(--amber);border-color:rgba(255,176,32,.22)}
+  h2{font-size:clamp(16px,2.1vw,19px);font-weight:750;letter-spacing:-.01em;line-height:1.3}
+  .goal{color:#a9a9b4;font-size:13.5px;margin-top:8px;max-width:72ch}
+  .skills{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .skills span{font-size:11px;font-weight:600;color:#9a9aa6;background:#111116;border:1px solid var(--line2);padding:3.5px 9px;border-radius:7px}
+  .codeblock{margin-top:15px;border:1px solid var(--line2);border-radius:13px;overflow:hidden;background:#040406}
+  .blockbar{display:flex;align-items:center;gap:9px;padding:9px 12px;background:#0e0e12;border-bottom:1px solid var(--line)}
+  .fname{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;color:#8f8f9c}
+  .badge{font-size:9.5px;font-weight:800;letter-spacing:.1em;padding:3px 8px;border-radius:999px;background:rgba(0,229,160,.10);color:var(--accent);border:1px solid rgba(0,229,160,.22)}
+  .badge.full{background:rgba(87,212,255,.10);color:var(--sky);border-color:rgba(87,212,255,.24)}
+  .badge.setup{background:rgba(255,176,32,.10);color:var(--amber);border-color:rgba(255,176,32,.24)}
+  .badge.struct{background:rgba(139,92,246,.12);color:#b39aff;border-color:rgba(139,92,246,.26)}
+  .badge.ino{background:rgba(255,220,100,.10);color:#ffdc64;border-color:rgba(255,220,100,.24)}
+  .copy{margin-left:auto;font:inherit;font-size:11.5px;font-weight:700;padding:5px 12px;border-radius:8px;cursor:pointer;background:#17171d;color:#b9b9c4;border:1px solid var(--line2);transition:.16s}
+  .copy:hover{background:#1e1e26;color:#fff;border-color:#3a3a46}
+  .copy.ok{background:rgba(0,229,160,.14);color:var(--accent);border-color:rgba(0,229,160,.4)}
+  pre{margin:0;padding:16px 16px 18px;overflow-x:auto;font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.6px;line-height:1.68;tab-size:2}
+  pre::-webkit-scrollbar{height:9px}
+  pre::-webkit-scrollbar-track{background:#0a0a0d}
+  pre::-webkit-scrollbar-thumb{background:#23232b;border-radius:9px}
+  code{font-family:inherit;color:#d6d6de;white-space:pre}
+  .tok-c{color:#5d6775;font-style:italic}
+  .tok-s{color:#7ee787}
+  .tok-k{color:#ff7b72}
+  .tok-n{color:#f0a35e}
+  .tok-p{color:#c792ea}
+  .tok-t{color:#7ee787}
+  .tok-a{color:#ffb020}
+  .tip{margin-top:14px;display:flex;gap:10px;align-items:flex-start;font-size:12.8px;color:#a4a4b0;background:#0e0e12;border:1px solid var(--line);border-left:2px solid var(--accent);border-radius:0 11px 11px 0;padding:11px 14px}
+  .card[data-track="led"] .tip{border-left-color:var(--violet)}
+  .card[data-track="joy"] .tip{border-left-color:var(--sky)}
+  .tip b{color:#e6e6ec}
+  .tasks{margin-top:14px;display:flex;flex-direction:column;gap:8px;padding:0}
+  .tasks li{list-style:none;font-size:13px;color:#a4a4b0;display:flex;gap:10px;align-items:flex-start;background:#0e0e12;border:1px solid var(--line);border-radius:11px;padding:10px 13px}
+  .tasks li::before{content:'▸';color:var(--accent);font-weight:800;flex-shrink:0}
+  .lock-banner{display:inline-flex;align-items:center;gap:7px;font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:5px 11px;border-radius:999px;background:rgba(255,176,32,.10);color:var(--amber);border:1px solid rgba(255,176,32,.28);margin-left:8px}
+  .lock-banner.unlocked{background:rgba(0,229,160,.10);color:var(--accent);border-color:rgba(0,229,160,.28)}
+  .lock-overlay-static{margin-top:15px;border:1px solid rgba(255,176,32,.22);background:linear-gradient(180deg,#100c10,#07060a);border-radius:14px;padding:34px 22px;display:grid;place-items:center;text-align:center;position:relative;overflow:hidden}
+  .lock-overlay-static::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(420px 200px at 50% 0%, rgba(255,176,32,.08), transparent 70%)}
+  .lock-card{position:relative;z-index:1;max-width:400px;width:100%;text-align:center}
+  .lock-icon{font-size:30px;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 18px rgba(255,176,32,.5))}
+  .lock-card h3{font-size:15.5px;font-weight:800;color:var(--amber);letter-spacing:.02em}
+  .lock-card p{font-size:12.8px;color:#9a9aa6;margin-top:7px;line-height:1.55}
+  .lock-input-row{display:flex;gap:8px;margin-top:16px}
+  .lock-input-row input{flex:1;min-width:0;font:inherit;font-size:13px;padding:10px 13px;border-radius:10px;background:#07070a;color:#fff;border:1px solid #26262e;outline:none}
+  .lock-input-row input:focus{border-color:rgba(255,176,32,.55);box-shadow:0 0 0 3px rgba(255,176,32,.10)}
+  .lock-input-row button{font:inherit;font-size:12.5px;font-weight:800;padding:10px 18px;border-radius:10px;cursor:pointer;background:linear-gradient(180deg,#ffb020,#e08e00);color:#1a1000;border:none;white-space:nowrap}
+  .lock-input-row button:hover{filter:brightness(1.1)}
+  .lock-error{font-size:11.5px;color:#ff7b72;margin-top:9px;min-height:15px;font-weight:600}
+  .lock-hint{font-size:11px;color:#5f5f6b;margin-top:10px}
+  footer{border-top:1px solid var(--line);padding:26px 0 50px;text-align:center;color:#5f5f6b;font-size:12px}
+  .hidden-data{display:none}
+  @media (max-width:640px){
+    .card{grid-template-columns:40px 1fr}
+    .dot{width:36px;height:36px;border-radius:12px;font-size:12.5px}
+    .rail::before{top:38px}
+    .body{padding:16px 15px 18px;margin-left:8px;border-radius:15px}
+    pre{font-size:11.7px;padding:13px}
+    .filters{gap:6px}
+    .pill{font-size:11.5px;padding:6px 11px}
+    .lock-input-row{flex-direction:column}
+    .lock-input-row button{width:100%}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-inner">
+    <div class="kicker">PT Camera with Arduino · Grade 8</div>
+    <h1>Complete <span>Code Per Session</span> · Class 11 → Class 20</h1>
+    <div class="sub">Every session shows the FULL file. Copy the whole block and paste it over your previous version — no partial edits needed.</div>
+    <div class="filters">
+      <button class="pill active" data-filter="all">All Sessions</button>
+      <button class="pill" data-filter="led">Phase I · LED &amp; PWM</button>
+      <button class="pill" data-filter="joy">Phase II · Joystick &amp; Pan/Tilt</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="note">
+    <div class="row"><span class="ico">◆</span><span><b>How to use:</b> open <code>PT_Camera.ino</code> in Arduino IDE. For each session, click <b>Copy</b> and paste the <b>entire</b> block over your old file, then upload to the ESP32.</span></div>
+    <div class="row"><span class="ico">◆</span><span><b>Final project is locked.</b> The complete PT Camera (Session 20) is hidden until you enter the class password. Your instructor will share it with you.</span></div>
+  </div>
+</div>
+
+<main class="wrap" id="timeline"></main>
+
+<footer>PT Camera with Arduino · LED + PWM + Joystick + Servo · Happy Building 🎥</footer>
+
+<!-- ======================= CODE STORAGE ======================= -->
+<div class="hidden-data">
+
+<!-- ================= SESSION 11 ================= -->
+<textarea id="c-s11-ino">
+/*
+  Session 11: Exploring Built-in Functions in Arduino IDE
+  Board: ESP32 / Arduino
+  Objective: Understand the structure of an Arduino program
+             (setup + loop) and Serial printing.
+*/
+
+void setup() {
+  // Runs ONCE when the board powers up
+  Serial.begin(115200);
+  Serial.println("Arduino Program Started!");
+  Serial.println("setup() runs once, loop() runs forever.");
+}
+
+void loop() {
+  // Runs AGAIN and AGAIN, forever
+  Serial.println("Hello from loop()");
+  delay(1000);
+}
+</textarea>
+
+<!-- ================= SESSION 12 ================= -->
+<textarea id="c-s12-ino">
+/*
+  Session 12: Arduino Programming with Wiz IoT Tri-Colour LED
+  Board: ESP32 / Arduino
+  Objective: Blink GREEN, then alternate GREEN and BLUE.
+*/
+
+// --- Pin Definitions ---
+#define RED_PIN   25
+#define GREEN_PIN 26
+#define BLUE_PIN  27
+
+void setup() {
+  pinMode(RED_PIN, OUTPUT);
+  pinMode(GREEN_PIN, OUTPUT);
+  pinMode(BLUE_PIN, OUTPUT);
+
+  // Everything OFF at start
+  digitalWrite(RED_PIN, LOW);
+  digitalWrite(GREEN_PIN, LOW);
+  digitalWrite(BLUE_PIN, LOW);
+}
+
+void loop() {
+  // --- GREEN ON ---
+  digitalWrite(RED_PIN, LOW);
+  digitalWrite(GREEN_PIN, HIGH);
+  digitalWrite(BLUE_PIN, LOW);
+  delay(1000);
+
+  // --- BLUE ON ---
+  digitalWrite(RED_PIN, LOW);
+  digitalWrite(GREEN_PIN, LOW);
+  digitalWrite(BLUE_PIN, HIGH);
+  delay(1000);
+}
+</textarea>
+
+<!-- ================= SESSION 13 ================= -->
+<textarea id="c-s13-ino">
+/*
+  Session 13: Exploring PWM and Board Programming
+  Board: ESP32 / Arduino
+  Objective: Use analogWrite() to fade the GREEN channel in and out.
+             PWM values range from 0 (off) to 255 (full brightness).
+*/
+
+#define RED_PIN   25
+#define GREEN_PIN 26
+#define BLUE_PIN  27
+
+void setup() {
+  pinMode(RED_PIN, OUTPUT);
+  pinMode(GREEN_PIN, OUTPUT);
+  pinMode(BLUE_PIN, OUTPUT);
+}
+
+void loop() {
+  // Fade GREEN from 0 to 255
+  for (int brightness = 0; brightness <= 255; brightness += 5) {
+    analogWrite(GREEN_PIN, brightness);
+    delay(15);
+  }
+  // Fade GREEN from 255 back to 0
+  for (int brightness = 255; brightness >= 0; brightness -= 5) {
+    analogWrite(GREEN_PIN, brightness);
+    delay(15);
+  }
+}
+</textarea>
+
+<!-- ================= SESSION 14 ================= -->
+<textarea id="c-s14-ino">
+/*
+  Session 14: Discover Secondary Colours with Arduino
+  Board: ESP32 / Arduino
+  Objective: Mix primary colours (RGB) with analogWrite() to
+             produce YELLOW, CYAN, and MAGENTA.
+*/
+
+#define RED_PIN   25
+#define GREEN_PIN 26
+#define BLUE_PIN  27
+
+// --- Helper function: set an RGB colour ---
+void setColour(int r, int g, int b) {
+  analogWrite(RED_PIN, r);
+  analogWrite(GREEN_PIN, g);
+  analogWrite(BLUE_PIN, b);
+}
+
+void setup() {
+  pinMode(RED_PIN, OUTPUT);
+  pinMode(GREEN_PIN, OUTPUT);
+  pinMode(BLUE_PIN, OUTPUT);
+}
+
+void loop() {
+  // YELLOW = Red + Green
+  setColour(255, 255, 0);
+  delay(1000);
+
+  // CYAN = Green + Blue
+  setColour(0, 255, 255);
+  delay(1000);
+
+  // MAGENTA = Red + Blue
+  setColour(255, 0, 255);
+  delay(1000);
+}
+</textarea>
+
+<!-- ================= SESSION 15 ================= -->
+<textarea id="c-s15-ino">
+/*
+  Session 15: Getting Started with PT Camera Programming
+  Board: ESP32 / Arduino
+  Objective: Configure the Joystick's X, Y, and SW pins.
+             Learn about INPUT_PULLUP for the switch.
+*/
+
+// --- Joystick Pin Definitions ---
+#define VRX_PIN    A0   // Analog X
+#define VRY_PIN    A1   // Analog Y
+#define BUTTON_PIN 9    // Digital switch
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(VRX_PIN, INPUT);
+  pinMode(VRY_PIN, INPUT);
+
+  // INPUT_PULLUP keeps the pin HIGH when the switch is not pressed
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+
+  Serial.println("Joystick configured: X=A0, Y=A1, SW=9");
+}
+
+void loop() {
+  // Nothing here yet — we will read in the next session
+}
+</textarea>
+
+<!-- ================= SESSION 16 ================= -->
+<textarea id="c-s16-ino">
+/*
+  Session 16: Reading Joystick Position with Arduino - I
+  Board: ESP32 / Arduino
+  Objective: Use analogRead() to read X and Y values and display
+             them on the Serial Monitor.
+             analogRead() returns 0..1023, midpoint ~512.
+*/
+
+#define VRX_PIN    A0
+#define VRY_PIN    A1
+#define BUTTON_PIN 9
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  Serial.println("Joystick ready — move the stick!");
+}
+
+void loop() {
+  int valueX = analogRead(VRX_PIN);
+  int valueY = analogRead(VRY_PIN);
+
+  Serial.print("X: ");
+  Serial.print(valueX);
+  Serial.print("   Y: ");
+  Serial.println(valueY);
+
+  delay(200);
+}
+</textarea>
+
+<!-- ================= SESSION 17 ================= -->
+<textarea id="c-s17-ino">
+/*
+  Session 17: Reading Joystick Positions with Arduino - II
+  Board: ESP32 / Arduino
+  Objective: Add direction detection (LEFT/RIGHT/UP/DOWN/CENTER)
+             and read the switch (SW) using digitalRead().
+*/
+
+#define VRX_PIN    A0
+#define VRY_PIN    A1
+#define BUTTON_PIN 9
+
+const int CENTER    = 512;
+const int DEAD_ZONE = 100;   // Ignore small jitter around the centre
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  Serial.println("Joystick direction detector ready.");
+}
+
+void loop() {
+  int valueX = analogRead(VRX_PIN);
+  int valueY = analogRead(VRY_PIN);
+  int buttonState = digitalRead(BUTTON_PIN);
+
+  Serial.print("X: ");
+  Serial.print(valueX);
+  Serial.print(" Y: ");
+  Serial.print(valueY);
+  Serial.print("  Direction: ");
+
+  if (valueX < CENTER - DEAD_ZONE)       Serial.print("LEFT ");
+  else if (valueX > CENTER + DEAD_ZONE)  Serial.print("RIGHT ");
+  else                                   Serial.print("CENTER ");
+
+  if (valueY < CENTER - DEAD_ZONE)       Serial.print("UP ");
+  else if (valueY > CENTER + DEAD_ZONE)  Serial.print("DOWN ");
+  else                                   Serial.print("MID ");
+
+  if (buttonState == LOW) Serial.print("  [SW PRESSED]");
+
+  Serial.println();
+  delay(150);
+}
+</textarea>
+
+<!-- ================= SESSION 18 ================= -->
+<textarea id="c-s18-ino">
+/*
+  Session 18: Pan and Tilt Configuration with Arduino
+  Board: ESP32 / Arduino
+  Objective: Attach the Tilt and Pan servo motors to their pins
+             and set them to a starting position.
+*/
+
+#include <Servo.h>
+
+// --- Servo Pins ---
+const int TILT_SERVO_PIN = 12;
+const int PAN_SERVO_PIN  = 13;
+
+Servo TILT_SERVO_MOTOR;
+Servo PAN_SERVO_MOTOR;
+
+void setup() {
+  Serial.begin(115200);
+
+  // Attach servos
+  TILT_SERVO_MOTOR.attach(TILT_SERVO_PIN);
+  PAN_SERVO_MOTOR.attach(PAN_SERVO_PIN);
+
+  // Initial position: Tilt = 30°, Pan = 90° (facing forward)
+  TILT_SERVO_MOTOR.write(30);
+  PAN_SERVO_MOTOR.write(90);
+
+  Serial.println("Pan and Tilt servos attached and centred.");
+}
+
+void loop() {
+  // Nothing here yet
+}
+</textarea>
+
+<!-- ================= SESSION 19 ================= -->
+<textarea id="c-s19-ino">
+/*
+  Session 19: Pan and Tilt Control with Arduino and Functions
+  Board: ESP32 / Arduino
+  Objective: Wrap servo movement in reusable functions
+             (movePan, moveTilt, resetPosition) and use the
+             switch (SW) to reset the camera to neutral.
+*/
+
+#include <Servo.h>
+
+#define BUTTON_PIN 9
+
+// --- Servo Pins ---
+const int TILT_SERVO_PIN = 12;
+const int PAN_SERVO_PIN  = 13;
+
+Servo TILT_SERVO_MOTOR;
+Servo PAN_SERVO_MOTOR;
+
+// --- Current servo angles ---
+int panAngle  = 90;
+int tiltAngle = 30;
+
+// --- movePan(): change Pan angle with limits ---
+void movePan(int angle) {
+  panAngle = constrain(angle, 0, 180);
+  PAN_SERVO_MOTOR.write(panAngle);
+}
+
+// --- moveTilt(): change Tilt angle with limits ---
+void moveTilt(int angle) {
+  tiltAngle = constrain(angle, 0, 120);
+  TILT_SERVO_MOTOR.write(tiltAngle);
+}
+
+// --- resetPosition(): return to neutral ---
+void resetPosition() {
+  movePan(90);
+  moveTilt(30);
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+
+  TILT_SERVO_MOTOR.attach(TILT_SERVO_PIN);
+  PAN_SERVO_MOTOR.attach(PAN_SERVO_PIN);
+
+  resetPosition();
+  Serial.println("Pan and Tilt ready. Press SW to reset.");
+}
+
+void loop() {
+  if (digitalRead(BUTTON_PIN) == LOW) {
+    resetPosition();
+    Serial.println("Reset to neutral position.");
+    delay(200);
+  }
+}
+</textarea>
+
+<!-- ================= SESSION 20 : FINAL (LOCKED) ================= -->
+<textarea id="c-s20-ino">
+#include <Servo.h>
+
+// Joystick pins
+#define VRX_PIN A0
+#define VRY_PIN A1
+#define BUTTON_PIN 9
+
+// Servo pins
+const int TILT_SERVO_PIN = 12;
+const int PAN_SERVO_PIN = 13;
+
+Servo TILT_SERVO_MOTOR;
+Servo PAN_SERVO_MOTOR;
+
+// Current servo angles
+int panAngle = 90;
+int tiltAngle = 30;
+
+// Joystick dead zone
+const int DEAD_ZONE = 100;
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+
+  TILT_SERVO_MOTOR.attach(TILT_SERVO_PIN);
+  PAN_SERVO_MOTOR.attach(PAN_SERVO_PIN);
+
+  // Initial position
+  TILT_SERVO_MOTOR.write(tiltAngle);
+  PAN_SERVO_MOTOR.write(panAngle);
+}
+
+void loop() {
+
+  int valueX = analogRead(VRX_PIN);
+  int valueY = analogRead(VRY_PIN);
+  int buttonState = digitalRead(BUTTON_PIN);
+
+  // Print values without slowing the servo
+  Serial.print("X: ");
+  Serial.print(valueX);
+  Serial.print("  Y: ");
+  Serial.print(valueY);
+  Serial.print("  Button: ");
+  Serial.println(buttonState);
+
+  // ---------------- PAN ----------------
+
+  if (valueX < 512 - DEAD_ZONE) {
+    panAngle++;
+  }
+  else if (valueX > 512 + DEAD_ZONE) {
+    panAngle--;
+  }
+
+  // Keep pan within limits
+  panAngle = constrain(panAngle, 0, 180);
+
+  // ---------------- TILT ----------------
+
+  if (valueY < 512 - DEAD_ZONE) {
+    tiltAngle++;
+  }
+  else if (valueY > 512 + DEAD_ZONE) {
+    tiltAngle--;
+  }
+
+  // Keep tilt within limits
+  tiltAngle = constrain(tiltAngle, 0, 120);
+
+  // ---------------- BUTTON ----------------
+
+  if (buttonState == LOW) {
+    panAngle = 90;
+    tiltAngle = 30;
+  }
+
+  // Move servos
+  PAN_SERVO_MOTOR.write(panAngle);
+  TILT_SERVO_MOTOR.write(tiltAngle);
+
+  // Small delay for smooth movement
+  delay(10);
+}
+</textarea>
+
+</div>
+<!-- ======================= END CODE STORAGE ======================= -->
+
+<script>
+/* ============================================================
+   SESSION DATA (metadata only)
+   ============================================================ */
+const SESSIONS = [
+  { n:11, track:'led', phase:'Arduino · Built-in Functions', phaseClass:'',
+    title:'Exploring Built-in Functions in Arduino IDE',
+    goal:'Install the Arduino board in the IDE, understand the structure of an Arduino program, and use built-in functions like Serial.begin() and Serial.println().',
+    skills:['Critical Thinking','Problem Solving','Arduino Basics'],
+    blocks:[{file:'PT_Camera.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s11-ino'}],
+    tasks:['Install the ESP32 board package from Boards Manager',
+           'Upload the code and open Serial Monitor at 115200 baud',
+           'See "Hello from loop()" printing every second'],
+    tip:'<b>setup()</b> runs once — use it for configuration. <b>loop()</b> runs forever — use it for the main logic. Every Arduino program has exactly these two functions.'
+  },
+  { n:12, track:'led', phase:'Arduino · Tri-Colour LED', phaseClass:'',
+    title:'Arduino Programming with Wiz IoT Tri-Colour LED',
+    goal:'Write a program to blink GREEN on the Wiz Tri-Colour LED, then alternate between GREEN and BLUE.',
+    skills:['Critical Thinking','Problem Solving','Digital Output'],
+    blocks:[{file:'PT_Camera.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s12-ino'}],
+    tasks:['Wire the Tri-Colour LED: R→25, G→26, B→27',
+           'Upload — the LED should blink green, then blue, repeating',
+           'Change the delay to 300 ms for a faster blink'],
+    tip:'<b>digitalWrite(pin, HIGH)</b> turns a channel fully ON, <b>LOW</b> turns it OFF. To glow a colour you set one channel HIGH and the other two LOW.'
+  },
+  { n:13, track:'led', phase:'Arduino · PWM', phaseClass:'',
+    title:'Exploring PWM and Board Programming',
+    goal:'Describe Pulse Width Modulation (PWM) and use the analogWrite() function to fade an LED in and out.',
+    skills:['Critical Thinking','Problem Solving','PWM Concepts'],
+    blocks:[{file:'PT_Camera.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s13-ino'}],
+    tasks:['Upload — the green channel should smoothly fade up and down',
+           'Change the fade step from 5 to 2 for a smoother fade',
+           'Try fading the RED channel instead of GREEN'],
+    tip:'<b>PWM</b> switches a pin on/off very fast to simulate any brightness level between 0 and 255. <b>analogWrite(pin, 0)</b> is fully off, <b>analogWrite(pin, 255)</b> is fully on.'
+  },
+  { n:14, track:'led', phase:'Arduino · Secondary Colours', phaseClass:'',
+    title:'Discover Secondary Colours with Arduino',
+    goal:'Mix primary RGB colours using analogWrite() to produce secondary colours: YELLOW, CYAN, and MAGENTA.',
+    skills:['Critical Thinking','Problem Solving','Colour Mixing'],
+    blocks:[{file:'PT_Camera.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s14-ino'}],
+    tasks:['Upload — the LED should cycle through YELLOW → CYAN → MAGENTA',
+           'Add a WHITE stage by calling <code>setColour(255, 255, 255)</code>',
+           'Try <code>setColour(128, 0, 128)</code> for a soft purple'],
+    tip:'<b>Secondary colours:</b> Yellow = R+G, Cyan = G+B, Magenta = R+B. Mixing all three at full brightness gives white light.'
+  },
+  { n:15, track:'joy', phase:'PT Camera · Joystick Setup', phaseClass:'s',
+    title:'Getting Started with PT Camera Programming',
+    goal:'Explain how a Joystick works, and configure its X, Y, and SW pins in the Arduino program using INPUT_PULLUP.',
+    skills:['Critical Thinking','Problem Solving','Input Devices'],
+    blocks:[{file:'PT_Camera.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s15-ino'}],
+    tasks:['Wire the Joystick: VRx→A0, VRy→A1, SW→9, VCC→3.3V, GND→GND',
+           'Upload and confirm the Serial message appears',
+           'Test: press the joystick down and see the LED on the module light'],
+    tip:'The joystick is really <b>two potentiometers</b> (X and Y) plus a <b>push button</b>. X and Y are analog; the switch is digital and uses <b>INPUT_PULLUP</b>.'
+  },
+  { n:16, track:'joy', phase:'PT Camera · Reading Positions', phaseClass:'s',
+    title:'Reading Joystick Position with Arduino - I',
+    goal:'Define analogRead() and digitalRead(), and display the Joystick\'s X and Y positions on the Serial Monitor.',
+    skills:['Critical Thinking','Problem Solving','Analog Input'],
+    blocks:[{file:'PT_Camera.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s16-ino'}],
+    tasks:['Upload and open Serial Monitor at 115200',
+           'Move the stick — X and Y values should change from 0 to 1023',
+           'Leave the stick alone — both values should sit near 512'],
+    tip:'<b>analogRead()</b> returns 0..1023 (10-bit). <b>digitalRead()</b> returns only 0 or 1. The midpoint of a joystick is around 512.'
+  },
+  { n:17, track:'joy', phase:'PT Camera · Directions', phaseClass:'s',
+    title:'Reading Joystick Positions with Arduino - II',
+    goal:'Display the Joystick\'s direction (LEFT / RIGHT / UP / DOWN / CENTER) and test the switch press on the Serial Monitor.',
+    skills:['Critical Thinking','Problem Solving','Conditionals'],
+    blocks:[{file:'PT_Camera.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s17-ino'}],
+    tasks:['Upload and observe the direction printed as you move the stick',
+           'Press the stick down — the Serial Monitor shows <b>[SW PRESSED]</b>',
+           'Adjust the <b>DEAD_ZONE</b> to 50 for a more sensitive response'],
+    tip:'<b>DEAD_ZONE</b> stops the servo from twitching when the stick is nearly centred. Without it, tiny jitter would be treated as a command.'
+  },
+  { n:18, track:'joy', phase:'PT Camera · Servo Setup', phaseClass:'s',
+    title:'Pan and Tilt Configuration with Arduino',
+    goal:'Explain Pan and Tilt, define the Servo pins, and attach them using the Servo library.',
+    skills:['Critical Thinking','Problem Solving','Servo Control'],
+    blocks:[{file:'PT_Camera.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s18-ino'}],
+    tasks:['Wire the Pan servo signal → 13, Tilt servo signal → 12',
+           'Upload — the camera should move to Pan=90° and Tilt=30°',
+           'Change the initial angles to see the effect'],
+    tip:'<b>Pan</b> = horizontal rotation (0–180°). <b>Tilt</b> = vertical rotation (0–120° to avoid hitting the mount). Power the servos from a separate 5V supply for best results.'
+  },
+  { n:19, track:'joy', phase:'PT Camera · Control Functions', phaseClass:'s',
+    title:'Pan and Tilt Control with Arduino and Functions',
+    goal:'Describe the servo.write() function, develop reusable functions for Pan and Tilt movement, and reset using the switch.',
+    skills:['Critical Thinking','Problem Solving','Function Design'],
+    blocks:[{file:'PT_Camera.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s19-ino'}],
+    tasks:['Upload — press the joystick switch (SW) to recentre the camera',
+           'Call <code>movePan(45)</code> in <code>setup()</code> and re-upload',
+           'Add a <code>moveTilt(90)</code> call after it'],
+    tip:'<b>servo.write(angle)</b> moves the shaft to a specific angle. <b>constrain(value, min, max)</b> clamps a value into a safe range — always constrain servo angles!'
+  },
+  { n:20, track:'both', phase:'Final Project · Locked', phaseClass:'a',
+    title:'Mapping Joystick Inputs to Pan and Tilt with Arduino',
+    goal:'Complete the PT Camera: control Tilt and Pan with the joystick and reset to neutral using the joystick\'s switch. Locked behind the class password.',
+    skills:['Critical Thinking','Problem Solving','System Integration','Testing'],
+    locked:true,
+    blocks:[{file:'PT_Camera.ino', badge:'FINAL', badgeClass:'ino', lang:'cpp', codeId:'c-s20-ino'}],
+    tasks:['Upload the final program — the servos should follow your joystick',
+           'Press the joystick switch (SW) — the camera recentres to 90°/30°',
+           'Verify the Serial Monitor shows X, Y, and Button values',
+           'Reflection: suggest 2 improvements (e.g. smoother speed, save positions)'],
+    tip:'<b>Final checklist:</b> ① Servos on separate 5V supply? ② Common GND between ESP32 and servos? ③ Joystick wired to A0/A1/9? ④ Tilt limited to 0–120° to avoid stalling? ⑤ <code>delay(10)</code> for smooth motion?'
+  }
+];
+
+const WEB_PASSWORD = "ptcamera123";
+let grandFinaleUnlocked = (sessionStorage.getItem('pt_unlocked') === '1');
+const CODE_STORE = [];
+
+function escapeHTML(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlight(code, lang){
+  let src = escapeHTML(code);
+  if(lang === 'text') return src;
+  let re, map;
+  if(lang === 'cpp'){
+    re = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')|(#\s*\w+)|\b(void|int|uint8_t|String|bool|for|if|else|while|return|break|continue|const|char|byte|unsigned|long|true|false|HIGH|LOW|OUTPUT|INPUT|INPUT_PULLUP|setup|loop|delay|class|public|private|new|sizeof|NULL|float|double|Servo|analogRead|analogWrite|digitalRead|digitalWrite|pinMode|constrain|attach|write|Serial|A0|A1)\b|\b(\d+)\b/g;
+    map = ['c','s','p','k','n'];
+  } else {
+    re = /(#[^\n]*)|("(?:[^"\\\n]|\\.)*")|\b(def|import|from|as|if|elif|else|while|for|in|break|continue|return|True|False|None|and|or|not|print|pass)\b|\b(\d+)\b/g;
+    map = ['c','s','k','n'];
+  }
+  return src.replace(re, function(m){
+    const groups = Array.prototype.slice.call(arguments, 1, 1 + map.length);
+    for(let i = 0; i < groups.length; i++){
+      if(groups[i] !== undefined) return '<span class="tok-' + map[i] + '">' + m + '</span>';
+    }
+    return m;
+  });
+}
+
+function getCode(codeId){
+  const el = document.getElementById(codeId);
+  return el ? el.value.replace(/^\n/, '').replace(/\n$/, '') : '';
+}
+
+function codeBlockHTML(b){
+  const code = getCode(b.codeId);
+  const idx = CODE_STORE.push(code) - 1;
+  const badgeClass = 'badge ' + (b.badgeClass || '');
+  return '<div class="codeblock"><div class="blockbar">' +
+    '<span class="fname">' + b.file + '</span>' +
+    (b.badge ? '<span class="' + badgeClass + '">' + b.badge + '</span>' : '') +
+    '<button class="copy" data-i="' + idx + '">Copy</button></div>' +
+    '<pre><code>' + highlight(code, b.lang) + '</code></pre></div>';
+}
+
+function lockCardHTML(){
+  return '<div class="lock-overlay-static"><div class="lock-card">' +
+    '<div class="lock-icon">🔒</div><h3>Final Project Locked</h3>' +
+    '<p>Enter the class password to reveal and copy the complete <b>PT_Camera.ino</b>.</p>' +
+    '<div class="lock-input-row"><input type="password" id="lockInput" placeholder="Enter password" autocomplete="off">' +
+    '<button id="unlockBtn">Unlock</button></div>' +
+    '<div class="lock-error" id="lockError"></div>' +
+    '<div class="lock-hint">Ask your instructor if you do not have the password.</div>' +
+    '</div></div>';
+}
+
+function cardHTML(s){
+  const isLocked = s.locked && !grandFinaleUnlocked;
+  let blocksHTML = isLocked ? lockCardHTML() : (s.blocks || []).map(codeBlockHTML).join('');
+  const tasksHTML = (s.tasks && s.tasks.length) ? '<ul class="tasks">' + s.tasks.map(t => '<li>' + t + '</li>').join('') + '</ul>' : '';
+  const skillsHTML = (s.skills || []).map(k => '<span>' + k + '</span>').join('');
+  const tipHTML = s.tip ? '<div class="tip"><span>💡</span><span>' + s.tip + '</span></div>' : '';
+  let bannerHTML = '';
+  if(s.locked){
+    bannerHTML = grandFinaleUnlocked ? '<span class="lock-banner unlocked">🔓 Unlocked</span>' : '<span class="lock-banner">🔒 Locked</span>';
+  }
+  return '<article class="card" data-track="' + s.track + '">' +
+    '<div class="rail"><span class="dot">' + s.n + '</span></div>' +
+    '<div class="body"><span class="phase ' + (s.phaseClass || '') + '">' + s.phase + '</span>' +
+    bannerHTML + '<h2>' + s.title + '</h2><p class="goal">' + s.goal + '</p>' +
+    '<div class="skills">' + skillsHTML + '</div>' + blocksHTML + tasksHTML + tipHTML + '</div></article>';
+}
+
+function render(){
+  CODE_STORE.length = 0;
+  document.getElementById('timeline').innerHTML = SESSIONS.map(cardHTML).join('');
+}
+
+render();
+
+document.addEventListener('click', function(e){
+  if(e.target.id === 'unlockBtn'){
+    const input = document.getElementById('lockInput');
+    const err = document.getElementById('lockError');
+    if(!input || !err) return;
+    if(input.value === WEB_PASSWORD){
+      grandFinaleUnlocked = true;
+      sessionStorage.setItem('pt_unlocked', '1');
+      render();
+    } else {
+      err.textContent = 'Wrong password. Try again.';
+      input.value = ''; input.focus();
+    }
+  }
+});
+
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Enter' && e.target && e.target.id === 'lockInput'){
+    const btn = document.getElementById('unlockBtn');
+    if(btn) btn.click();
+  }
+});
+
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('.copy');
+  if(!btn) return;
+  const text = CODE_STORE[Number(btn.dataset.i)] || '';
+  const done = () => { btn.textContent = 'Copied ✓'; btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1500); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else fallbackCopy(text, done);
+});
+
+function fallbackCopy(text, cb){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); cb(); } catch(err) { alert('Copy failed.'); }
+  document.body.removeChild(ta);
+}
+
+const pills = document.querySelectorAll('.pill');
+pills.forEach(function(p){
+  p.addEventListener('click', function(){
+    pills.forEach(x => x.classList.remove('active'));
+    p.classList.add('active');
+    const f = p.dataset.filter;
+    document.querySelectorAll('.card').forEach(function(card){
+      const t = card.dataset.track;
+      let show = true;
+      if(f === 'led') show = (t === 'led' || t === 'both');
+      if(f === 'joy') show = (t === 'joy' || t === 'both');
+      card.classList.toggle('hidden', !show);
+    });
+  });
+});
+</script>
+</body>
+</html>
