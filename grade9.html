@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Voice Assistant — Complete Code Per Session</title>
+<style>
+  :root{--bg:#000;--panel2:#101013;--line:#1a1a1f;--line2:#26262e;--text:#ececf1;--muted:#8b8b96;--accent:#00e5a0;--accent-dim:rgba(0,229,160,.10);--violet:#8b5cf6;--amber:#ffb020;--sky:#57d4ff}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(900px 520px at 50% -12%,rgba(0,229,160,.075),transparent 70%),radial-gradient(720px 420px at 92% 8%,rgba(139,92,246,.06),transparent 70%)}
+  .wrap{max-width:1020px;margin:0 auto;padding:0 22px;position:relative;z-index:1}
+  header{position:sticky;top:0;z-index:60;background:rgba(0,0,0,.78);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+  .head-inner{max-width:1020px;margin:0 auto;padding:16px 22px 12px}
+  .kicker{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:6px}
+  h1{font-size:clamp(19px,2.6vw,26px);font-weight:800;letter-spacing:-.02em;line-height:1.2}
+  h1 span{background:linear-gradient(92deg,#00e5a0 0%,#57d4ff 55%,#8b5cf6 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:13px;margin-top:6px}
+  .filters{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .pill{font:inherit;font-size:12.5px;font-weight:600;padding:7px 14px;border-radius:999px;cursor:pointer;background:var(--panel2);color:var(--muted);border:1px solid var(--line2);transition:.18s}
+  .pill:hover{color:var(--text);border-color:#3a3a44}
+  .pill.active{background:var(--accent-dim);color:var(--accent);border-color:rgba(0,229,160,.35)}
+  .note{margin:28px 0 8px;border:1px solid var(--line2);background:linear-gradient(180deg,#0b0b0e,#070709);border-radius:16px;padding:16px 18px;font-size:13.5px;color:#b6b6c0}
+  .note b{color:var(--text)}
+  .note .row{display:flex;gap:10px;align-items:flex-start;margin-top:8px}
+  .note .row:first-of-type{margin-top:0}
+  .ico{color:var(--accent);flex-shrink:0}
+  main{padding:26px 0 80px}
+  .card{display:grid;grid-template-columns:60px 1fr;padding-bottom:30px;animation:fade .45s ease both}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .card.hidden{display:none}
+  .rail{position:relative;display:flex;justify-content:center}
+  .rail::before{content:'';position:absolute;top:48px;bottom:-30px;width:1px;background:linear-gradient(180deg,var(--line2),var(--line))}
+  .card:last-child .rail::before{display:none}
+  .dot{position:relative;z-index:1;width:46px;height:46px;border-radius:15px;background:#0d0d10;border:1px solid var(--line2);display:grid;place-items:center;font-weight:800;font-size:14.5px;color:var(--accent);box-shadow:0 0 0 4px #000}
+  .card[data-track="ai"] .dot{color:var(--violet)}
+  .card[data-track="both"] .dot{color:var(--amber)}
+  .body{background:linear-gradient(180deg,#0b0b0e,#08080a);border:1px solid var(--line);border-radius:18px;padding:20px 22px 22px;margin-left:12px;transition:border-color .2s}
+  .body:hover{border-color:#2c2c36}
+  .phase{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:rgba(0,229,160,.08);color:var(--accent);border:1px solid rgba(0,229,160,.18);margin-bottom:10px}
+  .phase.v{background:rgba(139,92,246,.10);color:#b39aff;border-color:rgba(139,92,246,.22)}
+  .phase.a{background:rgba(255,176,32,.10);color:var(--amber);border-color:rgba(255,176,32,.22)}
+  h2{font-size:clamp(16px,2.1vw,19px);font-weight:750;letter-spacing:-.01em;line-height:1.3}
+  .goal{color:#a9a9b4;font-size:13.5px;margin-top:8px;max-width:72ch}
+  .skills{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .skills span{font-size:11px;font-weight:600;color:#9a9aa6;background:#111116;border:1px solid var(--line2);padding:3.5px 9px;border-radius:7px}
+  .codeblock{margin-top:15px;border:1px solid var(--line2);border-radius:13px;overflow:hidden;background:#040406}
+  .blockbar{display:flex;align-items:center;gap:9px;padding:9px 12px;background:#0e0e12;border-bottom:1px solid var(--line)}
+  .fname{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;color:#8f8f9c}
+  .badge{font-size:9.5px;font-weight:800;letter-spacing:.1em;padding:3px 8px;border-radius:999px;background:rgba(0,229,160,.10);color:var(--accent);border:1px solid rgba(0,229,160,.22)}
+  .badge.full{background:rgba(87,212,255,.10);color:var(--sky);border-color:rgba(87,212,255,.24)}
+  .badge.setup{background:rgba(255,176,32,.10);color:var(--amber);border-color:rgba(255,176,32,.24)}
+  .badge.struct{background:rgba(139,92,246,.12);color:#b39aff;border-color:rgba(139,92,246,.26)}
+  .badge.hdr{background:rgba(255,123,114,.10);color:#ff7b72;border-color:rgba(255,123,114,.24)}
+  .badge.ino{background:rgba(255,220,100,.10);color:#ffdc64;border-color:rgba(255,220,100,.24)}
+  .copy{margin-left:auto;font:inherit;font-size:11.5px;font-weight:700;padding:5px 12px;border-radius:8px;cursor:pointer;background:#17171d;color:#b9b9c4;border:1px solid var(--line2);transition:.16s}
+  .copy:hover{background:#1e1e26;color:#fff;border-color:#3a3a46}
+  .copy.ok{background:rgba(0,229,160,.14);color:var(--accent);border-color:rgba(0,229,160,.4)}
+  pre{margin:0;padding:16px 16px 18px;overflow-x:auto;font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.6px;line-height:1.68;tab-size:2}
+  pre::-webkit-scrollbar{height:9px}
+  pre::-webkit-scrollbar-track{background:#0a0a0d}
+  pre::-webkit-scrollbar-thumb{background:#23232b;border-radius:9px}
+  code{font-family:inherit;color:#d6d6de;white-space:pre}
+  .tok-c{color:#5d6775;font-style:italic}
+  .tok-s{color:#7ee787}
+  .tok-k{color:#ff7b72}
+  .tok-n{color:#f0a35e}
+  .tok-p{color:#c792ea}
+  .tok-t{color:#7ee787}
+  .tok-a{color:#ffb020}
+  .tip{margin-top:14px;display:flex;gap:10px;align-items:flex-start;font-size:12.8px;color:#a4a4b0;background:#0e0e12;border:1px solid var(--line);border-left:2px solid var(--accent);border-radius:0 11px 11px 0;padding:11px 14px}
+  .card[data-track="ai"] .tip{border-left-color:var(--violet)}
+  .tip b{color:#e6e6ec}
+  .tasks{margin-top:14px;display:flex;flex-direction:column;gap:8px;padding:0}
+  .tasks li{list-style:none;font-size:13px;color:#a4a4b0;display:flex;gap:10px;align-items:flex-start;background:#0e0e12;border:1px solid var(--line);border-radius:11px;padding:10px 13px}
+  .tasks li::before{content:'▸';color:var(--accent);font-weight:800;flex-shrink:0}
+  .lock-banner{display:inline-flex;align-items:center;gap:7px;font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:5px 11px;border-radius:999px;background:rgba(255,176,32,.10);color:var(--amber);border:1px solid rgba(255,176,32,.28);margin-left:8px}
+  .lock-banner.unlocked{background:rgba(0,229,160,.10);color:var(--accent);border-color:rgba(0,229,160,.28)}
+  .lock-overlay-static{margin-top:15px;border:1px solid rgba(255,176,32,.22);background:linear-gradient(180deg,#100c10,#07060a);border-radius:14px;padding:34px 22px;display:grid;place-items:center;text-align:center;position:relative;overflow:hidden}
+  .lock-overlay-static::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(420px 200px at 50% 0%, rgba(255,176,32,.08), transparent 70%)}
+  .lock-card{position:relative;z-index:1;max-width:400px;width:100%;text-align:center}
+  .lock-icon{font-size:30px;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 18px rgba(255,176,32,.5))}
+  .lock-card h3{font-size:15.5px;font-weight:800;color:var(--amber);letter-spacing:.02em}
+  .lock-card p{font-size:12.8px;color:#9a9aa6;margin-top:7px;line-height:1.55}
+  .lock-input-row{display:flex;gap:8px;margin-top:16px}
+  .lock-input-row input{flex:1;min-width:0;font:inherit;font-size:13px;padding:10px 13px;border-radius:10px;background:#07070a;color:#fff;border:1px solid #26262e;outline:none}
+  .lock-input-row input:focus{border-color:rgba(255,176,32,.55);box-shadow:0 0 0 3px rgba(255,176,32,.10)}
+  .lock-input-row button{font:inherit;font-size:12.5px;font-weight:800;padding:10px 18px;border-radius:10px;cursor:pointer;background:linear-gradient(180deg,#ffb020,#e08e00);color:#1a1000;border:none;white-space:nowrap}
+  .lock-input-row button:hover{filter:brightness(1.1)}
+  .lock-error{font-size:11.5px;color:#ff7b72;margin-top:9px;min-height:15px;font-weight:600}
+  .lock-hint{font-size:11px;color:#5f5f6b;margin-top:10px}
+  footer{border-top:1px solid var(--line);padding:26px 0 50px;text-align:center;color:#5f5f6b;font-size:12px}
+  .hidden-data{display:none}
+  @media (max-width:640px){
+    .card{grid-template-columns:40px 1fr}
+    .dot{width:36px;height:36px;border-radius:12px;font-size:12.5px}
+    .rail::before{top:38px}
+    .body{padding:16px 15px 18px;margin-left:8px;border-radius:15px}
+    pre{font-size:11.7px;padding:13px}
+    .filters{gap:6px}
+    .pill{font-size:11.5px;padding:6px 11px}
+    .lock-input-row{flex-direction:column}
+    .lock-input-row button{width:100%}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-inner">
+    <div class="kicker">AI Voice Assistant · Grade 9</div>
+    <h1>Complete <span>Code Per Session</span> · Class 4 → Class 19</h1>
+    <div class="sub">Every session shows the FULL file. Copy the whole block and paste it over your previous version — no partial edits needed.</div>
+    <div class="filters">
+      <button class="pill active" data-filter="all">All Sessions</button>
+      <button class="pill" data-filter="fund">Phase I · Arduino Fundamentals</button>
+      <button class="pill" data-filter="ai">Phase II · AI Voice Assistant</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="note">
+    <div class="row"><span class="ico">◆</span><span><b>How to use:</b> open <code>AI_Voice_Assistant.ino</code> and <code>AudioHandler.h</code> in Arduino IDE. For each session, click <b>Copy</b> and paste the <b>entire</b> block over your old file.</span></div>
+    <div class="row"><span class="ico">◆</span><span><b>Final project is locked.</b> The complete working AI Voice Assistant (Session 19) is hidden until you enter the class password. Your instructor will share it with you.</span></div>
+  </div>
+</div>
+
+<main class="wrap" id="timeline"></main>
+
+<footer>AI Voice Assistant · Arduino + I2S + WiFi + OLED · Happy Building 🤖</footer>
+
+<!-- ======================= CODE STORAGE ======================= -->
+<div class="hidden-data">
+
+<!-- ================= SESSION 4 ================= -->
+<textarea id="c-s4-ino">
+/*
+  Session 4: Tri-Colour LED Blink
+  Board: ESP32 DevKit V1
+  Objective: Blink the RED channel of the Wiz Tri-Colour LED,
+             then alternate RED and GREEN.
+*/
+
+// --- Pin Definitions ---
+#define RED_PIN   25
+#define GREEN_PIN 26
+#define BLUE_PIN  27
+
+void setup() {
+  pinMode(RED_PIN, OUTPUT);
+  pinMode(GREEN_PIN, OUTPUT);
+  pinMode(BLUE_PIN, OUTPUT);
+
+  // Start with everything OFF
+  digitalWrite(RED_PIN, LOW);
+  digitalWrite(GREEN_PIN, LOW);
+  digitalWrite(BLUE_PIN, LOW);
+}
+
+void loop() {
+  // --- RED ON ---
+  digitalWrite(RED_PIN, HIGH);
+  digitalWrite(GREEN_PIN, LOW);
+  digitalWrite(BLUE_PIN, LOW);
+  delay(1000);
+
+  // --- GREEN ON ---
+  digitalWrite(RED_PIN, LOW);
+  digitalWrite(GREEN_PIN, HIGH);
+  digitalWrite(BLUE_PIN, LOW);
+  delay(1000);
+}
+</textarea>
+
+<!-- ================= SESSION 6 ================= -->
+<textarea id="c-s6-ino">
+/*
+  Session 6: Push Button Control of Tri-Colour LED
+  Board: ESP32 DevKit V1
+  Objective: When the Futurz Switch is pressed, glow GREEN.
+             When released, glow RED.
+*/
+
+// --- Pin Definitions ---
+#define BUTTON_PIN 4
+#define RED_PIN    25
+#define GREEN_PIN  26
+#define BLUE_PIN   27
+
+void setup() {
+  // INPUT_PULLUP keeps the pin HIGH when the button is NOT pressed
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+
+  pinMode(RED_PIN, OUTPUT);
+  pinMode(GREEN_PIN, OUTPUT);
+  pinMode(BLUE_PIN, OUTPUT);
+
+  digitalWrite(RED_PIN, LOW);
+  digitalWrite(GREEN_PIN, LOW);
+  digitalWrite(BLUE_PIN, LOW);
+}
+
+void loop() {
+  int state = digitalRead(BUTTON_PIN);
+
+  if (state == LOW) {
+    // Button pressed -> GREEN
+    digitalWrite(RED_PIN, LOW);
+    digitalWrite(GREEN_PIN, HIGH);
+    digitalWrite(BLUE_PIN, LOW);
+  } else {
+    // Button released -> RED
+    digitalWrite(RED_PIN, HIGH);
+    digitalWrite(GREEN_PIN, LOW);
+    digitalWrite(BLUE_PIN, LOW);
+  }
+}
+</textarea>
+
+<!-- ================= SESSION 9 ================= -->
+<textarea id="c-s9-ino">
+/*
+  Session 9: AI Voice Assistant Project Launch
+  Board: ESP32 DevKit V1
+  Objective: Include the required libraries and verify they compile.
+             No functionality yet — this proves the toolchain works.
+*/
+
+// --- Required Libraries ---
+#include <WiFi.h>              // ESP32 built-in WiFi
+#include <HTTPClient.h>        // Sends audio to the AI server
+#include <Wire.h>              // I2C bus for the OLED
+#include <Adafruit_GFX.h>      // Graphics primitives
+#include <Adafruit_SSD1306.h>  // OLED driver
+
+void setup() {
+  Serial.begin(115200);
+  Serial.println("All libraries loaded successfully.");
+  Serial.println("Ready for the AI Voice Assistant project!");
+}
+
+void loop() {
+  // Nothing here yet
+}
+</textarea>
+
+<!-- ================= SESSION 10 ================= -->
+<textarea id="c-s10-ino">
+/*
+  Session 10: WiFi Connection
+  Board: ESP32 DevKit V1
+  Objective: Connect the WizGear IoT Bridge to WiFi
+             so it can talk to the AI server.
+*/
+
+#include <WiFi.h>
+
+// --- WiFi Configuration ---
+const char* ssid     = "your_ssid";
+const char* password = "your_password";
+
+void setup() {
+  Serial.begin(115200);
+
+  Serial.print("Connecting to WiFi");
+  WiFi.begin(ssid, password);
+
+  // Wait until connected (or 10 seconds timeout)
+  unsigned long start = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - start < 10000) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\nWiFi Connected!");
+    Serial.print("IP Address: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("\nWiFi Failed — check SSID and password.");
+  }
+}
+
+void loop() {
+  // Nothing here yet
+}
+</textarea>
+
+<!-- ================= SESSION 11 : AudioHandler.h ================= -->
+<textarea id="c-s11-hdr">
+#ifndef AUDIO_HANDLER_H
+#define AUDIO_HANDLER_H
+
+#include <Arduino.h>
+#include "driver/i2s_std.h"
+#include "SPIFFS.h"
+
+// --- Audio Configuration Macros ---
+#define I2S_READ_TIMEOUT_MS   100
+#define I2S_WRITE_TIMEOUT_MS  100
+#define WAV_HEADER_SIZE       44
+#define I2S_CLEAR_TIMEOUT_MS  10
+#define RAW_BUFFER_SIZE       256
+#define MONO_BUFFER_SIZE      512
+#define STEREO_BUFFER_SIZE    1024
+
+/**
+ * @class AudioHandler
+ * @brief Handles I2S audio recording and playback operations.
+ */
+class AudioHandler {
+private:
+    int mic_ws, mic_sck, mic_sd;
+    int amp_lrc, amp_bclk, amp_din;
+
+    int _sampleRate;
+    int _micGain;
+    float _ampGain;
+    int _durationSec;
+    size_t _recBufferSize;
+
+    i2s_chan_handle_t rx_handle = NULL;
+    i2s_chan_handle_t tx_handle = NULL;
+
+public:
+    uint8_t *audioBuffer = NULL;
+    size_t audioDataSize = 0;
+
+    AudioHandler(int m_ws, int m_sck, int m_sd, int a_lrc, int a_bclk, int a_din,
+                 int sampleRate = 16000, int micGain = 2, float ampGain = 1.0, int durationSec = 3) {
+        mic_ws = m_ws; mic_sck = m_sck; mic_sd = m_sd;
+        amp_lrc = a_lrc; amp_bclk = a_bclk; amp_din = a_din;
+
+        _sampleRate = sampleRate;
+        _micGain = micGain;
+        _ampGain = ampGain;
+        _durationSec = durationSec;
+        _recBufferSize = _sampleRate * 2 * _durationSec;
+    }
+
+    void init() {
+        audioBuffer = (uint8_t*)ps_malloc(_recBufferSize);
+        if (audioBuffer == NULL) {
+            Serial.println("Warning: No PSRAM found, trying internal RAM...");
+            audioBuffer = (uint8_t*)malloc(_recBufferSize);
+        }
+        if (audioBuffer == NULL) {
+            Serial.println("CRITICAL ERROR: Not enough RAM for audio buffer!");
+            while (1);
+        }
+        Serial.printf("Audio Buffer Allocated: %d bytes\n", _recBufferSize);
+
+        i2s_chan_config_t rx_chan_cfg = I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_0, I2S_ROLE_MASTER);
+        i2s_new_channel(&rx_chan_cfg, NULL, &rx_handle);
+
+        i2s_std_config_t rx_std_cfg = {
+            .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(_sampleRate),
+            .slot_cfg = I2S_STD_MSB_SLOT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_32BIT, I2S_SLOT_MODE_MONO),
+            .gpio_cfg = {
+                .mclk = I2S_GPIO_UNUSED,
+                .bclk = (gpio_num_t)mic_sck,
+                .ws = (gpio_num_t)mic_ws,
+                .dout = I2S_GPIO_UNUSED,
+                .din = (gpio_num_t)mic_sd,
+                .invert_flags = {0}
+            },
+        };
+        rx_std_cfg.slot_cfg.slot_mask = I2S_STD_SLOT_LEFT;
+        rx_std_cfg.slot_cfg.bit_shift = true;
+        i2s_channel_init_std_mode(rx_handle, &rx_std_cfg);
+
+        i2s_chan_config_t tx_chan_cfg = I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_1, I2S_ROLE_MASTER);
+        i2s_new_channel(&tx_chan_cfg, &tx_handle, NULL);
+
+        i2s_std_config_t tx_std_cfg = {
+            .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(_sampleRate),
+            .slot_cfg = I2S_STD_PHILIPS_SLOT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_STEREO),
+            .gpio_cfg = {
+                .mclk = I2S_GPIO_UNUSED,
+                .bclk = (gpio_num_t)amp_bclk,
+                .ws = (gpio_num_t)amp_lrc,
+                .dout = (gpio_num_t)amp_din,
+                .din = I2S_GPIO_UNUSED,
+                .invert_flags = {0}
+            },
+        };
+        i2s_channel_init_std_mode(tx_handle, &tx_std_cfg);
+
+        i2s_channel_enable(rx_handle);
+        i2s_channel_enable(tx_handle);
+    }
+
+    void record(int buttonPin) {
+        Serial.println("Starting Recording...");
+        audioDataSize = 0;
+        if (audioBuffer == NULL) { Serial.println("Error: Audio Buffer is NULL!"); return; }
+
+        int32_t raw_buffer[RAW_BUFFER_SIZE];
+        int16_t *wav_ptr = (int16_t*)audioBuffer;
+        size_t bytes_read = 0;
+
+        i2s_channel_read(rx_handle, raw_buffer, sizeof(raw_buffer), &bytes_read, I2S_CLEAR_TIMEOUT_MS);
+
+        while (digitalRead(buttonPin) == LOW && audioDataSize < _recBufferSize) {
+            i2s_channel_read(rx_handle, raw_buffer, sizeof(raw_buffer), &bytes_read, I2S_READ_TIMEOUT_MS);
+            int samples = bytes_read / 4;
+            for (int i = 0; i < samples; i++) {
+                int32_t sample = raw_buffer[i] >> 14;
+                sample *= _micGain;
+                if (sample > 32767) sample = 32767;
+                if (sample < -32768) sample = -32768;
+                wav_ptr[audioDataSize / 2 + i] = (int16_t)sample;
+            }
+            audioDataSize += samples * 2;
+        }
+        Serial.printf("Recording Complete. Captured %d bytes.\n", audioDataSize);
+    }
+
+    void play(const char* filepath) {
+        Serial.println("Starting Playback...");
+        if (!SPIFFS.begin(true)) { Serial.println("Error: SPIFFS Mount Failed"); return; }
+        File file = SPIFFS.open(filepath, FILE_READ);
+        if (!file) { Serial.printf("Error: Failed to open file %s\n", filepath); return; }
+        playStream(&file);
+        file.close();
+        Serial.println("Playback Finished.");
+    }
+
+    void playStream(Stream* stream, int contentLen = -1) {
+        Serial.println("Starting Playback...");
+        size_t totalBytesRead = 0;
+
+        for(int i=0; i<WAV_HEADER_SIZE; i++) {
+            if(stream->available()) { stream->read(); totalBytesRead++; }
+            else break;
+        }
+
+        int16_t mono_buffer[MONO_BUFFER_SIZE];
+        int16_t stereo_buffer[STEREO_BUFFER_SIZE];
+
+        while (stream->available()) {
+            if (contentLen > 0 && totalBytesRead >= contentLen) break;
+
+            int bytesToRead = sizeof(mono_buffer);
+            if (contentLen > 0 && (contentLen - totalBytesRead) < bytesToRead) {
+                bytesToRead = contentLen - totalBytesRead;
+            }
+
+            int bytesRead = stream->readBytes((uint8_t*)mono_buffer, bytesToRead);
+            if (bytesRead == 0) break;
+            totalBytesRead += bytesRead;
+
+            int samples = bytesRead / 2;
+            for (int i = 0; i < samples; i++) {
+                int16_t sample = mono_buffer[i] * _ampGain;
+                stereo_buffer[2 * i]     = sample;
+                stereo_buffer[2 * i + 1] = sample;
+            }
+            size_t bytesWritten = 0;
+            i2s_channel_write(tx_handle, stereo_buffer, samples * 4, &bytesWritten, I2S_WRITE_TIMEOUT_MS);
+        }
+        Serial.printf("Stream Ended. Total Read: %d bytes\n", totalBytesRead);
+    }
+};
+
+#endif // AUDIO_HANDLER_H
+</textarea>
+
+<!-- ================= SESSION 11 : ino with pins ================= -->
+<textarea id="c-s11-ino">
+/*
+  Session 11: Configuring Hardware Modules
+  Board: ESP32 DevKit V1
+  Objective: Define all hardware pin constants and include the
+             AudioHandler helper class into the main project.
+*/
+
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include "AudioHandler.h"
+
+// --- Hardware Pin Definitions ---
+#define BUTTON_PIN    4
+#define LIGHT_PIN     14
+#define FAN_PIN       27
+
+// --- I2S Microphone (INMP441) ---
+#define I2S_MIC_WS    25
+#define I2S_MIC_SCK   26
+#define I2S_MIC_SD    34
+
+// --- I2S Amplifier (MAX98357A) ---
+#define I2S_AMP_LRC   33
+#define I2S_AMP_BCLK  32
+#define I2S_AMP_DIN   19
+
+// --- OLED ---
+#define SCREEN_WIDTH  128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET    -1
+
+// --- Create the AudioHandler object ---
+AudioHandler audio(I2S_MIC_WS, I2S_MIC_SCK, I2S_MIC_SD,
+                   I2S_AMP_LRC, I2S_AMP_BCLK, I2S_AMP_DIN,
+                   16000, 2, 1.0, 3);
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(LIGHT_PIN, OUTPUT);
+  pinMode(FAN_PIN, OUTPUT);
+  digitalWrite(LIGHT_PIN, HIGH);
+  digitalWrite(FAN_PIN, HIGH);
+
+  Serial.println("Hardware pins configured.");
+}
+
+void loop() {
+  // Nothing here yet
+}
+</textarea>
+
+<!-- ================= SESSION 12 ================= -->
+<textarea id="c-s12-ino">
+/*
+  Session 12: Capturing Voice Using the Futurz Mic
+  Board: ESP32 DevKit V1
+  Objective: Initialise the audio subsystem and record
+             while the button is held down.
+*/
+
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include "AudioHandler.h"
+
+#define BUTTON_PIN    4
+#define LIGHT_PIN     14
+#define FAN_PIN       27
+
+#define I2S_MIC_WS    25
+#define I2S_MIC_SCK   26
+#define I2S_MIC_SD    34
+
+#define I2S_AMP_LRC   33
+#define I2S_AMP_BCLK  32
+#define I2S_AMP_DIN   19
+
+#define SCREEN_WIDTH  128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET    -1
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+AudioHandler audio(I2S_MIC_WS, I2S_MIC_SCK, I2S_MIC_SD,
+                   I2S_AMP_LRC, I2S_AMP_BCLK, I2S_AMP_DIN,
+                   16000, 2, 1.0, 3);
+
+void showStatus(String msg) {
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 20);
+  display.println(msg);
+  display.display();
+}
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(LIGHT_PIN, OUTPUT);
+  pinMode(FAN_PIN, OUTPUT);
+  digitalWrite(LIGHT_PIN, HIGH);
+  digitalWrite(FAN_PIN, HIGH);
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;);
+  }
+  showStatus("Booting...");
+
+  // Initialise the audio subsystem
+  audio.init();
+
+  showStatus("Ready!");
+}
+
+void loop() {
+  if (digitalRead(BUTTON_PIN) == LOW) {
+    showStatus("Listening...");
+    audio.record(BUTTON_PIN);
+    Serial.printf("Recorded %d bytes.\n", audio.audioDataSize);
+    showStatus("Ready!");
+  }
+}
+</textarea>
+
+<!-- ================= SESSION 13 ================= -->
+<textarea id="c-s13-ino">
+/*
+  Session 13: Setting Up AI Server Communication
+  Board: ESP32 DevKit V1
+  Objective: Connect to WiFi and prepare an HTTPClient request
+             to the AI server (no audio upload yet).
+*/
+
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include "AudioHandler.h"
+
+// --- WiFi ---
+const char* ssid     = "your_ssid";
+const char* password = "your_password";
+const char* server_url = "http://13.200.232.18:8000/process_audio";
+
+// --- Pins ---
+#define BUTTON_PIN    4
+#define LIGHT_PIN     14
+#define FAN_PIN       27
+#define I2S_MIC_WS    25
+#define I2S_MIC_SCK   26
+#define I2S_MIC_SD    34
+#define I2S_AMP_LRC   33
+#define I2S_AMP_BCLK  32
+#define I2S_AMP_DIN   19
+
+// --- OLED ---
+#define SCREEN_WIDTH  128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET    -1
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+// --- Audio ---
+AudioHandler audio(I2S_MIC_WS, I2S_MIC_SCK, I2S_MIC_SD,
+                   I2S_AMP_LRC, I2S_AMP_BCLK, I2S_AMP_DIN,
+                   16000, 2, 1.0, 3);
+
+#define HTTP_TIMEOUT_MS 20000
+
+void showStatus(String msg) {
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 20);
+  display.println(msg);
+  display.display();
+}
+
+void sendToServer() {
+  if (WiFi.status() != WL_CONNECTED) {
+    showStatus("WiFi Lost!");
+    return;
+  }
+
+  showStatus("Thinking...");
+
+  HTTPClient http;
+  http.begin(server_url);
+  http.setTimeout(HTTP_TIMEOUT_MS);
+  http.addHeader("Content-Type", "audio/wav");
+
+  int httpCode = http.sendRequest("POST", audio.audioBuffer, audio.audioDataSize);
+
+  if (httpCode == 200) {
+    Serial.println("Server responded OK (no audio playback yet).");
+  } else {
+    Serial.printf("Error: %d\n", httpCode);
+  }
+  http.end();
+  showStatus("Ready!");
+}
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(LIGHT_PIN, OUTPUT);
+  pinMode(FAN_PIN, OUTPUT);
+  digitalWrite(LIGHT_PIN, HIGH);
+  digitalWrite(FAN_PIN, HIGH);
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { for(;;); }
+  showStatus("Booting...");
+
+  audio.init();
+
+  WiFi.begin(ssid, password);
+  showStatus("Connecting WiFi...");
+  unsigned long start = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - start < 10000) {
+    delay(500);
+    Serial.print(".");
+  }
+  if (WiFi.status() != WL_CONNECTED) showStatus("WiFi Failed!");
+  else showStatus("Ready!");
+}
+
+void loop() {
+  if (digitalRead(BUTTON_PIN) == LOW) {
+    showStatus("Listening...");
+    audio.record(BUTTON_PIN);
+    sendToServer();
+  }
+}
+</textarea>
+
+<!-- ================= SESSION 14 ================= -->
+<textarea id="c-s14-ino">
+/*
+  Session 14: Transmit Recorded Audio + Control LEDs
+  Board: ESP32 DevKit V1
+  Objective: Send recorded audio to the server and turn the
+             LIGHT / FAN on or off based on custom headers.
+*/
+
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include "AudioHandler.h"
+
+const char* ssid     = "your_ssid";
+const char* password = "your_password";
+const char* server_url = "http://13.200.232.18:8000/process_audio";
+
+#define BUTTON_PIN    4
+#define LIGHT_PIN     14
+#define FAN_PIN       27
+#define I2S_MIC_WS    25
+#define I2S_MIC_SCK   26
+#define I2S_MIC_SD    34
+#define I2S_AMP_LRC   33
+#define I2S_AMP_BCLK  32
+#define I2S_AMP_DIN   19
+
+#define SCREEN_WIDTH  128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET    -1
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+AudioHandler audio(I2S_MIC_WS, I2S_MIC_SCK, I2S_MIC_SD,
+                   I2S_AMP_LRC, I2S_AMP_BCLK, I2S_AMP_DIN,
+                   16000, 2, 1.0, 3);
+
+#define HTTP_TIMEOUT_MS 20000
+
+void showStatus(String msg) {
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 20);
+  display.println(msg);
+  display.display();
+}
+
+void sendToServer() {
+  if (WiFi.status() != WL_CONNECTED) { showStatus("WiFi Lost!"); return; }
+
+  showStatus("Thinking...");
+  HTTPClient http;
+  http.begin(server_url);
+  http.setTimeout(HTTP_TIMEOUT_MS);
+  http.addHeader("Content-Type", "audio/wav");
+
+  // Listen for custom control headers from the server
+  const char *headerKeys[] = {"X-Light", "X-Fan"};
+  http.collectHeaders(headerKeys, 2);
+
+  int httpCode = http.sendRequest("POST", audio.audioBuffer, audio.audioDataSize);
+
+  if (httpCode == 200) {
+    String lightState = http.header("X-Light");
+    String fanState   = http.header("X-Fan");
+
+    if (lightState == "ON")  digitalWrite(LIGHT_PIN, LOW);
+    if (lightState == "OFF") digitalWrite(LIGHT_PIN, HIGH);
+    if (fanState == "ON")    digitalWrite(FAN_PIN, LOW);
+    if (fanState == "OFF")   digitalWrite(FAN_PIN, HIGH);
+
+    Serial.printf("Home Auto -> Light: %s, Fan: %s\n",
+                  lightState.c_str(), fanState.c_str());
+    showStatus("Done!");
+  } else {
+    Serial.printf("Error: %d\n", httpCode);
+    showStatus("Error!");
+  }
+  http.end();
+  showStatus("Ready!");
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(LIGHT_PIN, OUTPUT);
+  pinMode(FAN_PIN, OUTPUT);
+  digitalWrite(LIGHT_PIN, HIGH);
+  digitalWrite(FAN_PIN, HIGH);
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { for(;;); }
+  showStatus("Booting...");
+
+  audio.init();
+
+  WiFi.begin(ssid, password);
+  showStatus("Connecting WiFi...");
+  unsigned long start = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - start < 10000) { delay(500); }
+  showStatus("Ready!");
+}
+
+void loop() {
+  if (digitalRead(BUTTON_PIN) == LOW) {
+    showStatus("Listening...");
+    audio.record(BUTTON_PIN);
+    sendToServer();
+  }
+}
+</textarea>
+
+<!-- ================= SESSION 15 ================= -->
+<textarea id="c-s15-ino">
+/*
+  Session 15: Play the AI Response on the Speaker
+  Board: ESP32 DevKit V1
+  Objective: Play the server's audio response and handle errors.
+*/
+
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include "AudioHandler.h"
+
+const char* ssid     = "your_ssid";
+const char* password = "your_password";
+const char* server_url = "http://13.200.232.18:8000/process_audio";
+
+#define BUTTON_PIN    4
+#define LIGHT_PIN     14
+#define FAN_PIN       27
+#define I2S_MIC_WS    25
+#define I2S_MIC_SCK   26
+#define I2S_MIC_SD    34
+#define I2S_AMP_LRC   33
+#define I2S_AMP_BCLK  32
+#define I2S_AMP_DIN   19
+
+#define SCREEN_WIDTH  128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET    -1
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+AudioHandler audio(I2S_MIC_WS, I2S_MIC_SCK, I2S_MIC_SD,
+                   I2S_AMP_LRC, I2S_AMP_BCLK, I2S_AMP_DIN,
+                   16000, 2, 1.0, 3);
+
+#define HTTP_TIMEOUT_MS        20000
+#define ERROR_DISPLAY_DELAY_MS 2000
+
+void showStatus(String msg) {
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 20);
+  display.println(msg);
+  display.display();
+}
+
+void sendToServer() {
+  if (WiFi.status() != WL_CONNECTED) { showStatus("WiFi Lost!"); return; }
+
+  showStatus("Thinking...");
+  HTTPClient http;
+  http.begin(server_url);
+  http.setTimeout(HTTP_TIMEOUT_MS);
+  http.addHeader("Content-Type", "audio/wav");
+
+  const char *headerKeys[] = {"X-Light", "X-Fan"};
+  http.collectHeaders(headerKeys, 2);
+
+  int httpCode = http.sendRequest("POST", audio.audioBuffer, audio.audioDataSize);
+
+  if (httpCode == 200) {
+    String lightState = http.header("X-Light");
+    String fanState   = http.header("X-Fan");
+
+    if (lightState == "ON")  digitalWrite(LIGHT_PIN, LOW);
+    if (lightState == "OFF") digitalWrite(LIGHT_PIN, HIGH);
+    if (fanState == "ON")    digitalWrite(FAN_PIN, LOW);
+    if (fanState == "OFF")   digitalWrite(FAN_PIN, HIGH);
+
+    // --- Play the AI response ---
+    showStatus("Speaking...");
+    int len = http.getSize();
+    audio.playStream(&http.getStream(), len);
+    showStatus("Ready!");
+  } else {
+    Serial.printf("Error: %d\n", httpCode);
+    if (httpCode == HTTP_CODE_REQUEST_TIMEOUT || httpCode < 0) {
+      showStatus("Timeout!");
+    } else {
+      showStatus("Error: " + String(httpCode));
+    }
+    delay(ERROR_DISPLAY_DELAY_MS);
+    showStatus("Ready!");
+  }
+  http.end();
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(LIGHT_PIN, OUTPUT);
+  pinMode(FAN_PIN, OUTPUT);
+  digitalWrite(LIGHT_PIN, HIGH);
+  digitalWrite(FAN_PIN, HIGH);
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { for(;;); }
+  showStatus("Booting...");
+
+  audio.init();
+
+  WiFi.begin(ssid, password);
+  showStatus("Connecting WiFi...");
+  unsigned long start = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - start < 10000) { delay(500); }
+  showStatus("Ready!");
+}
+
+void loop() {
+  if (digitalRead(BUTTON_PIN) == LOW) {
+    showStatus("Listening...");
+    audio.record(BUTTON_PIN);
+    sendToServer();
+  }
+}
+</textarea>
+
+<!-- ================= SESSION 16 ================= -->
+<textarea id="c-s16-ino">
+/*
+  Session 16: Getting Started with WizIoT OLED
+  Board: ESP32 DevKit V1
+  Objective: Show "Hello AI!" on the OLED to prove I2C + library work.
+*/
+
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define SCREEN_WIDTH  128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET    -1
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+void setup() {
+  Serial.begin(115200);
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;);
+  }
+
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 20);
+  display.println("Hello AI!");
+  display.display();
+}
+
+void loop() {
+  // Nothing here yet
+}
+</textarea>
+
+<!-- ================= SESSION 17 ================= -->
+<textarea id="c-s17-ino">
+/*
+  Session 17: Initialise the OLED and showStatus()
+  Board: ESP32 DevKit V1
+  Objective: Write a reusable showStatus() function that
+             displays the assistant's status on the OLED.
+*/
+
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define SCREEN_WIDTH  128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET    -1
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+void showStatus(String msg) {
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 20);
+  display.println(msg);
+  display.display();
+}
+
+void setup() {
+  Serial.begin(115200);
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;);
+  }
+
+  showStatus("Booting...");
+  delay(800);
+  showStatus("Ready!");
+}
+
+void loop() {
+  // Nothing here yet
+}
+</textarea>
+
+<!-- ================= SESSION 18 ================= -->
+<textarea id="c-s18-ino">
+/*
+  Session 18: Show the AI Server's response on the OLED
+  Board: ESP32 DevKit V1
+  Objective: Cycle through Listening -> Thinking -> Speaking -> Ready
+             using showStatus() at each stage of the pipeline.
+*/
+
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include "AudioHandler.h"
+
+const char* ssid     = "your_ssid";
+const char* password = "your_password";
+const char* server_url = "http://13.200.232.18:8000/process_audio";
+
+#define BUTTON_PIN    4
+#define LIGHT_PIN     14
+#define FAN_PIN       27
+#define I2S_MIC_WS    25
+#define I2S_MIC_SCK   26
+#define I2S_MIC_SD    34
+#define I2S_AMP_LRC   33
+#define I2S_AMP_BCLK  32
+#define I2S_AMP_DIN   19
+
+#define SCREEN_WIDTH  128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET    -1
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+AudioHandler audio(I2S_MIC_WS, I2S_MIC_SCK, I2S_MIC_SD,
+                   I2S_AMP_LRC, I2S_AMP_BCLK, I2S_AMP_DIN,
+                   16000, 2, 1.0, 3);
+
+#define HTTP_TIMEOUT_MS        20000
+#define ERROR_DISPLAY_DELAY_MS 2000
+
+void showStatus(String msg) {
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 20);
+  display.println(msg);
+  display.display();
+}
+
+void sendToServer() {
+  if (WiFi.status() != WL_CONNECTED) { showStatus("WiFi Lost!"); return; }
+
+  showStatus("Thinking...");
+  HTTPClient http;
+  http.begin(server_url);
+  http.setTimeout(HTTP_TIMEOUT_MS);
+  http.addHeader("Content-Type", "audio/wav");
+
+  const char *headerKeys[] = {"X-Light", "X-Fan"};
+  http.collectHeaders(headerKeys, 2);
+
+  int httpCode = http.sendRequest("POST", audio.audioBuffer, audio.audioDataSize);
+
+  if (httpCode == 200) {
+    String lightState = http.header("X-Light");
+    String fanState   = http.header("X-Fan");
+
+    if (lightState == "ON")  digitalWrite(LIGHT_PIN, LOW);
+    if (lightState == "OFF") digitalWrite(LIGHT_PIN, HIGH);
+    if (fanState == "ON")    digitalWrite(FAN_PIN, LOW);
+    if (fanState == "OFF")   digitalWrite(FAN_PIN, HIGH);
+
+    showStatus("Speaking...");
+    int len = http.getSize();
+    audio.playStream(&http.getStream(), len);
+    showStatus("Ready!");
+  } else {
+    if (httpCode == HTTP_CODE_REQUEST_TIMEOUT || httpCode < 0) {
+      showStatus("Timeout!");
+    } else {
+      showStatus("Error: " + String(httpCode));
+    }
+    delay(ERROR_DISPLAY_DELAY_MS);
+    showStatus("Ready!");
+  }
+  http.end();
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(LIGHT_PIN, OUTPUT);
+  pinMode(FAN_PIN, OUTPUT);
+  digitalWrite(LIGHT_PIN, HIGH);
+  digitalWrite(FAN_PIN, HIGH);
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { for(;;); }
+  showStatus("Booting...");
+
+  audio.init();
+
+  WiFi.begin(ssid, password);
+  showStatus("Connecting WiFi...");
+  unsigned long start = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - start < 10000) { delay(500); }
+  showStatus("Ready!");
+}
+
+void loop() {
+  if (digitalRead(BUTTON_PIN) == LOW) {
+    showStatus("Listening...");
+    audio.record(BUTTON_PIN);
+    sendToServer();
+  }
+}
+</textarea>
+
+<!-- ================= SESSION 19 : FINAL (LOCKED) ================= -->
+<textarea id="c-s19-ino">
+/*
+  ESP32 AI Voice Agent (Client) v1.0
+  - Modularized Firmware
+  - Hardware: ESP32 DevKit V1, INMP441 Mic, MAX98357A Amp, Button, OLED
+
+  REQUIRED DEPENDENCIES:
+  - Board: esp32 by Espressif Systems (v3.3.0 or later)
+  - Library: Adafruit GFX Library (v1.11.9 or later)
+  - Library: Adafruit SSD1306 (v2.5.9 or later)
+*/
+
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include "AudioHandler.h"
+
+// --- WiFi Configuration ---
+const char* ssid = "your_ssid";
+const char* password = "your_password";
+const char* server_url = "http://13.200.232.18:8000/process_audio";
+
+// --- Hardware Pin Definitions ---
+#define BUTTON_PIN    4
+#define LIGHT_PIN     14
+#define FAN_PIN       27
+
+#define I2S_MIC_WS    25
+#define I2S_MIC_SCK   26
+#define I2S_MIC_SD    34
+
+#define I2S_AMP_LRC   33
+#define I2S_AMP_BCLK  32
+#define I2S_AMP_DIN   19
+
+// --- OLED ---
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET    -1
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+#define HTTP_TIMEOUT_MS        20000
+#define WIFI_CONNECT_DELAY_MS  500
+#define ERROR_DISPLAY_DELAY_MS 2000
+
+AudioHandler audio(I2S_MIC_WS, I2S_MIC_SCK, I2S_MIC_SD,
+                   I2S_AMP_LRC, I2S_AMP_BCLK, I2S_AMP_DIN,
+                   16000, 2, 1.0, 3);
+
+void showStatus(String msg) {
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 20);
+  display.println(msg);
+  display.display();
+}
+
+void sendToServer() {
+  if (WiFi.status() != WL_CONNECTED) { showStatus("WiFi Lost!"); return; }
+
+  showStatus("Thinking...");
+  HTTPClient http;
+  http.begin(server_url);
+  http.setTimeout(HTTP_TIMEOUT_MS);
+  http.addHeader("Content-Type", "audio/wav");
+
+  const char *headerKeys[] = {"X-Light", "X-Fan"};
+  http.collectHeaders(headerKeys, 2);
+
+  int httpCode = http.sendRequest("POST", audio.audioBuffer, audio.audioDataSize);
+
+  if (httpCode == 200) {
+    Serial.println("Response Received!");
+
+    String lightState = http.header("X-Light");
+    String fanState   = http.header("X-Fan");
+
+    if (lightState == "ON")  digitalWrite(LIGHT_PIN, LOW);
+    if (lightState == "OFF") digitalWrite(LIGHT_PIN, HIGH);
+    if (fanState == "ON")    digitalWrite(FAN_PIN, LOW);
+    if (fanState == "OFF")   digitalWrite(FAN_PIN, HIGH);
+
+    Serial.printf("Home Auto -> Light: %s, Fan: %s\n",
+                  lightState.c_str(), fanState.c_str());
+
+    showStatus("Speaking...");
+    int len = http.getSize();
+    audio.playStream(&http.getStream(), len);
+    showStatus("Ready!");
+  } else {
+    Serial.printf("Error: %d\n", httpCode);
+    if (httpCode == HTTP_CODE_REQUEST_TIMEOUT || httpCode < 0) {
+      showStatus("Timeout!");
+    } else {
+      showStatus("Error: " + String(httpCode));
+    }
+    delay(ERROR_DISPLAY_DELAY_MS);
+    showStatus("Ready!");
+  }
+  http.end();
+}
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(LIGHT_PIN, OUTPUT);
+  pinMode(FAN_PIN, OUTPUT);
+
+  digitalWrite(LIGHT_PIN, HIGH);
+  digitalWrite(FAN_PIN, HIGH);
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;);
+  }
+  showStatus("Booting...");
+
+  audio.init();
+
+  WiFi.begin(ssid, password);
+  showStatus("Connecting WiFi...");
+
+  unsigned long startAttemptTime = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
+    delay(WIFI_CONNECT_DELAY_MS);
+    Serial.print(".");
+  }
+
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("\nWiFi Failed!");
+    showStatus("WiFi Failed!");
+    delay(2000);
+  } else {
+    Serial.println("\nWiFi Connected!");
+  }
+  showStatus("Ready!");
+}
+
+void loop() {
+  if (digitalRead(BUTTON_PIN) == LOW) {
+    showStatus("Listening...");
+    audio.record(BUTTON_PIN);
+    Serial.printf("Recorded %d bytes. Uploading...\n", audio.audioDataSize);
+    sendToServer();
+  }
+}
+</textarea>
+
+</div>
+<!-- ======================= END CODE STORAGE ======================= -->
+
+<script>
+/* ============================================================
+   SESSION DATA (metadata only)
+   ============================================================ */
+const SESSIONS = [
+  { n:4, track:'fund', phase:'Arduino · Tri-Colour LED', phaseClass:'',
+    title:'Lab: Arduino Programming with Tri-Colour LED',
+    goal:'Program the Wiz Tri-Colour LED to blink red, then alternate between red and green — your first hands-on Arduino program.',
+    skills:['Critical Thinking','Problem Solving','Arduino Basics'],
+    blocks:[{file:'AI_Voice_Assistant.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s4-ino'}],
+    tasks:['Wire the Tri-Colour LED to pins 25, 26, 27 on the ESP32',
+           'Upload the code and confirm the LED blinks red, then green',
+           'Modify the delays to make the blink faster or slower'],
+    tip:'<b>digitalWrite(pin, HIGH)</b> turns an LED on, <b>LOW</b> turns it off. The <code>delay(1000)</code> blocks the CPU for one second — we will replace this with non-blocking code later.'
+  },
+  { n:5, track:'fund', phase:'Theory · Push Buttons', phaseClass:'',
+    title:'Theory: Exploring Push Buttons and Futurz Switch',
+    goal:'Describe how a push button and the Futurz Switch work as input devices, and how INPUT_PULLUP keeps the pin HIGH when the button is idle.',
+    skills:['Critical Thinking','Problem Solving','Electronic Concepts'],
+    blocks:[
+      {file:'Pin Reference', badge:'REFERENCE', badgeClass:'struct', lang:'text', codeId:'c-s5-notes'}
+    ],
+    tasks:['Draw the push button circuit: VCC → Resistor → Pin, Button → GND',
+           'Identify two devices at home that use push buttons as input',
+           'Explain why INPUT_PULLUP is preferred over INPUT for simple buttons'],
+    tip:'<b>INPUT_PULLUP</b> enables an internal resistor that keeps the pin HIGH. When the button is pressed, the pin reads <b>LOW</b>. This means we do NOT need an external resistor.'
+  },
+  { n:6, track:'fund', phase:'Arduino · Button Control', phaseClass:'',
+    title:'Lab: Push Button Control with Wiz Tri-Colour LED',
+    goal:'Write an Arduino program to control the Tri-Colour LED using the Futurz Switch, and understand how conditionals drive input → output behaviour.',
+    skills:['Critical Thinking','Problem Solving','Conditionals'],
+    blocks:[{file:'AI_Voice_Assistant.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s6-ino'}],
+    tasks:['Hold the button — the LED should turn GREEN; release it to turn RED',
+           'Change the colours so pressed = BLUE and released = GREEN',
+           'Add a third colour (WHITE) that shows when the button is held for over 2 seconds'],
+    tip:'<b>if / else</b> lets your program react to the world. Every AI assistant starts with the same idea: <i>if this happens, do that</i>.'
+  },
+  { n:7, track:'ai', phase:'Theory · AI Basics', phaseClass:'v',
+    title:'Theory: Intro to AI-Powered Voice-Controlled Home Automation',
+    goal:'Define AI, LLM, and voice assistant. Understand the high-level architecture of the project before writing any code.',
+    skills:['Critical Thinking','Problem Solving','Conceptual Understanding'],
+    blocks:[],
+    tasks:['Draw the project flow: Voice → Mic → ESP32 → WiFi → AI Server → Response → Speaker + LED + OLED',
+           'Give two examples of voice-controlled devices you have used',
+           'Identify the input and output parts of the pipeline'],
+    tip:'<b>AI</b> = any system that mimics human intelligence. <b>LLM</b> = Large Language Model, the AI that understands your words. A <b>voice assistant</b> chains them: listen → understand → act → reply.'
+  },
+  { n:8, track:'ai', phase:'Theory · Mic & Amplifier', phaseClass:'v',
+    title:'Theory: Microphone & Amplifier — Ears and Voice of AI',
+    goal:'Understand how the INMP441 microphone and MAX98357A amplifier let the assistant listen and speak.',
+    skills:['Critical Thinking','Problem Solving','Audio Concepts'],
+    blocks:[],
+    tasks:['Draw the audio flow: INMP441 → I2S → ESP32 → WiFi → Server → ESP32 → I2S → MAX98357A → Speaker',
+           'Explain in your own words what I2S is and why it exists',
+           'List two things that would break if the mic or amp were disconnected'],
+    tip:'<b>I2S</b> is a 3-wire digital audio protocol (BCLK, WS, DATA). The ESP32 acts as the <b>master</b> and drives the clock for both the mic and the amp.'
+  },
+  { n:9, track:'ai', phase:'Project Launch · Libraries', phaseClass:'v',
+    title:'Theory: AI Voice Assistant Project Launch',
+    goal:'Include the required libraries in the Arduino program and verify that everything compiles without hardware attached yet.',
+    skills:['Critical Thinking','Problem Solving','Library Management'],
+    blocks:[{file:'AI_Voice_Assistant.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s9-ino'}],
+    tasks:['Install <b>Adafruit GFX</b> and <b>Adafruit SSD1306</b> from Library Manager',
+           'Compile the program — it should say "All libraries loaded successfully."',
+           'Open the Serial Monitor at 115200 baud to see the message'],
+    tip:'<b>#include</b> tells the compiler to pull in code from another file. If a library is missing, the IDE shows a red error — install it from Library Manager.'
+  },
+  { n:10, track:'ai', phase:'WiFi Connection', phaseClass:'v',
+    title:'Lab: Get Started with AI Voice Assistant Project',
+    goal:'Include the WiFi library and connect the WizGear IoT Bridge to your Wi-Fi network so it can reach the AI server.',
+    skills:['Critical Thinking','Problem Solving','Networking Basics'],
+    blocks:[{file:'AI_Voice_Assistant.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s10-ino'}],
+    tasks:['Replace <code>your_ssid</code> and <code>your_password</code> with real credentials',
+           'Open Serial Monitor — you should see the ESP32\'s IP address printed',
+           'If WiFi fails, check that your ESP32 supports 2.4 GHz (not 5 GHz)'],
+    tip:'<b>WiFi.begin()</b> starts the connection. The while loop waits up to 10 seconds. <b>WiFi.localIP()</b> shows the IP the router gave your ESP32.'
+  },
+  { n:11, track:'ai', phase:'Hardware Configuration', phaseClass:'v',
+    title:'Lab: Configuring Hardware Modules for the AI Assistant',
+    goal:'Define every hardware pin as a constant, wire up the mic, amp, OLED, button, and LED, and drop in the AudioHandler helper class.',
+    skills:['Arduino Programming','Problem Solving','Modular Design'],
+    blocks:[
+      {file:'AudioHandler.h', badge:'COMPLETE FILE', badgeClass:'hdr', lang:'cpp', codeId:'c-s11-hdr'},
+      {file:'AI_Voice_Assistant.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s11-ino'}
+    ],
+    tasks:['Create a new tab in Arduino IDE called <b>AudioHandler.h</b> and paste the header file',
+           'Wire the INMP441: WS→25, SCK→26, SD→34. Wire the MAX98357A: LRC→33, BCLK→32, DIN→19',
+           'Upload the main program — it should compile and print "Hardware pins configured."'],
+    tip:'<b>Header files</b> keep big programs tidy. <b>#define</b> replaces names with values at compile time, so <code>I2S_MIC_WS</code> literally becomes <code>25</code> in the final binary.'
+  },
+  { n:12, track:'ai', phase:'Capturing Voice', phaseClass:'v',
+    title:'Lab: Capturing Voice Using the Futurz Mic',
+    goal:'Initialise the audio subsystem with <code>audio.init()</code>, record while the button is held with <code>audio.record()</code>, and understand HTTP, Client and Server.',
+    skills:['Arduino Programming','Problem Solving','HTTP Basics'],
+    blocks:[{file:'AI_Voice_Assistant.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s12-ino'}],
+    tasks:['Hold the button — the OLED should show "Listening..."',
+           'Open Serial Monitor to see the number of bytes recorded',
+           'Speak a short command ("turn on the light") and release the button'],
+    tip:'<b>HTTP</b> = HyperText Transfer Protocol, the language of the web. The ESP32 is the <b>Client</b>, the AI server is the <b>Server</b>. The client asks, the server answers.'
+  },
+  { n:13, track:'ai', phase:'AI Server Communication', phaseClass:'v',
+    title:'Lab: Setting Up AI Server Communication',
+    goal:'Use the HTTPClient library to open a POST request to the AI server so the ESP32 is ready to send audio.',
+    skills:['Arduino Programming','Problem Solving','HTTPClient'],
+    blocks:[{file:'AI_Voice_Assistant.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s13-ino'}],
+    tasks:['Press the button — you should see "Thinking..." on the OLED',
+           'Check Serial Monitor for the server\'s HTTP status code',
+           'A 200 means success; a negative value means the server is unreachable'],
+    tip:'<b>http.begin(url)</b> prepares the request. <b>sendRequest("POST", buffer, size)</b> uploads the raw bytes. <b>http.end()</b> frees the socket — never skip it.'
+  },
+  { n:14, track:'ai', phase:'Control Devices', phaseClass:'v',
+    title:'Lab: Transmit Recorded Audio + Control the LED',
+    goal:'Send the recorded audio and turn the LIGHT / FAN on or off based on the custom headers returned by the AI server.',
+    skills:['Arduino Programming','Problem Solving','System Integration'],
+    blocks:[{file:'AI_Voice_Assistant.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s14-ino'}],
+    tasks:['Say "turn on the light" — the LED should turn ON',
+           'Say "turn off the light" — the LED should turn OFF',
+           'Watch the Serial Monitor for <code>Home Auto -> Light: ON, Fan: OFF</code>'],
+    tip:'<b>http.collectHeaders()</b> tells the client to keep the values of specific headers (X-Light, X-Fan). Without it, those headers would be ignored.'
+  },
+  { n:15, track:'ai', phase:'Play AI Response', phaseClass:'v',
+    title:'Lab: Play the AI Response on the Speaker',
+    goal:'Stream the server\'s WAV response through the MAX98357A amplifier, and add clean error handling.',
+    skills:['Arduino Programming','Problem Solving','Error Handling'],
+    blocks:[{file:'AI_Voice_Assistant.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s15-ino'}],
+    tasks:['After your command, the assistant should speak its reply through the speaker',
+           'Unplug WiFi and press the button — the OLED should show "WiFi Lost!"',
+           'Stop the server (if you can) and confirm the OLED shows "Error: <code>"'],
+    tip:'<b>playStream()</b> skips the 44-byte WAV header, then duplicates each mono sample into Left + Right channels because the I2S amp expects a stereo stream.'
+  },
+  { n:16, track:'ai', phase:'OLED Basics', phaseClass:'v',
+    title:'Lab: Getting Started with WizIoT OLED Display Programming',
+    goal:'Install the Adafruit SSD1306 and GFX libraries and display your first text on the OLED.',
+    skills:['Arduino Programming','Problem Solving','OLED Display'],
+    blocks:[{file:'AI_Voice_Assistant.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s16-ino'}],
+    tasks:['Wire the OLED: SDA→21, SCL→22 (default ESP32 I2C)',
+           'Upload the code — the OLED should show "Hello AI!"',
+           'Change the message and font size to see the effect'],
+    tip:'The SSD1306 uses the <b>I2C</b> bus. Address <code>0x3C</code> is the most common. Run an I2C scanner if the screen stays blank.'
+  },
+  { n:17, track:'ai', phase:'OLED Init', phaseClass:'v',
+    title:'Lab: Initialise the OLED Display Settings',
+    goal:'Write the reusable <code>showStatus()</code> function that clears the screen, sets text size, and prints a centred status message.',
+    skills:['Arduino Programming','Problem Solving','Function Design'],
+    blocks:[{file:'AI_Voice_Assistant.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s17-ino'}],
+    tasks:['Upload — the OLED should show "Booting..." then "Ready!"',
+           'Call <code>showStatus("TEST")</code> at the end of <code>setup()</code>',
+           'Change the text size from 2 to 1 and observe the difference'],
+    tip:'<b>showStatus()</b> is your first real reusable function in this project. Every later stage — Listening, Thinking, Speaking — uses it.'
+  },
+  { n:18, track:'ai', phase:'OLED Status', phaseClass:'v',
+    title:'Lab: Show the AI Server\'s Response on the OLED',
+    goal:'Reuse showStatus() to display the assistant\'s real-time status: Booting → Ready → Listening → Thinking → Speaking → Ready.',
+    skills:['Arduino Programming','Problem Solving','System Testing'],
+    blocks:[{file:'AI_Voice_Assistant.ino', badge:'COMPLETE FILE', badgeClass:'ino', lang:'cpp', codeId:'c-s18-ino'}],
+    tasks:['Press the button — watch the OLED cycle through each status',
+           'Add a new status message when the server returns an error',
+           'Suggest one more useful message for the OLED and implement it'],
+    tip:'Status messages are a <b>debugging superpower</b>. If something freezes, the last message on screen tells you exactly where the code stopped.'
+  },
+  { n:19, track:'both', phase:'Final Project · Locked', phaseClass:'a',
+    title:'Lab: Test and Bring Your AI Voice Assistant to Life',
+    goal:'Upload the complete integrated program, connect every module, and test the full voice-controlled home automation assistant. Locked behind the class password.',
+    skills:['Arduino Programming','Problem Solving','System Integration','Testing'],
+    locked:true,
+    blocks:[
+      {file:'AudioHandler.h', badge:'FINAL', badgeClass:'hdr', lang:'cpp', codeId:'c-s11-hdr'},
+      {file:'AI_Voice_Assistant.ino', badge:'FINAL', badgeClass:'ino', lang:'cpp', codeId:'c-s19-ino'}
+    ],
+    tasks:['Upload the .ino file and confirm "WiFi Connected!" on the OLED',
+           'Hold the button → speak → release → listen to the reply',
+           'Test all commands: turn light on/off, turn fan on/off',
+           'Reflection: write two things you learned from the project'],
+    tip:'<b>Final checklist:</b> ① SSID/password correct? ② AudioHandler.h in the same folder? ③ Adafruit GFX + SSD1306 installed? ④ ESP32 board package v3.3.0+ for the new I2S driver? ⑤ Server reachable on port 8000?'
+  }
+];
+
+/* Add a Session 5 notes block (pin reference) */
+SESSIONS[1].blocks = [{
+  file: 'Pin Reference',
+  badge: 'REFERENCE',
+  badgeClass: 'struct',
+  lang: 'text',
+  codeId: 'c-s5-notes'
+}];
+
+const WEB_PASSWORD = "aiassistant123";
+let grandFinaleUnlocked = (sessionStorage.getItem('ai_unlocked') === '1');
+const CODE_STORE = [];
+
+function escapeHTML(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlight(code, lang){
+  let src = escapeHTML(code);
+  if(lang === 'text') return src;
+  let re, map;
+  if(lang === 'cpp'){
+    re = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')|(#\s*\w+)|\b(void|int|uint8_t|String|bool|for|if|else|while|return|break|continue|const|char|byte|unsigned|long|true|false|HIGH|LOW|OUTPUT|INPUT|INPUT_PULLUP|setup|loop|delay|class|public|private|new|sizeof|NULL|uint16_t|uint32_t|int16_t|int32_t|float|double|ps_malloc|malloc|digitalWrite|digitalRead|pinMode|Serial|WiFi|HTTPClient|Adafruit_SSD1306)\b|\b(\d+)\b/g;
+    map = ['c','s','p','k','n'];
+  } else {
+    re = /(#[^\n]*)|("(?:[^"\\\n]|\\.)*")|\b(def|import|from|as|if|elif|else|while|for|in|break|continue|return|True|False|None|and|or|not|print|pass)\b|\b(\d+)\b/g;
+    map = ['c','s','k','n'];
+  }
+  return src.replace(re, function(m){
+    const groups = Array.prototype.slice.call(arguments, 1, 1 + map.length);
+    for(let i = 0; i < groups.length; i++){
+      if(groups[i] !== undefined) return '<span class="tok-' + map[i] + '">' + m + '</span>';
+    }
+    return m;
+  });
+}
+
+function getCode(codeId){
+  const el = document.getElementById(codeId);
+  return el ? el.value.replace(/^\n/, '').replace(/\n$/, '') : '';
+}
+
+function codeBlockHTML(b){
+  const code = getCode(b.codeId);
+  const idx = CODE_STORE.push(code) - 1;
+  const badgeClass = 'badge ' + (b.badgeClass || '');
+  return '<div class="codeblock"><div class="blockbar">' +
+    '<span class="fname">' + b.file + '</span>' +
+    (b.badge ? '<span class="' + badgeClass + '">' + b.badge + '</span>' : '') +
+    '<button class="copy" data-i="' + idx + '">Copy</button></div>' +
+    '<pre><code>' + highlight(code, b.lang) + '</code></pre></div>';
+}
+
+function lockCardHTML(){
+  return '<div class="lock-overlay-static"><div class="lock-card">' +
+    '<div class="lock-icon">🔒</div><h3>Final Project Locked</h3>' +
+    '<p>Enter the class password to reveal and copy the complete <b>AI_Voice_Assistant.ino</b> and <b>AudioHandler.h</b>.</p>' +
+    '<div class="lock-input-row"><input type="password" id="lockInput" placeholder="Enter password" autocomplete="off">' +
+    '<button id="unlockBtn">Unlock</button></div>' +
+    '<div class="lock-error" id="lockError"></div>' +
+    '<div class="lock-hint">Ask your instructor if you do not have the password.</div>' +
+    '</div></div>';
+}
+
+function cardHTML(s){
+  const isLocked = s.locked && !grandFinaleUnlocked;
+  let blocksHTML = isLocked ? lockCardHTML() : (s.blocks || []).map(codeBlockHTML).join('');
+  const tasksHTML = (s.tasks && s.tasks.length) ? '<ul class="tasks">' + s.tasks.map(t => '<li>' + t + '</li>').join('') + '</ul>' : '';
+  const skillsHTML = (s.skills || []).map(k => '<span>' + k + '</span>').join('');
+  const tipHTML = s.tip ? '<div class="tip"><span>💡</span><span>' + s.tip + '</span></div>' : '';
+  let bannerHTML = '';
+  if(s.locked){
+    bannerHTML = grandFinaleUnlocked ? '<span class="lock-banner unlocked">🔓 Unlocked</span>' : '<span class="lock-banner">🔒 Locked</span>';
+  }
+  return '<article class="card" data-track="' + s.track + '">' +
+    '<div class="rail"><span class="dot">' + s.n + '</span></div>' +
+    '<div class="body"><span class="phase ' + (s.phaseClass || '') + '">' + s.phase + '</span>' +
+    bannerHTML + '<h2>' + s.title + '</h2><p class="goal">' + s.goal + '</p>' +
+    '<div class="skills">' + skillsHTML + '</div>' + blocksHTML + tasksHTML + tipHTML + '</div></article>';
+}
+
+function render(){
+  CODE_STORE.length = 0;
+  document.getElementById('timeline').innerHTML = SESSIONS.map(cardHTML).join('');
+}
+
+render();
+
+document.addEventListener('click', function(e){
+  if(e.target.id === 'unlockBtn'){
+    const input = document.getElementById('lockInput');
+    const err = document.getElementById('lockError');
+    if(!input || !err) return;
+    if(input.value === WEB_PASSWORD){
+      grandFinaleUnlocked = true;
+      sessionStorage.setItem('ai_unlocked', '1');
+      render();
+    } else {
+      err.textContent = 'Wrong password. Try again.';
+      input.value = ''; input.focus();
+    }
+  }
+});
+
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Enter' && e.target && e.target.id === 'lockInput'){
+    const btn = document.getElementById('unlockBtn');
+    if(btn) btn.click();
+  }
+});
+
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('.copy');
+  if(!btn) return;
+  const text = CODE_STORE[Number(btn.dataset.i)] || '';
+  const done = () => { btn.textContent = 'Copied ✓'; btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1500); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else fallbackCopy(text, done);
+});
+
+function fallbackCopy(text, cb){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); cb(); } catch(err) { alert('Copy failed.'); }
+  document.body.removeChild(ta);
+}
+
+const pills = document.querySelectorAll('.pill');
+pills.forEach(function(p){
+  p.addEventListener('click', function(){
+    pills.forEach(x => x.classList.remove('active'));
+    p.classList.add('active');
+    const f = p.dataset.filter;
+    document.querySelectorAll('.card').forEach(function(card){
+      const t = card.dataset.track;
+      let show = true;
+      if(f === 'fund') show = (t === 'fund' || t === 'both');
+      if(f === 'ai')   show = (t === 'ai'   || t === 'both');
+      card.classList.toggle('hidden', !show);
+    });
+  });
+});
+</script>
+</body>
+</html>
