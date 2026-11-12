@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Women's Safety – SOS</title>
+<title>Women Safety – SOS</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   :root {
@@ -33,7 +33,6 @@
   }
   header h1 { font-size: 1.15rem; color: var(--red-l); letter-spacing: 1px; }
 
-  /* Alert Active Banner */
   #alertBanner {
     display: none;
     background: var(--red);
@@ -47,7 +46,6 @@
   #alertBanner.show { display: block; }
   @keyframes blink { 50% { opacity: .55; } }
 
-  /* Main content */
   main {
     flex: 1;
     overflow-y: auto;
@@ -61,7 +59,6 @@
   @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
   h2 { font-size: 1.05rem; margin-bottom: 14px; color: #ccc; letter-spacing: 1px; }
 
-  /* SOS tab */
   .name-row { text-align: center; margin-bottom: 18px; }
   .name-row input {
     padding: 10px 14px; border-radius: 8px; border: 1px solid #444;
@@ -98,7 +95,6 @@
   #safeBtn { background: #14532d; border-color: #22c55e; font-size: 1.05rem; padding: 16px; }
   .hidden { display: none !important; }
 
-  /* Contacts */
   .contact-item {
     display: flex; justify-content: space-between; align-items: center;
     padding: 12px 14px; background: var(--bg2); border-radius: 10px; margin-bottom: 8px;
@@ -124,7 +120,6 @@
     border: none; border-radius: 8px; font-weight: bold; font-size: .95rem; cursor: pointer;
   }
 
-  /* Helplines */
   .helpline {
     display: flex; align-items: center; gap: 12px;
     padding: 14px 16px; margin-bottom: 8px;
@@ -134,7 +129,6 @@
   .helpline:active { background: #2c2c48; }
   .helpline .num { margin-left: auto; font-weight: bold; color: var(--red-l); font-size: 1.05rem; }
 
-  /* Settings */
   .setting {
     display: flex; justify-content: space-between; align-items: center;
     padding: 14px 16px; background: var(--bg2); border-radius: 10px;
@@ -154,7 +148,6 @@
   .info { padding: 12px 16px; background: var(--bg2); border-radius: 10px; margin-bottom: 8px; color: var(--muted); font-size: .85rem; border: 1px solid #333; }
   .info span { color: var(--text); }
 
-  /* Tab bar */
   nav.tabs {
     position: fixed; bottom: 0; left: 0; right: 0;
     display: grid; grid-template-columns: repeat(4, 1fr);
@@ -175,7 +168,6 @@
 <div id="alertBanner">⚠️ ALERT ACTIVE — Repeating every 60s</div>
 
 <main>
-  <!-- SOS TAB -->
   <section id="tab-sos" class="tab active">
     <div class="name-row">
       <input id="nameInput" type="text" placeholder="Your name" value="SOS Alert">
@@ -192,7 +184,6 @@
     <button id="safeBtn" class="full-btn hidden">✅ I'M SAFE</button>
   </section>
 
-  <!-- CONTACTS TAB -->
   <section id="tab-contacts" class="tab">
     <h2>Emergency Contacts</h2>
     <div id="contactsList"></div>
@@ -203,7 +194,6 @@
     </div>
   </section>
 
-  <!-- HELPLINES TAB -->
   <section id="tab-helplines" class="tab">
     <h2>Helplines (India)</h2>
     <a href="tel:112" class="helpline">🚨 National Emergency <span class="num">112</span></a>
@@ -215,7 +205,6 @@
     <a href="tel:1098" class="helpline">👶 Child Helpline <span class="num">1098</span></a>
   </section>
 
-  <!-- SETTINGS TAB -->
   <section id="tab-settings" class="tab">
     <h2>Settings</h2>
     <div class="setting"><span>🔇 Silent mode (no siren)</span><input type="checkbox" id="silentMode"></div>
@@ -259,9 +248,6 @@
     battery: null
   };
 
-  // ============================================================
-  // DOM SHORTCUTS
-  // ============================================================
   const $ = id => document.getElementById(id);
   const sosBtn = $('sosBtn'), statusEl = $('status'), mapLinkEl = $('map-link');
   const stopBtn = $('stopBtn'), safeBtn = $('safeBtn');
@@ -269,7 +255,7 @@
   const banner = $('alertBanner');
 
   // ============================================================
-  // TAB SWITCHING
+  // TABS
   // ============================================================
   document.querySelectorAll('nav.tabs button').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -281,7 +267,7 @@
   });
 
   // ============================================================
-  // CONTACTS (localStorage)
+  // CONTACTS
   // ============================================================
   function loadContacts() {
     try {
@@ -354,7 +340,7 @@
   }
 
   // ============================================================
-  // LAST KNOWN LOCATION DISPLAY
+  // LAST KNOWN UI
   // ============================================================
   function updateLastKnownUI() {
     const saved = localStorage.getItem('safetyLastLocation');
@@ -422,45 +408,103 @@
   }
 
   // ============================================================
-  // LOCATION + BUILD MESSAGE
+  // ROBUST LOCATION  (GPS → low accuracy → IP → last saved)
   // ============================================================
   function getLocation() {
-    return new Promise(resolve => {
-      if (!navigator.geolocation) return resolve(null);
-      navigator.geolocation.getCurrentPosition(
-        pos => resolve({
-          lat: pos.coords.latitude.toFixed(6),
-          lng: pos.coords.longitude.toFixed(6),
-          accuracy: Math.round(pos.coords.accuracy),
-          fromFallback: false
-        }),
-        () => {
-          const saved = localStorage.getItem('safetyLastLocation');
-          if (saved) {
-            try {
-              const loc = JSON.parse(saved);
-              resolve({ ...loc, fromFallback: true });
-            } catch { resolve(null); }
-          } else resolve(null);
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
+    return new Promise(async (resolve) => {
+      // ---- 1. GPS high accuracy ----
+      if (navigator.geolocation) {
+        try {
+          const pos = await new Promise((res, rej) => {
+            navigator.geolocation.getCurrentPosition(res, rej, {
+              enableHighAccuracy: true,
+              timeout: 15000,
+              maximumAge: 60000
+            });
+          });
+          return resolve({
+            lat: pos.coords.latitude.toFixed(6),
+            lng: pos.coords.longitude.toFixed(6),
+            accuracy: Math.round(pos.coords.accuracy),
+            fromFallback: false,
+            source: 'GPS (high accuracy)'
+          });
+        } catch (err) {
+          console.warn('[Geo] High-accuracy failed →', err.code, err.message);
+
+          // ---- 2. GPS low accuracy retry ----
+          try {
+            const pos = await new Promise((res, rej) => {
+              navigator.geolocation.getCurrentPosition(res, rej, {
+                enableHighAccuracy: false,
+                timeout: 10000,
+                maximumAge: 300000
+              });
+            });
+            return resolve({
+              lat: pos.coords.latitude.toFixed(6),
+              lng: pos.coords.longitude.toFixed(6),
+              accuracy: Math.round(pos.coords.accuracy),
+              fromFallback: false,
+              source: 'GPS (low accuracy)'
+            });
+          } catch (err2) {
+            console.warn('[Geo] Low-accuracy failed →', err2.code, err2.message);
+          }
+        }
+      } else {
+        console.warn('[Geo] navigator.geolocation not supported');
+      }
+
+      // ---- 3. IP-based fallback ----
+      try {
+        const r = await fetch('https://ipapi.co/json/');
+        const d = await r.json();
+        if (d.latitude && d.longitude) {
+          return resolve({
+            lat: Number(d.latitude).toFixed(6),
+            lng: Number(d.longitude).toFixed(6),
+            accuracy: 5000,
+            fromFallback: false,
+            fromIP: true,
+            source: `IP approx (${d.city || ''}, ${d.region || ''}, ${d.country_name || ''})`
+          });
+        }
+      } catch (err) {
+        console.warn('[Geo] IP fallback failed →', err);
+      }
+
+      // ---- 4. Last saved ----
+      const saved = localStorage.getItem('safetyLastLocation');
+      if (saved) {
+        try {
+          const loc = JSON.parse(saved);
+          return resolve({ ...loc, fromFallback: true, source: 'last saved' });
+        } catch {}
+      }
+
+      // ---- 5. Nothing ----
+      resolve(null);
     });
   }
 
+  // ============================================================
+  // BUILD MESSAGE
+  // ============================================================
   function buildMessage(loc, prefix) {
-    const lines = [
-      `${prefix} I need help. This is my current location.`,
-      ''
-    ];
+    const lines = [`${prefix} I need help. This is my current location.`, ''];
     if (loc) {
       lines.push(`Latitude: ${loc.lat}`);
       lines.push(`Longitude: ${loc.lng}`);
       lines.push(`Accuracy: ${loc.accuracy} metres`);
       lines.push(`Google Maps: https://www.google.com/maps?q=${loc.lat},${loc.lng}`);
-      if (loc.fromFallback) lines.push('⚠️ NOTE: This is the LAST KNOWN location (GPS unavailable now).');
+      if (loc.fromFallback) {
+        lines.push('⚠️ NOTE: Last known location (GPS currently unavailable).');
+      } else if (loc.fromIP) {
+        lines.push('⚠️ NOTE: Approximate location based on IP address (~5 km radius).');
+      }
     } else {
-      lines.push('⚠️ GPS location could not be obtained.');
+      lines.push('⚠️ Location could not be obtained on the device.');
     }
     if (state.battery !== null) lines.push(`Battery: ${state.battery}%`);
     lines.push('');
@@ -469,7 +513,7 @@
   }
 
   // ============================================================
-  // SOS — INSTANT TRIGGER (no countdown)
+  // SOS FLOW — INSTANT
   // ============================================================
   function startSOSFlow() {
     if (state.alertActive) return;
@@ -486,7 +530,7 @@
     banner.classList.add('show');
     stopBtn.classList.remove('hidden');
     safeBtn.classList.remove('hidden');
-    statusEl.textContent = '⏳ Sending SOS alert…';
+    statusEl.textContent = '⏳ Getting your location…';
 
     playSiren();
 
@@ -499,14 +543,27 @@
 
   async function sendAlert(isRepeat) {
     const loc = await getLocation();
-    if (loc && !loc.fromFallback) {
-      const record = { ...loc, time: new Date().toISOString() };
-      record.mapsUrl = `https://www.google.com/maps?q=${loc.lat},${loc.lng}`;
-      localStorage.setItem('safetyLastLocation', JSON.stringify(record));
-      state.lastLocation = record;
-      updateLastKnownUI();
+
+    // Save + show map link
+    if (loc) {
+      const record = {
+        lat: loc.lat,
+        lng: loc.lng,
+        accuracy: loc.accuracy,
+        time: new Date().toISOString(),
+        mapsUrl: `https://www.google.com/maps?q=${loc.lat},${loc.lng}`
+      };
+      if (!loc.fromFallback) {
+        localStorage.setItem('safetyLastLocation', JSON.stringify(record));
+        state.lastLocation = record;
+        updateLastKnownUI();
+      }
       mapLinkEl.innerHTML = `<a href="${record.mapsUrl}" target="_blank" rel="noopener">📍 Open my location in Google Maps</a>`;
+    } else {
+      mapLinkEl.innerHTML = '<span style="color:#ff6b6b">⚠️ No location available</span>';
     }
+
+    statusEl.textContent = `⏳ Sending alert (${loc ? loc.source : 'no location'})…`;
 
     const prefix = isRepeat ? '🔁 REPEAT:' : '🚨 EMERGENCY!';
     const msg = buildMessage(loc, prefix);
@@ -516,7 +573,7 @@
       statusEl.textContent = `🔁 Repeat sent → ${result.ok}/${state.contacts.length} contact(s)`;
     } else {
       if (result.fail === 0) {
-        statusEl.textContent = `✅ Alert sent to ${result.ok}/${state.contacts.length} contact(s)`;
+        statusEl.textContent = `✅ Alert sent to ${result.ok}/${state.contacts.length} contact(s) [${loc ? loc.source : 'no loc'}]`;
       } else if (result.ok === 0) {
         statusEl.textContent = '❌ Failed to send. Check console.';
       } else {
@@ -526,7 +583,7 @@
   }
 
   // ============================================================
-  // STOP ALERT
+  // STOP
   // ============================================================
   stopBtn.onclick = () => {
     if (state.repeatInterval) clearInterval(state.repeatInterval);
@@ -565,7 +622,7 @@
   sosBtn.onclick = () => startSOSFlow();
 
   // ============================================================
-  // SHAKE TO TRIGGER
+  // SHAKE
   // ============================================================
   async function enableShake() {
     if (typeof DeviceMotionEvent !== 'undefined' &&
