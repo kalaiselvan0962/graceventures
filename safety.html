@@ -2,190 +2,617 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Women's Safety – SOS Alert</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Women's Safety – SOS</title>
 <style>
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #1a1a2e;
+    --bg2: #23233a;
+    --red: #cc0000;
+    --red-l: #ff6b6b;
+    --text: #eee;
+    --muted: #888;
+    --accent: #66b3ff;
+    --green: #22c55e;
+  }
+  html, body { height: 100%; }
   body {
     font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-    background: #1a1a2e; color: #eee; margin: 0; padding: 20px;
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; min-height: 100vh; text-align: center;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
-  h1 { font-size: 1.8rem; color: #ff4d4d; margin-bottom: .3rem; letter-spacing: 1px; }
-  .subtitle { color: #aaa; margin-bottom: 1.5rem; max-width: 400px; }
-  .name-row { margin-bottom: 1.5rem; }
+  header {
+    padding: 14px 18px;
+    border-bottom: 1px solid #333;
+    text-align: center;
+    background: #16162a;
+  }
+  header h1 { font-size: 1.15rem; color: var(--red-l); letter-spacing: 1px; }
+
+  /* Alert Active Banner */
+  #alertBanner {
+    display: none;
+    background: var(--red);
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    letter-spacing: 1px;
+    animation: blink 1.2s infinite;
+  }
+  #alertBanner.show { display: block; }
+  @keyframes blink { 50% { opacity: .55; } }
+
+  /* Main content */
+  main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 18px 90px;
+    max-width: 520px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .tab { display: none; animation: fade .2s ease; }
+  .tab.active { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  h2 { font-size: 1.05rem; margin-bottom: 14px; color: #ccc; letter-spacing: 1px; }
+
+  /* SOS tab */
+  .name-row { text-align: center; margin-bottom: 18px; }
   .name-row input {
-    padding: 10px 14px; border-radius: 6px; border: 1px solid #555;
-    background: #23233a; color: #eee; font-size: 1rem; width: 240px; text-align: center;
+    padding: 10px 14px; border-radius: 8px; border: 1px solid #444;
+    background: var(--bg2); color: var(--text);
+    font-size: 1rem; width: 240px; text-align: center;
   }
+  .sos-wrapper { display: flex; justify-content: center; margin: 10px 0 24px; }
   .sos-button {
-    width: 220px; height: 220px; border-radius: 50%;
+    width: 200px; height: 200px; border-radius: 50%;
     background: radial-gradient(circle at 30% 30%, #ff6b6b, #cc0000);
-    border: 8px solid #ffcccc; color: #fff;
-    font-size: 2.2rem; font-weight: bold; letter-spacing: 2px;
-    cursor: pointer; box-shadow: 0 0 30px rgba(255,0,0,.6);
-    transition: transform .2s ease, box-shadow .2s ease;
-    user-select: none; -webkit-tap-highlight-color: transparent;
+    border: 8px solid #ffcccc;
+    color: #fff; font-size: 2rem; font-weight: bold; letter-spacing: 2px;
+    cursor: pointer;
+    box-shadow: 0 0 30px rgba(255,0,0,.6);
     animation: pulse 2s infinite;
+    user-select: none;
   }
-  .sos-button:active { transform: scale(.95); box-shadow: 0 0 50px rgba(255,0,0,.9); }
+  .sos-button:active { transform: scale(.95); }
   .sos-button:disabled { background: #555; border-color: #777; box-shadow: none; animation: none; cursor: not-allowed; }
-  @keyframes pulse {
-    0%   { box-shadow: 0 0 30px rgba(255,0,0,.6); }
-    50%  { box-shadow: 0 0 50px rgba(255,0,0,1); }
-    100% { box-shadow: 0 0 30px rgba(255,0,0,.6); }
+  @keyframes pulse { 50% { box-shadow: 0 0 50px rgba(255,0,0,1); } }
+
+  #status { text-align: center; min-height: 1.4em; color: #ffd700; margin-bottom: 8px; font-size: .95rem; }
+  #map-link { text-align: center; margin-bottom: 14px; }
+  #map-link a { color: var(--accent); text-decoration: none; font-size: .9rem; }
+
+  .full-btn {
+    padding: 14px; border-radius: 10px; border: none; font-size: .95rem; font-weight: 600;
+    cursor: pointer; background: var(--bg2); color: var(--text);
+    border: 1px solid #444;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    width: 100%; margin-bottom: 10px;
   }
-  #status { margin-top: 30px; font-size: 1.1rem; min-height: 1.5em; color: #ffd700; }
-  #map-link { margin-top: 12px; }
-  #map-link a { color: #66b3ff; text-decoration: none; font-size: .95rem; }
-  .contacts-info { margin-top: 40px; font-size: .85rem; color: #888; max-width: 420px; }
-  .contacts-info strong { color: #ccc; }
+  #stopBtn { background: #7f1d1d; border-color: #dc2626; font-size: 1.05rem; padding: 16px; }
+  #safeBtn { background: #14532d; border-color: #22c55e; font-size: 1.05rem; padding: 16px; }
+  .hidden { display: none !important; }
+
+  /* Contacts */
+  .contact-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 14px; background: var(--bg2); border-radius: 10px; margin-bottom: 8px;
+    border: 1px solid #333;
+  }
+  .contact-name { font-weight: 600; font-size: .95rem; margin-bottom: 3px; }
+  .contact-email { font-size: .8rem; color: var(--muted); word-break: break-all; }
+  .delete-btn {
+    background: none; border: 2px solid #555; color: #ff6b6b;
+    width: 32px; height: 32px; border-radius: 50%; font-size: 1.2rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .delete-btn:active { transform: scale(.9); }
+  .empty { color: var(--muted); text-align: center; padding: 20px; font-style: italic; }
+  .add-contact { margin-top: 16px; padding-top: 16px; border-top: 1px solid #333; }
+  .add-contact input {
+    width: 100%; padding: 12px; margin-bottom: 8px;
+    background: var(--bg2); color: var(--text);
+    border: 1px solid #444; border-radius: 8px; font-size: .95rem;
+  }
+  .add-contact button {
+    width: 100%; padding: 12px; background: var(--accent); color: #000;
+    border: none; border-radius: 8px; font-weight: bold; font-size: .95rem; cursor: pointer;
+  }
+
+  /* Helplines */
+  .helpline {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px; margin-bottom: 8px;
+    background: var(--bg2); border-radius: 10px;
+    text-decoration: none; color: var(--text); border: 1px solid #333;
+  }
+  .helpline:active { background: #2c2c48; }
+  .helpline .num { margin-left: auto; font-weight: bold; color: var(--red-l); font-size: 1.05rem; }
+
+  /* Settings */
+  .setting {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 16px; background: var(--bg2); border-radius: 10px;
+    margin-bottom: 8px; border: 1px solid #333; font-size: .95rem;
+  }
+  .setting input[type=checkbox] {
+    appearance: none; width: 46px; height: 26px; background: #444;
+    border-radius: 13px; position: relative; cursor: pointer; transition: background .2s;
+  }
+  .setting input[type=checkbox]:checked { background: var(--green); }
+  .setting input[type=checkbox]::after {
+    content: ''; position: absolute; width: 20px; height: 20px;
+    background: #fff; border-radius: 50%; top: 3px; left: 3px;
+    transition: transform .2s;
+  }
+  .setting input[type=checkbox]:checked::after { transform: translateX(20px); }
+  .info { padding: 12px 16px; background: var(--bg2); border-radius: 10px; margin-bottom: 8px; color: var(--muted); font-size: .85rem; border: 1px solid #333; }
+  .info span { color: var(--text); }
+
+  /* Tab bar */
+  nav.tabs {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    background: #16162a; border-top: 1px solid #333;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  nav.tabs button {
+    padding: 14px 6px; background: none; border: none; color: var(--muted);
+    font-size: .8rem; cursor: pointer;
+  }
+  nav.tabs button.active { color: var(--red-l); font-weight: 600; }
+  nav.tabs button span { display: block; font-size: 1.3rem; margin-bottom: 2px; }
 </style>
 </head>
 <body>
 
-  <h1>🆘 EMERGENCY SOS</h1>
-  <p class="subtitle">Press the button to send your current location to your emergency contact.</p>
+<header><h1>🆘 WOMEN'S SAFETY</h1></header>
+<div id="alertBanner">⚠️ ALERT ACTIVE — Repeating every 60s</div>
 
-  <div class="name-row">
-    <input id="nameInput" type="text" placeholder="Your name" value="SOS Alert">
-  </div>
+<main>
+  <!-- SOS TAB -->
+  <section id="tab-sos" class="tab active">
+    <div class="name-row">
+      <input id="nameInput" type="text" placeholder="Your name" value="SOS Alert">
+    </div>
 
-  <button id="sosBtn" class="sos-button">SOS</button>
+    <div class="sos-wrapper">
+      <button id="sosBtn" class="sos-button">SOS</button>
+    </div>
 
-  <div id="status"></div>
-  <div id="map-link"></div>
+    <div id="status"></div>
+    <div id="map-link"></div>
 
-  <div class="contacts-info">
-    <p><strong>Emergency contact:</strong></p>
-    <p id="contactList">risha15766@gmail.com</p>
-  </div>
+    <button id="stopBtn" class="full-btn hidden">🛑 STOP ALERT</button>
+    <button id="safeBtn" class="full-btn hidden">✅ I'M SAFE</button>
+  </section>
 
-  <!-- EmailJS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <!-- CONTACTS TAB -->
+  <section id="tab-contacts" class="tab">
+    <h2>Emergency Contacts</h2>
+    <div id="contactsList"></div>
+    <div class="add-contact">
+      <input id="newName" placeholder="Name (e.g. Mom)">
+      <input id="newEmail" type="email" placeholder="Email address">
+      <button id="addContactBtn">+ Add Contact</button>
+    </div>
+  </section>
 
-  <script>
-  (function () {
-    // ============================================================
-    // CONFIGURATION
-    // ============================================================
-    emailjs.init("WDMUJ04GltLDIkipp");      // ✅ Public Key
+  <!-- HELPLINES TAB -->
+  <section id="tab-helplines" class="tab">
+    <h2>Helplines (India)</h2>
+    <a href="tel:112" class="helpline">🚨 National Emergency <span class="num">112</span></a>
+    <a href="tel:100" class="helpline">👮 Police <span class="num">100</span></a>
+    <a href="tel:1091" class="helpline">👩 Women's Helpline <span class="num">1091</span></a>
+    <a href="tel:181" class="helpline">🏠 Domestic Abuse <span class="num">181</span></a>
+    <a href="tel:108" class="helpline">🚑 Ambulance <span class="num">108</span></a>
+    <a href="tel:1930" class="helpline">💻 Cyber Crime <span class="num">1930</span></a>
+    <a href="tel:1098" class="helpline">👶 Child Helpline <span class="num">1098</span></a>
+  </section>
 
-    const SERVICE_ID  = "service_zmpgfpf";  // ✅ Service ID
-    const TEMPLATE_ID = "template_csukj0r"; // ✅ Template ID
+  <!-- SETTINGS TAB -->
+  <section id="tab-settings" class="tab">
+    <h2>Settings</h2>
+    <div class="setting"><span>🔇 Silent mode (no siren)</span><input type="checkbox" id="silentMode"></div>
+    <div class="setting"><span>📳 Shake to trigger SOS</span><input type="checkbox" id="shakeMode"></div>
+    <div class="setting"><span>🔁 Repeat alert every 60s</span><input type="checkbox" id="repeatMode" checked></div>
+    <div class="info">🔋 Battery: <span id="batteryInfo">checking…</span></div>
+    <div class="info">📍 Last known location: <span id="lastKnown">none</span></div>
+    <div class="info">📧 Recipients: <span id="recipientCount">0</span> contact(s)</div>
+  </section>
+</main>
 
-    // ✅ Hard‑coded recipient
-    const TO_EMAIL = "risha15766@gmail.com";
+<nav class="tabs">
+  <button data-tab="sos" class="active"><span>🆘</span>SOS</button>
+  <button data-tab="contacts"><span>👥</span>Contacts</button>
+  <button data-tab="helplines"><span>📞</span>Helplines</button>
+  <button data-tab="settings"><span>⚙️</span>Settings</button>
+</nav>
 
-    // ============================================================
-    // DOM
-    // ============================================================
-    const sosBtn    = document.getElementById("sosBtn");
-    const statusEl  = document.getElementById("status");
-    const mapLinkEl = document.getElementById("map-link");
-    const nameInput = document.getElementById("nameInput");
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+(function () {
+  // ============================================================
+  // CONFIG
+  // ============================================================
+  emailjs.init("WDMUJ04GltLDIkipp");
+  const SERVICE_ID  = "service_zmpgfpf";
+  const TEMPLATE_ID = "template_csukj0r";
 
-    // ============================================================
-    // Siren
-    // ============================================================
-    function playSiren() {
+  // ============================================================
+  // STATE
+  // ============================================================
+  const state = {
+    contacts: [],
+    lastLocation: null,
+    alertActive: false,
+    repeatInterval: null,
+    shakeEnabled: false,
+    lastShake: 0,
+    silentMode: false,
+    repeatMode: true,
+    battery: null
+  };
+
+  // ============================================================
+  // DOM SHORTCUTS
+  // ============================================================
+  const $ = id => document.getElementById(id);
+  const sosBtn = $('sosBtn'), statusEl = $('status'), mapLinkEl = $('map-link');
+  const stopBtn = $('stopBtn'), safeBtn = $('safeBtn');
+  const nameInput = $('nameInput');
+  const banner = $('alertBanner');
+
+  // ============================================================
+  // TAB SWITCHING
+  // ============================================================
+  document.querySelectorAll('nav.tabs button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('nav.tabs button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      $('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ============================================================
+  // CONTACTS (localStorage)
+  // ============================================================
+  function loadContacts() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('safetyContacts') || 'null');
+      state.contacts = Array.isArray(saved) && saved.length
+        ? saved
+        : [{ name: 'Risha', email: 'risha15766@gmail.com' }];
+    } catch {
+      state.contacts = [{ name: 'Risha', email: 'risha15766@gmail.com' }];
+    }
+    saveContacts();
+    renderContacts();
+  }
+  function saveContacts() {
+    localStorage.setItem('safetyContacts', JSON.stringify(state.contacts));
+    $('recipientCount').textContent = state.contacts.length;
+  }
+  function renderContacts() {
+    const list = $('contactsList');
+    if (!state.contacts.length) {
+      list.innerHTML = '<p class="empty">No contacts yet. Add one below.</p>';
+      return;
+    }
+    list.innerHTML = state.contacts.map((c, i) => `
+      <div class="contact-item">
+        <div>
+          <div class="contact-name">${esc(c.name)}</div>
+          <div class="contact-email">${esc(c.email)}</div>
+        </div>
+        <button class="delete-btn" data-i="${i}" aria-label="Delete">×</button>
+      </div>
+    `).join('');
+    list.querySelectorAll('.delete-btn').forEach(b => {
+      b.onclick = e => {
+        const i = +e.currentTarget.dataset.i;
+        state.contacts.splice(i, 1);
+        saveContacts(); renderContacts();
+      };
+    });
+    $('recipientCount').textContent = state.contacts.length;
+  }
+  function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  $('addContactBtn').onclick = () => {
+    const name = $('newName').value.trim();
+    const email = $('newEmail').value.trim();
+    if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      alert('Please enter a valid name and email.');
+      return;
+    }
+    state.contacts.push({ name, email });
+    saveContacts(); renderContacts();
+    $('newName').value = ''; $('newEmail').value = '';
+  };
+
+  // ============================================================
+  // BATTERY
+  // ============================================================
+  if (navigator.getBattery) {
+    navigator.getBattery().then(b => {
+      const upd = () => {
+        state.battery = Math.round(b.level * 100);
+        $('batteryInfo').textContent = state.battery + '%' + (b.charging ? ' (charging)' : '');
+      };
+      upd();
+      b.addEventListener('levelchange', upd);
+    }).catch(() => { $('batteryInfo').textContent = 'unavailable'; });
+  } else {
+    $('batteryInfo').textContent = 'unavailable';
+  }
+
+  // ============================================================
+  // LAST KNOWN LOCATION DISPLAY
+  // ============================================================
+  function updateLastKnownUI() {
+    const saved = localStorage.getItem('safetyLastLocation');
+    if (saved) {
       try {
-        const ctx  = new (window.AudioContext || window.webkitAudioContext)();
-        const osc  = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = "sawtooth";
-        const now = ctx.currentTime;
-        osc.frequency.setValueAtTime(900, now);
-        osc.frequency.linearRampToValueAtTime(600, now + 0.4);
-        osc.frequency.linearRampToValueAtTime(900, now + 0.8);
-        osc.frequency.linearRampToValueAtTime(600, now + 1.2);
-        osc.frequency.linearRampToValueAtTime(900, now + 1.6);
-        gain.gain.setValueAtTime(0.3, now);
-        gain.gain.linearRampToValueAtTime(0.001, now + 1.8);
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(now); osc.stop(now + 1.8);
-        if (ctx.state === "suspended") ctx.resume();
-      } catch (e) { console.warn("Siren unavailable:", e); }
+        const loc = JSON.parse(saved);
+        state.lastLocation = loc;
+        const d = new Date(loc.time);
+        $('lastKnown').innerHTML = `${loc.lat}, ${loc.lng} — <a href="${loc.mapsUrl}" target="_blank" style="color:var(--accent)">map</a> (${d.toLocaleString()})`;
+      } catch {}
+    } else {
+      $('lastKnown').textContent = 'none';
+    }
+  }
+  updateLastKnownUI();
+
+  // ============================================================
+  // SIREN
+  // ============================================================
+  function playSiren() {
+    if (state.silentMode) return;
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      const now = ctx.currentTime;
+      osc.frequency.setValueAtTime(900, now);
+      osc.frequency.linearRampToValueAtTime(600, now + 0.4);
+      osc.frequency.linearRampToValueAtTime(900, now + 0.8);
+      osc.frequency.linearRampToValueAtTime(600, now + 1.2);
+      osc.frequency.linearRampToValueAtTime(900, now + 1.6);
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.linearRampToValueAtTime(0.001, now + 1.8);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(now); osc.stop(now + 1.8);
+      if (ctx.state === 'suspended') ctx.resume();
+    } catch (e) { console.warn(e); }
+  }
+
+  // ============================================================
+  // SEND EMAIL
+  // ============================================================
+  async function sendEmail(subject, message) {
+    if (!state.contacts.length) {
+      return { ok: 0, fail: 0, error: 'No contacts configured' };
+    }
+    const params = {
+      name: (nameInput.value || 'SOS Alert').trim(),
+      time: new Date().toLocaleString(),
+      message,
+      to_email: ''
+    };
+    const results = await Promise.allSettled(
+      state.contacts.map(c =>
+        emailjs.send(SERVICE_ID, TEMPLATE_ID, { ...params, to_email: c.email })
+      )
+    );
+    const ok = results.filter(r => r.status === 'fulfilled').length;
+    const fail = results.filter(r => r.status === 'rejected').length;
+    results.forEach((r, i) => {
+      if (r.status === 'rejected') console.error('Send failed →', state.contacts[i].email, r.reason);
+    });
+    return { ok, fail };
+  }
+
+  // ============================================================
+  // LOCATION + BUILD MESSAGE
+  // ============================================================
+  function getLocation() {
+    return new Promise(resolve => {
+      if (!navigator.geolocation) return resolve(null);
+      navigator.geolocation.getCurrentPosition(
+        pos => resolve({
+          lat: pos.coords.latitude.toFixed(6),
+          lng: pos.coords.longitude.toFixed(6),
+          accuracy: Math.round(pos.coords.accuracy),
+          fromFallback: false
+        }),
+        () => {
+          const saved = localStorage.getItem('safetyLastLocation');
+          if (saved) {
+            try {
+              const loc = JSON.parse(saved);
+              resolve({ ...loc, fromFallback: true });
+            } catch { resolve(null); }
+          } else resolve(null);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    });
+  }
+
+  function buildMessage(loc, prefix) {
+    const lines = [
+      `${prefix} I need help. This is my current location.`,
+      ''
+    ];
+    if (loc) {
+      lines.push(`Latitude: ${loc.lat}`);
+      lines.push(`Longitude: ${loc.lng}`);
+      lines.push(`Accuracy: ${loc.accuracy} metres`);
+      lines.push(`Google Maps: https://www.google.com/maps?q=${loc.lat},${loc.lng}`);
+      if (loc.fromFallback) lines.push('⚠️ NOTE: This is the LAST KNOWN location (GPS unavailable now).');
+    } else {
+      lines.push('⚠️ GPS location could not be obtained.');
+    }
+    if (state.battery !== null) lines.push(`Battery: ${state.battery}%`);
+    lines.push('');
+    lines.push('Please respond immediately.');
+    return lines.join('\n');
+  }
+
+  // ============================================================
+  // SOS — INSTANT TRIGGER (no countdown)
+  // ============================================================
+  function startSOSFlow() {
+    if (state.alertActive) return;
+    if (!state.contacts.length) {
+      statusEl.textContent = '❌ Add at least one contact in the Contacts tab.';
+      return;
+    }
+    triggerAlert();
+  }
+
+  async function triggerAlert() {
+    state.alertActive = true;
+    sosBtn.disabled = true;
+    banner.classList.add('show');
+    stopBtn.classList.remove('hidden');
+    safeBtn.classList.remove('hidden');
+    statusEl.textContent = '⏳ Sending SOS alert…';
+
+    playSiren();
+
+    await sendAlert(false);
+
+    if (state.repeatMode) {
+      state.repeatInterval = setInterval(() => sendAlert(true), 60000);
+    }
+  }
+
+  async function sendAlert(isRepeat) {
+    const loc = await getLocation();
+    if (loc && !loc.fromFallback) {
+      const record = { ...loc, time: new Date().toISOString() };
+      record.mapsUrl = `https://www.google.com/maps?q=${loc.lat},${loc.lng}`;
+      localStorage.setItem('safetyLastLocation', JSON.stringify(record));
+      state.lastLocation = record;
+      updateLastKnownUI();
+      mapLinkEl.innerHTML = `<a href="${record.mapsUrl}" target="_blank" rel="noopener">📍 Open my location in Google Maps</a>`;
     }
 
-    // ============================================================
-    // SOS click
-    // ============================================================
-    sosBtn.addEventListener("click", function () {
-      playSiren();
+    const prefix = isRepeat ? '🔁 REPEAT:' : '🚨 EMERGENCY!';
+    const msg = buildMessage(loc, prefix);
+    const result = await sendEmail(isRepeat ? 'REPEAT: SOS' : '🚨 SOS', msg);
 
-      if (!navigator.geolocation) {
-        statusEl.textContent = "❌ Geolocation is not supported by this browser.";
+    if (isRepeat) {
+      statusEl.textContent = `🔁 Repeat sent → ${result.ok}/${state.contacts.length} contact(s)`;
+    } else {
+      if (result.fail === 0) {
+        statusEl.textContent = `✅ Alert sent to ${result.ok}/${state.contacts.length} contact(s)`;
+      } else if (result.ok === 0) {
+        statusEl.textContent = '❌ Failed to send. Check console.';
+      } else {
+        statusEl.textContent = `⚠️ Sent to ${result.ok}, failed for ${result.fail}`;
+      }
+    }
+  }
+
+  // ============================================================
+  // STOP ALERT
+  // ============================================================
+  stopBtn.onclick = () => {
+    if (state.repeatInterval) clearInterval(state.repeatInterval);
+    state.repeatInterval = null;
+    state.alertActive = false;
+    banner.classList.remove('show');
+    stopBtn.classList.add('hidden');
+    safeBtn.classList.add('hidden');
+    sosBtn.disabled = false;
+    statusEl.textContent = '🛑 Alert stopped.';
+  };
+
+  // ============================================================
+  // I'M SAFE
+  // ============================================================
+  safeBtn.onclick = async () => {
+    if (state.repeatInterval) clearInterval(state.repeatInterval);
+    state.repeatInterval = null;
+    safeBtn.disabled = true;
+    statusEl.textContent = '📤 Sending "I\'m safe"…';
+    const loc = await getLocation();
+    const msg = buildMessage(loc, "✅ I'M SAFE — Please disregard earlier alerts.");
+    const r = await sendEmail("✅ I'm Safe", msg);
+    state.alertActive = false;
+    banner.classList.remove('show');
+    stopBtn.classList.add('hidden');
+    safeBtn.classList.add('hidden');
+    safeBtn.disabled = false;
+    sosBtn.disabled = false;
+    statusEl.textContent = r.ok ? '✅ Safe check‑in sent.' : '❌ Could not send safe check‑in.';
+  };
+
+  // ============================================================
+  // SOS BUTTON
+  // ============================================================
+  sosBtn.onclick = () => startSOSFlow();
+
+  // ============================================================
+  // SHAKE TO TRIGGER
+  // ============================================================
+  async function enableShake() {
+    if (typeof DeviceMotionEvent !== 'undefined' &&
+        typeof DeviceMotionEvent.requestPermission === 'function') {
+      try {
+        const perm = await DeviceMotionEvent.requestPermission();
+        if (perm !== 'granted') return false;
+      } catch { return false; }
+    }
+    window.addEventListener('devicemotion', onMotion);
+    return true;
+  }
+  function onMotion(e) {
+    if (!state.shakeEnabled || state.alertActive) return;
+    const a = e.accelerationIncludingGravity;
+    if (!a) return;
+    const mag = Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+    if (mag > 25 && Date.now() - state.lastShake > 2000) {
+      state.lastShake = Date.now();
+      startSOSFlow();
+    }
+  }
+
+  // ============================================================
+  // SETTINGS
+  // ============================================================
+  $('silentMode').onchange = e => { state.silentMode = e.target.checked; };
+  $('repeatMode').onchange = e => { state.repeatMode = e.target.checked; };
+  $('shakeMode').onchange = async e => {
+    if (e.target.checked) {
+      const ok = await enableShake();
+      if (!ok) {
+        e.target.checked = false;
+        alert('Shake detection could not be enabled on this device/browser.');
         return;
       }
-
-      sosBtn.disabled = true;
-      statusEl.textContent = "⏳ Getting your location…";
-      mapLinkEl.innerHTML = "";
-
-      navigator.geolocation.getCurrentPosition(onSuccess, onError, {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
-      });
-    });
-
-    // ---------- Success ----------
-    async function onSuccess(position) {
-      const lat = position.coords.latitude.toFixed(6);
-      const lng = position.coords.longitude.toFixed(6);
-      const accuracy = Math.round(position.coords.accuracy);
-      const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-      const time = new Date().toLocaleString();
-      const senderName = (nameInput.value || "SOS Alert").trim();
-
-      mapLinkEl.innerHTML =
-        `<a href="${mapsUrl}" target="_blank" rel="noopener">📍 Open my location in Google Maps</a>`;
-
-      statusEl.textContent = "📨 Sending alert…";
-
-      // Placeholders match your template: {{name}}, {{time}}, {{message}}
-      const message = [
-        "🚨 EMERGENCY! I need help. This is my current location.",
-        "",
-        `Latitude: ${lat}`,
-        `Longitude: ${lng}`,
-        `Accuracy: ${accuracy} metres`,
-        `Google Maps: ${mapsUrl}`,
-        "",
-        "Please respond immediately."
-      ].join("\n");
-
-      const templateParams = {
-        to_email: TO_EMAIL,   // ✅ goes to risha15766@gmail.com
-        name: senderName,
-        time: time,
-        message: message
-      };
-
-      try {
-        await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams);
-        statusEl.textContent = `✅ Alert sent to ${TO_EMAIL}`;
-      } catch (err) {
-        console.error("Send failed:", err);
-        statusEl.textContent = "❌ Failed to send alert. Check the console for details.";
-      } finally {
-        sosBtn.disabled = false;
-      }
+      state.shakeEnabled = true;
+    } else {
+      state.shakeEnabled = false;
     }
+  };
 
-    // ---------- Error ----------
-    function onError(error) {
-      sosBtn.disabled = false;
-      switch (error.code) {
-        case error.PERMISSION_DENIED:      statusEl.textContent = "❌ Location permission denied."; break;
-        case error.POSITION_UNAVAILABLE:   statusEl.textContent = "❌ Location unavailable. Try again."; break;
-        case error.TIMEOUT:                statusEl.textContent = "❌ Location request timed out. Try again."; break;
-        default:                           statusEl.textContent = "❌ Unknown error getting your location.";
-      }
-    }
-  })();
-  </script>
+  // ============================================================
+  // INIT
+  // ============================================================
+  loadContacts();
+})();
+</script>
 </body>
 </html>
